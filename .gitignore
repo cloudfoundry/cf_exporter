@@ -1,0 +1,7 @@
+/.build
+/.release
+/.tarballs
+/cf_exporter
+*.tar.gz
+*.test
+*-stamp
