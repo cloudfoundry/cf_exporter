@@ -1,6 +1,6 @@
 # Cloud Foundry Prometheus Exporter [![Build Status](https://travis-ci.org/cloudfoundry-community/cf_exporter.png)](https://travis-ci.org/cloudfoundry-community/cf_exporter)
 
-A [Prometheus][prometheus] exporter for [Cloud Foundry][cloudfoundry] metrics. Please refer to the [FAQ][faq] for general questions about this exporter.
+A [Prometheus][prometheus] exporter for [Cloud Foundry][cloudfoundry] administrative information. Please refer to the [FAQ][faq] for general questions about this exporter.
 
 ## Architecture overview
 

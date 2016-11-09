@@ -2,7 +2,7 @@
 
 ### What metrics does this exporter report?
 
-The Cloud Foundry Prometheus Exporter gets the metrics from the [Cloud Foundry API][cf_api]. The metrics that are being [reported][cf_exporter_metrics] are enumerations of administrative information, and include:
+The Cloud Foundry Prometheus Exporter gets information from the [Cloud Foundry API][cf_api]. The metrics that are being [reported][cf_exporter_metrics] are enumerations of administrative information, and include:
 
 * Applications information:
   * Application information (id, name, space id and name, organization id and name)
@@ -16,6 +16,25 @@ The Cloud Foundry Prometheus Exporter gets the metrics from the [Cloud Foundry A
 * Spaces information:
   * Space information (id, name)
   * Total number of spaces
+
+### How can I get detailed application metrics like CPU & Memory?
+
+The goal of this exporter is just to provide administrative information about your Cloud Foundry environment. If you want to get detailed runtime application metrics, then you will need to use a different exporter, specifically, the [Firehose exporter][firehose_exporter], who will get `Container Metrics` from the [Cloud Foundry Firehose][firehose].
+
+### Can I combine labels from a different exporter to get readable names?
+
+Yes. You can combine this exporter with another exporter as far as there is a metric matching label.
+
+For example, if you want to combine the `Container Metrics` from the [Firehose exporter][firehose_exporter] with this exporter you can run a query like:
+
+```
+firehose_container_metric_cpu_percentage
+  * on(application_id)
+  group_left(application_name, organization_name, space_name)
+  cf_application_info
+```
+
+The *on* specifies the matching label, in this case, the *application_id*. The *group_left* specifies what labels (*application_name*, *organization_name*, *space_name*) from the right metric (*cf_application_info*) should be merged into the left metric (*firehose_container_metric_cpu_percentage*).
 
 ### How can I enable only a particular collector?
 
