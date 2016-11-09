@@ -19,13 +19,13 @@ The Cloud Foundry Prometheus Exporter gets information from the [Cloud Foundry A
 
 ### How can I get detailed application metrics like CPU & Memory?
 
-The goal of this exporter is just to provide administrative information about your Cloud Foundry environment. If you want to get detailed runtime application metrics, then you will need to use a different exporter, specifically, the [Firehose exporter][firehose_exporter], who will get `Container Metrics` from the [Cloud Foundry Firehose][firehose].
+The goal of this exporter is just to provide administrative information about your Cloud Foundry environment. If you want to get detailed runtime application metrics, then you will need to use a different exporter, specifically, the [Cloud Foundry Firehose Prometheus Exporter][firehose_exporter], who will get `Container Metrics` from the [Cloud Foundry Firehose][firehose].
 
 ### Can I combine labels from a different exporter to get readable names?
 
 Yes. You can combine this exporter with another exporter as far as there is a metric matching label.
 
-For example, if you want to combine the `Container Metrics` from the [Firehose exporter][firehose_exporter] with this exporter you can run a query like:
+For example, if you want to combine the `Container Metrics` from the [Cloud Foundry Firehose Prometheus Exporter][firehose_exporter] with this exporter you can run a query like:
 
 ```
 firehose_container_metric_cpu_percentage
