@@ -21,7 +21,7 @@ type ServicesCollector struct {
 func NewServicesCollector(namespace string, cfClient *cfclient.Client) *ServicesCollector {
 	serviceInfoDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "service", "info"),
-		"Cloud Foundry Service information.",
+		"Labeled Cloud Foundry Service information with a constant '1' value.",
 		[]string{"service_id", "service_label"},
 		nil,
 	)

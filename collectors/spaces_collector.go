@@ -21,7 +21,7 @@ type SpacesCollector struct {
 func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesCollector {
 	spaceInfoDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "space", "info"),
-		"Cloud Foundry Space information.",
+		"Labeled Cloud Foundry Space information with a constant '1' value.",
 		[]string{"space_id", "space_name"},
 		nil,
 	)

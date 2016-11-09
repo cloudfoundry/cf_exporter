@@ -65,7 +65,7 @@ The exporter returns the following `Applications` metrics:
 
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
-| *namespace*_application_info | Cloud Foundry Application information | `application_id`, `application_name`, `space_id`, `space_name`, `organization_id`, `organization_name` |
+| *namespace*_application_info | Labeled Cloud Foundry Application information | `application_id`, `application_name`, `space_id`, `space_name`, `organization_id`, `organization_name` |
 | *namespace*_applications_total | Total number of Cloud Foundry Applications | |
 | *namespace*_last_applications_scrape_error | Whether the last scrape of Applications metrics from Cloud Foundry resulted in an error (1 for error, 0 for success) | |
 | *namespace*_last_applications_scrape_timestamp | Number of seconds since 1970 since last scrape of Applications metrics from Cloud Foundry | |
@@ -75,7 +75,7 @@ The exporter returns the following `Organizations` metrics:
 
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
-| *namespace*_organization_info | Cloud Foundry Organization information | `organization_id`, `organization_name` |
+| *namespace*_organization_info | Labeled Cloud Foundry Organization information with a constant '1' value | `organization_id`, `organization_name` |
 | *namespace*_organizations_total | Total number of Cloud Foundry Organizations | |
 | *namespace*_last_organizations_scrape_error | Whether the last scrape of Organizations metrics from Cloud Foundry resulted in an error (1 for error, 0 for success) | |
 | *namespace*_last_organizations_scrape_timestamp | Number of seconds since 1970 since last scrape of Organizations metrics from Cloud Foundry | |
@@ -85,7 +85,7 @@ The exporter returns the following `Services` metrics:
 
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
-| *namespace*_service_info | Cloud Foundry Service information | `service_id`, `service_label` |
+| *namespace*_service_info | Labeled Cloud Foundry Service information with a constant '1' value | `service_id`, `service_label` |
 | *namespace*_services_total | Total number of Cloud Foundry Services | |
 | *namespace*_last_services_scrape_error | Whether the last scrape of Services metrics from Cloud Foundry resulted in an error (1 for error, 0 for success) | |
 | *namespace*_last_services_scrape_timestamp | Number of seconds since 1970 since last scrape of Services metrics from Cloud Foundry | |
@@ -95,7 +95,7 @@ The exporter returns the following `Spaces` metrics:
 
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
-| *namespace*_space_info | Cloud Foundry Space information | `space_id`, `space_name` |
+| *namespace*_space_info | Labeled Cloud Foundry Space information with a constant '1' value | `space_id`, `space_name` |
 | *namespace*_spaces_total | Total number of Cloud Foundry Spaces | |
 | *namespace*_last_spaces_scrape_error | Whether the last scrape of Spaces metrics from Cloud Foundry resulted in an error (1 for error, 0 for success) | |
 | *namespace*_last_spaces_scrape_timestamp | Number of seconds since 1970 since last scrape of Spaces metrics from Cloud Foundry | |

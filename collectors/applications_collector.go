@@ -21,7 +21,7 @@ type ApplicationsCollector struct {
 func NewApplicationsCollector(namespace string, cfClient *cfclient.Client) *ApplicationsCollector {
 	applicationInfoDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "application", "info"),
-		"Cloud Foundry Application information.",
+		"Labeled Cloud Foundry Application information with a constant '1' value.",
 		[]string{"application_id", "application_name", "space_id", "space_name", "organization_id", "organization_name"},
 		nil,
 	)

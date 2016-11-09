@@ -21,7 +21,7 @@ type OrganizationsCollector struct {
 func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *OrganizationsCollector {
 	organizationInfoDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "organization", "info"),
-		"Cloud Foundry Organization information.",
+		"Labeled Cloud Foundry Organization information with a constant '1' value.",
 		[]string{"organization_id", "organization_name"},
 		nil,
 	)
