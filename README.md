@@ -54,7 +54,7 @@ This exporter can be deployed using the [Prometheus BOSH Release][prometheus-bos
 | cf.username<br />CF_EXPORTER_CF_USERNAME | Yes | | Cloud Foundry Username |
 | cf.password<br />CF_EXPORTER_CF_PASSWORD | Yes | | Cloud Foundry Password |
 | filter.collectors<br />CF_EXPORTER_FILTER_COLLECTORS | No | | Comma separated collectors to filter (`Applications`, `Organizations`, `Services`, `Spaces`) |
-| metrics.namespace<br />CF_EXPORTER_METRICS_NAMESPACE | No | cf_exporter | Metrics Namespace |
+| metrics.namespace<br />CF_EXPORTER_METRICS_NAMESPACE | No | cf | Metrics Namespace |
 | skip-ssl-verify<br />CF_EXPORTER_SKIP_SSL_VERIFY | No | false | Disable SSL Verify |
 | web.listen-address<br />CF_EXPORTER_WEB_LISTEN_ADDRESS | No | :9193 | Address to listen on for web interface and telemetry |
 | web.telemetry-path<br />CF_EXPORTER_WEB_TELEMETRY_PATH | No | /metrics | Path under which to expose Prometheus metrics |

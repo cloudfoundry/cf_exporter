@@ -39,7 +39,7 @@ var (
 	)
 
 	metricsNamespace = flag.String(
-		"metrics.namespace", "cf_exporter",
+		"metrics.namespace", "cf",
 		"Metrics Namespace ($CF_EXPORTER_METRICS_NAMESPACE).",
 	)
 
