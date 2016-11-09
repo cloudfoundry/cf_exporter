@@ -101,6 +101,10 @@ The exporter returns the following `Spaces` metrics:
 | *namespace*_last_spaces_scrape_timestamp | Number of seconds since 1970 since last scrape of Spaces metrics from Cloud Foundry | |
 | *namespace*_last_spaces_scrape_duration_seconds | Duration of the last scrape of Spaces metrics from Cloud Foundry | |
 
+## Acknowledgements
+
+Thanks to [Michal Kuratczyk][mkuratczyk] who has also been working on a [cccf_exporter][cccf_exporter].
+
 ## Contributing
 
 Refer to the [contributing guidelines][contributing].
@@ -110,11 +114,13 @@ Refer to the [contributing guidelines][contributing].
 Apache License 2.0, see [LICENSE][license].
 
 [binaries]: https://github.com/cloudfoundry-community/cf_exporter/releases
+[cccf_exporter]: https://github.com/mkuratczyk/cfcc_exporter
 [cloudfoundry]: https://www.cloudfoundry.org/
 [contributing]: https://github.com/cloudfoundry-community/cf_exporter/blob/master/CONTRIBUTING.md
 [faq]: https://github.com/cloudfoundry-community/cf_exporter/blob/master/FAQ.md
 [golang]: https://golang.org/
 [license]: https://github.com/cloudfoundry-community/cf_exporter/blob/master/LICENSE
 [manifest]: https://github.com/cloudfoundry-community/cf_exporter/blob/master/manifest.yml
+[mkuratczyk]: https://github.com/mkuratczyk
 [prometheus]: https://prometheus.io/
 [prometheus-boshrelease]: https://github.com/cloudfoundry-community/prometheus-boshrelease
