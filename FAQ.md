@@ -19,7 +19,7 @@ The Cloud Foundry Prometheus Exporter gets the metrics from the [Cloud Foundry A
 
 ### How can I enable only a particular collector?
 
-The *filter.collectors* command flag allows you to filter what collectors will be enabled. Possible values are `Applications` ,`Organizations`, `Services`, `Spaces` (or a combination of them).
+The *filter.collectors* command flag allows you to filter what collectors will be enabled. Possible values are `Applications`, `Organizations`, `Services`, `Spaces` (or a combination of them).
 
 ### I have a question but I don't see it answered at this FAQ
 
