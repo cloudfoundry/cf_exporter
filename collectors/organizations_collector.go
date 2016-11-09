@@ -13,6 +13,7 @@ type OrganizationsCollector struct {
 	cfClient                                   *cfclient.Client
 	organizationInfoDesc                       *prometheus.Desc
 	organizationsTotalDesc                     *prometheus.Desc
+	lastOrganizationsScrapeError               *prometheus.Desc
 	lastOrganizationsScrapeTimestampDesc       *prometheus.Desc
 	lastOrganizationsScrapeDurationSecondsDesc *prometheus.Desc
 }
@@ -28,6 +29,13 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 	organizationsTotalDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "organizations", "total"),
 		"Total number of Cloud Foundry Organizations.",
+		[]string{},
+		nil,
+	)
+
+	lastOrganizationsScrapeError := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "last_organizations_scrape_error"),
+		"Whether the last scrape of Organizations metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
 		[]string{},
 		nil,
 	)
@@ -51,6 +59,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 		cfClient:                                   cfClient,
 		organizationInfoDesc:                       organizationInfoDesc,
 		organizationsTotalDesc:                     organizationsTotalDesc,
+		lastOrganizationsScrapeError:               lastOrganizationsScrapeError,
 		lastOrganizationsScrapeTimestampDesc:       lastOrganizationsScrapeTimestampDesc,
 		lastOrganizationsScrapeDurationSecondsDesc: lastOrganizationsScrapeDurationSecondsDesc,
 	}
@@ -62,6 +71,7 @@ func (c OrganizationsCollector) Collect(ch chan<- prometheus.Metric) {
 	organizations, err := c.cfClient.ListOrgs()
 	if err != nil {
 		log.Errorf("Error while listing organizations: %v", err)
+		c.reportErrorMetric(true, ch)
 		return
 	}
 
@@ -92,11 +102,27 @@ func (c OrganizationsCollector) Collect(ch chan<- prometheus.Metric) {
 		prometheus.GaugeValue,
 		time.Since(begun).Seconds(),
 	)
+
+	c.reportErrorMetric(false, ch)
 }
 
 func (c OrganizationsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.organizationInfoDesc
 	ch <- c.organizationsTotalDesc
+	ch <- c.lastOrganizationsScrapeError
 	ch <- c.lastOrganizationsScrapeTimestampDesc
 	ch <- c.lastOrganizationsScrapeDurationSecondsDesc
+}
+
+func (c OrganizationsCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
+	error_metric := float64(0)
+	if errorHappend {
+		error_metric = float64(1)
+	}
+
+	ch <- prometheus.MustNewConstMetric(
+		c.lastOrganizationsScrapeError,
+		prometheus.GaugeValue,
+		error_metric,
+	)
 }

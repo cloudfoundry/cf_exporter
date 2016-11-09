@@ -13,6 +13,7 @@ type ServicesCollector struct {
 	cfClient                              *cfclient.Client
 	serviceInfoDesc                       *prometheus.Desc
 	servicesTotalDesc                     *prometheus.Desc
+	lastServicesScrapeError               *prometheus.Desc
 	lastServicesScrapeTimestampDesc       *prometheus.Desc
 	lastServicesScrapeDurationSecondsDesc *prometheus.Desc
 }
@@ -28,6 +29,13 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 	servicesTotalDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "services", "total"),
 		"Total number of Cloud Foundry Services.",
+		[]string{},
+		nil,
+	)
+
+	lastServicesScrapeError := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "last_services_scrape_error"),
+		"Whether the last scrape of Services metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
 		[]string{},
 		nil,
 	)
@@ -51,6 +59,7 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 		cfClient:                              cfClient,
 		serviceInfoDesc:                       serviceInfoDesc,
 		servicesTotalDesc:                     servicesTotalDesc,
+		lastServicesScrapeError:               lastServicesScrapeError,
 		lastServicesScrapeTimestampDesc:       lastServicesScrapeTimestampDesc,
 		lastServicesScrapeDurationSecondsDesc: lastServicesScrapeDurationSecondsDesc,
 	}
@@ -62,6 +71,7 @@ func (c ServicesCollector) Collect(ch chan<- prometheus.Metric) {
 	services, err := c.cfClient.ListServices()
 	if err != nil {
 		log.Errorf("Error while listing services: %v", err)
+		c.reportErrorMetric(true, ch)
 		return
 	}
 
@@ -92,11 +102,27 @@ func (c ServicesCollector) Collect(ch chan<- prometheus.Metric) {
 		prometheus.GaugeValue,
 		time.Since(begun).Seconds(),
 	)
+
+	c.reportErrorMetric(false, ch)
 }
 
 func (c ServicesCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.serviceInfoDesc
 	ch <- c.servicesTotalDesc
+	ch <- c.lastServicesScrapeError
 	ch <- c.lastServicesScrapeTimestampDesc
 	ch <- c.lastServicesScrapeDurationSecondsDesc
+}
+
+func (c ServicesCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
+	error_metric := float64(0)
+	if errorHappend {
+		error_metric = float64(1)
+	}
+
+	ch <- prometheus.MustNewConstMetric(
+		c.lastServicesScrapeError,
+		prometheus.GaugeValue,
+		error_metric,
+	)
 }

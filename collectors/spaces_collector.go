@@ -13,6 +13,7 @@ type SpacesCollector struct {
 	cfClient                            *cfclient.Client
 	spaceInfoDesc                       *prometheus.Desc
 	spacesTotalDesc                     *prometheus.Desc
+	lastSpacesScrapeError               *prometheus.Desc
 	lastSpacesScrapeTimestampDesc       *prometheus.Desc
 	lastSpacesScrapeDurationSecondsDesc *prometheus.Desc
 }
@@ -28,6 +29,13 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 	spacesTotalDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "spaces", "total"),
 		"Total number of Cloud Foundry Spaces.",
+		[]string{},
+		nil,
+	)
+
+	lastSpacesScrapeError := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "last_spaces_scrape_error"),
+		"Whether the last scrape of Spaces metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
 		[]string{},
 		nil,
 	)
@@ -51,6 +59,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 		cfClient:                            cfClient,
 		spaceInfoDesc:                       spaceInfoDesc,
 		spacesTotalDesc:                     spacesTotalDesc,
+		lastSpacesScrapeError:               lastSpacesScrapeError,
 		lastSpacesScrapeTimestampDesc:       lastSpacesScrapeTimestampDesc,
 		lastSpacesScrapeDurationSecondsDesc: lastSpacesScrapeDurationSecondsDesc,
 	}
@@ -62,6 +71,7 @@ func (c SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 	spaces, err := c.cfClient.ListSpaces()
 	if err != nil {
 		log.Errorf("Error while listing spaces: %v", err)
+		c.reportErrorMetric(true, ch)
 		return
 	}
 
@@ -92,11 +102,27 @@ func (c SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 		prometheus.GaugeValue,
 		time.Since(begun).Seconds(),
 	)
+
+	c.reportErrorMetric(false, ch)
 }
 
 func (c SpacesCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.spaceInfoDesc
 	ch <- c.spacesTotalDesc
+	ch <- c.lastSpacesScrapeError
 	ch <- c.lastSpacesScrapeTimestampDesc
 	ch <- c.lastSpacesScrapeDurationSecondsDesc
+}
+
+func (c SpacesCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
+	error_metric := float64(0)
+	if errorHappend {
+		error_metric = float64(1)
+	}
+
+	ch <- prometheus.MustNewConstMetric(
+		c.lastSpacesScrapeError,
+		prometheus.GaugeValue,
+		error_metric,
+	)
 }

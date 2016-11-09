@@ -12,6 +12,7 @@ type ApplicationsCollector struct {
 	namespace                                 string
 	cfClient                                  *cfclient.Client
 	applicationInfoDesc                       *prometheus.Desc
+	lastApplicationsScrapeError               *prometheus.Desc
 	applicationsTotalDesc                     *prometheus.Desc
 	lastApplicationsScrapeTimestampDesc       *prometheus.Desc
 	lastApplicationsScrapeDurationSecondsDesc *prometheus.Desc
@@ -28,6 +29,13 @@ func NewApplicationsCollector(namespace string, cfClient *cfclient.Client) *Appl
 	applicationsTotalDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "applications", "total"),
 		"Total number of Cloud Foundry Applications.",
+		[]string{},
+		nil,
+	)
+
+	lastApplicationsScrapeError := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "last_applications_scrape_error"),
+		"Whether the last scrape of Applications metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
 		[]string{},
 		nil,
 	)
@@ -51,6 +59,7 @@ func NewApplicationsCollector(namespace string, cfClient *cfclient.Client) *Appl
 		cfClient:                                  cfClient,
 		applicationsTotalDesc:                     applicationsTotalDesc,
 		applicationInfoDesc:                       applicationInfoDesc,
+		lastApplicationsScrapeError:               lastApplicationsScrapeError,
 		lastApplicationsScrapeTimestampDesc:       lastApplicationsScrapeTimestampDesc,
 		lastApplicationsScrapeDurationSecondsDesc: lastApplicationsScrapeDurationSecondsDesc,
 	}
@@ -62,6 +71,7 @@ func (c ApplicationsCollector) Collect(ch chan<- prometheus.Metric) {
 	applications, err := c.cfClient.ListApps()
 	if err != nil {
 		log.Errorf("Error while listing applications: %v", err)
+		c.reportErrorMetric(true, ch)
 		return
 	}
 
@@ -96,11 +106,27 @@ func (c ApplicationsCollector) Collect(ch chan<- prometheus.Metric) {
 		prometheus.GaugeValue,
 		time.Since(begun).Seconds(),
 	)
+
+	c.reportErrorMetric(false, ch)
 }
 
 func (c ApplicationsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.applicationInfoDesc
 	ch <- c.applicationsTotalDesc
+	ch <- c.lastApplicationsScrapeError
 	ch <- c.lastApplicationsScrapeTimestampDesc
 	ch <- c.lastApplicationsScrapeDurationSecondsDesc
+}
+
+func (c ApplicationsCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
+	error_metric := float64(0)
+	if errorHappend {
+		error_metric = float64(1)
+	}
+
+	ch <- prometheus.MustNewConstMetric(
+		c.lastApplicationsScrapeError,
+		prometheus.GaugeValue,
+		error_metric,
+	)
 }
