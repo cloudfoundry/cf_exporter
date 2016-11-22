@@ -40,6 +40,10 @@ The *on* specifies the matching label, in this case, the *application_id*. The *
 
 The *filter.collectors* command flag allows you to filter what collectors will be enabled. Possible values are `Applications`, `Organizations`, `Services`, `Spaces` (or a combination of them).
 
+### Can I target multiple Cloud Foundry API endpoints with a single exporter instance?
+
+No, this exporter only supports targetting a single [Cloud Foundry API][cf_api] endpoint. If you want to get metrics from several endpoints, you will need to use one exporter per endpoint.
+
 ### I have a question but I don't see it answered at this FAQ
 
 We will be glad to address any questions not answered here. Please, just open a [new issue][issues].
