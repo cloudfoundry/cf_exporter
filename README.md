@@ -51,7 +51,7 @@ This exporter can be deployed using the [Prometheus BOSH Release][prometheus-bos
 | Flag / Environment Variable | Required | Default | Description |
 | --------------------------- | -------- | ------- | ----------- |
 | `cf.api_url`<br />`CF_EXPORTER_CF_API_URL` | Yes | | Cloud Foundry API URL |
-| `cf.username`<br />`CF_EXPORTER_CF_USERNAME` | Yes | | Cloud Foundry Username (must be an `administrator` user |
+| `cf.username`<br />`CF_EXPORTER_CF_USERNAME` | Yes | | Cloud Foundry Username (must be an `administrator` user) |
 | `cf.password`<br />`CF_EXPORTER_CF_PASSWORD` | Yes | | Cloud Foundry Password |
 | `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter (`Applications`, `Organizations`, `Services`, `Spaces`) |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
