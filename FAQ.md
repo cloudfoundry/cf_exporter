@@ -17,6 +17,10 @@ The Cloud Foundry Prometheus Exporter gets information from the [Cloud Foundry A
   * Space information (id, name)
   * Total number of spaces
 
+### Known issues
+
+This exporter is known to require quite some resources on the `cloud_controller` since the queries include an `inline-relations-depth=2` API call, which basically dumps the `ccdb` and transforms it into `json` response. This may result in a very poor `cloud_controller` API performance. To prevent this, consider setting a reasonable `scrape_interval`.
+
 ### How can I get detailed application metrics like CPU & Memory?
 
 The goal of this exporter is just to provide administrative information about your Cloud Foundry environment. If you want to get detailed runtime application metrics, then you will need to use a different exporter, specifically, the [Cloud Foundry Firehose Prometheus Exporter][firehose_exporter], who will get `Container Metrics` from the [Cloud Foundry Firehose][firehose].
