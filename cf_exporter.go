@@ -114,6 +114,7 @@ func main() {
 		Username:          *cfUsername,
 		Password:          *cfPassword,
 		SkipSslValidation: *skipSSLValidation,
+		UserAgent:         fmt.Sprintf("cf_exporter_%s", version.Version),
 	}
 	cfClient, err := cfclient.NewClient(cfConfig)
 	if err != nil {
