@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 //Client used to communicate with Cloud Foundry
@@ -28,13 +29,16 @@ type Endpoint struct {
 
 //Config is used to configure the creation of a client
 type Config struct {
-	ApiAddress        string
-	Username          string
-	Password          string
-	SkipSslValidation bool
+	ApiAddress        string `json:"api_url"`
+	Username          string `json:"user"`
+	Password          string `json:"password"`
+	ClientID          string `json:"client_id"`
+	ClientSecret      string `json:"client_secret"`
+	SkipSslValidation bool   `json:"skip_ssl_validation"`
 	HttpClient        *http.Client
-	Token             string
+	Token             string `json:"auth_token"`
 	TokenSource       oauth2.TokenSource
+	UserAgent         string `json:"user_agent"`
 }
 
 // request is used to help build up a request
@@ -57,6 +61,7 @@ func DefaultConfig() *Config {
 		Token:             "",
 		SkipSslValidation: false,
 		HttpClient:        http.DefaultClient,
+		UserAgent:         "Go-CF-client/1.1",
 	}
 }
 
@@ -90,7 +95,10 @@ func NewClient(config *Config) (client *Client, err error) {
 		config.Token = defConfig.Token
 	}
 
-	ctx := oauth2.NoContext
+	if len(config.UserAgent) == 0 {
+		config.UserAgent = defConfig.UserAgent
+	}
+	ctx := context.Background()
 	if config.SkipSslValidation == false {
 		ctx = context.WithValue(ctx, oauth2.HTTPClient, defConfig.HttpClient)
 	} else {
@@ -106,6 +114,24 @@ func NewClient(config *Config) (client *Client, err error) {
 		return nil, fmt.Errorf("Could not get api /v2/info: %v", err)
 	}
 
+	switch {
+	case config.ClientID != "":
+		config = getClientAuth(config, endpoint, ctx)
+	default:
+		config, err = getUserAuth(config, endpoint, ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	client = &Client{
+		config:   *config,
+		Endpoint: *endpoint,
+	}
+	return client, nil
+}
+
+func getUserAuth(config *Config, endpoint *Endpoint, ctx context.Context) (*Config, error) {
 	authConfig := &oauth2.Config{
 		ClientID: "cf",
 		Scopes:   []string{""},
@@ -124,11 +150,19 @@ func NewClient(config *Config) (client *Client, err error) {
 	config.TokenSource = authConfig.TokenSource(ctx, token)
 	config.HttpClient = oauth2.NewClient(ctx, config.TokenSource)
 
-	client = &Client{
-		config:   *config,
-		Endpoint: *endpoint,
+	return config, err
+}
+
+func getClientAuth(config *Config, endpoint *Endpoint, ctx context.Context) *Config {
+	authConfig := &clientcredentials.Config{
+		ClientID:     config.ClientID,
+		ClientSecret: config.ClientSecret,
+		TokenURL:     endpoint.TokenEndpoint + "/oauth/token",
 	}
-	return client, nil
+
+	config.TokenSource = authConfig.TokenSource(ctx)
+	config.HttpClient = authConfig.Client(ctx)
+	return config
 }
 
 func getInfo(api string, httpClient *http.Client) (*Endpoint, error) {
@@ -179,6 +213,7 @@ func (c *Client) DoRequest(r *request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("User-Agent", c.config.UserAgent)
 	resp, err := c.config.HttpClient.Do(req)
 	return resp, err
 }
