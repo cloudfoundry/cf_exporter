@@ -6,10 +6,11 @@ import (
 )
 
 const (
-	ApplicationsCollector  = "Applications"
-	OrganizationsCollector = "Organizations"
-	ServicesCollector      = "Services"
-	SpacesCollector        = "Spaces"
+	ApplicationsCollector   = "Applications"
+	OrganizationsCollector  = "Organizations"
+	SecurityGroupsCollector = "SecurityGroups"
+	ServicesCollector       = "Services"
+	SpacesCollector         = "Spaces"
 )
 
 type CollectorsFilter struct {
@@ -25,6 +26,8 @@ func NewCollectorsFilter(filters []string) (*CollectorsFilter, error) {
 			collectorsEnabled[ApplicationsCollector] = true
 		case OrganizationsCollector:
 			collectorsEnabled[OrganizationsCollector] = true
+		case SecurityGroupsCollector:
+			collectorsEnabled[SecurityGroupsCollector] = true
 		case ServicesCollector:
 			collectorsEnabled[ServicesCollector] = true
 		case SpacesCollector:

@@ -53,7 +53,7 @@ This exporter can be deployed using the [Prometheus BOSH Release][prometheus-bos
 | `cf.api_url`<br />`CF_EXPORTER_CF_API_URL` | Yes | | Cloud Foundry API URL |
 | `cf.username`<br />`CF_EXPORTER_CF_USERNAME` | Yes | | Cloud Foundry Username (must be an `administrator` user) |
 | `cf.password`<br />`CF_EXPORTER_CF_PASSWORD` | Yes | | Cloud Foundry Password |
-| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter (`Applications`, `Organizations`, `Services`, `Spaces`) |
+| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter (`Applications`, `Organizations`, `SecurityGroups`, `Services`, `Spaces`) |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
 | `web.listen-address`<br />`CF_EXPORTER_WEB_LISTEN_ADDRESS` | No | `:9193` | Address to listen on for web interface and telemetry |
@@ -80,6 +80,16 @@ The exporter returns the following `Organizations` metrics:
 | *metrics.namespace*_last_organizations_scrape_error | Whether the last scrape of Organizations metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | |
 | *metrics.namespace*_last_organizations_scrape_timestamp | Number of seconds since 1970 since last scrape of Organizations metrics from Cloud Foundry | |
 | *metrics.namespace*_last_organizations_scrape_duration_seconds | Duration of the last scrape of Organizations metrics from Cloud Foundry | |
+
+The exporter returns the following `Security Groups` metrics:
+
+| Metric | Description | Labels |
+| ------ | ----------- | ------ |
+| *metrics.namespace*_security_group_info | Labeled Cloud Foundry Security Group information with a constant `1` value | `security_group_id`, `security_group_name` |
+| *metrics.namespace*_security_groups_total | Total number of Cloud Foundry Security Groups | |
+| *metrics.namespace*_last_security_groups_scrape_error | Whether the last scrape of Security Groups metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | |
+| *metrics.namespace*_last_security_groups_scrape_timestamp | Number of seconds since 1970 since last scrape of Security Groups metrics from Cloud Foundry | |
+| *metrics.namespace*_last_security_groups_scrape_duration_seconds | Duration of the last scrape of Security Groups metrics from Cloud Foundry | |
 
 The exporter returns the following `Services` metrics:
 
