@@ -53,7 +53,7 @@ This exporter can be deployed using the [Prometheus BOSH Release][prometheus-bos
 | `cf.api_url`<br />`CF_EXPORTER_CF_API_URL` | Yes | | Cloud Foundry API URL |
 | `cf.username`<br />`CF_EXPORTER_CF_USERNAME` | Yes | | Cloud Foundry Username (must be an `administrator` user) |
 | `cf.password`<br />`CF_EXPORTER_CF_PASSWORD` | Yes | | Cloud Foundry Password |
-| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter (`Applications`, `Organizations`, `SecurityGroups`, `Services`, `Spaces`) |
+| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter (`Applications`, `ApplicationEvents`, `Organizations`, `SecurityGroups`, `Services`, `Spaces`) |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
 | `web.listen-address`<br />`CF_EXPORTER_WEB_LISTEN_ADDRESS` | No | `:9193` | Address to listen on for web interface and telemetry |
@@ -70,6 +70,15 @@ The exporter returns the following `Applications` metrics:
 | *metrics.namespace*_last_applications_scrape_error | Whether the last scrape of Applications metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | |
 | *metrics.namespace*_last_applications_scrape_timestamp | Number of seconds since 1970 since last scrape of Applications metrics from Cloud Foundry | |
 | *metrics.namespace*_last_applications_scrape_duration_seconds | Duration of the last scrape of Applications metrics from Cloud Foundry | |
+
+The exporter returns the following `Application Events` metrics:
+
+| Metric | Description | Labels |
+| ------ | ----------- | ------ |
+| *metrics.namespace*_application_events_total | Total number of Cloud Foundry Application Events | `application_id`, `event_type` |
+| *metrics.namespace*_last_application_events_scrape_error | Whether the last scrape of Application Events metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | |
+| *metrics.namespace*_last_application_events_scrape_timestamp | Number of seconds since 1970 since last scrape of Application Events metrics from Cloud Foundry | |
+| *metrics.namespace*_last_application_events_scrape_duration_seconds | Duration of the last scrape of Application Events metrics from Cloud Foundry | |
 
 The exporter returns the following `Organizations` metrics:
 
