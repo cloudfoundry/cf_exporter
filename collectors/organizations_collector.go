@@ -9,59 +9,70 @@ import (
 )
 
 type OrganizationsCollector struct {
-	namespace                                  string
-	cfClient                                   *cfclient.Client
-	organizationInfoDesc                       *prometheus.Desc
-	organizationsTotalDesc                     *prometheus.Desc
-	lastOrganizationsScrapeError               *prometheus.Desc
-	lastOrganizationsScrapeTimestampDesc       *prometheus.Desc
-	lastOrganizationsScrapeDurationSecondsDesc *prometheus.Desc
+	namespace                              string
+	cfClient                               *cfclient.Client
+	organizationInfo                       *prometheus.GaugeVec
+	organizationsTotal                     prometheus.Gauge
+	lastOrganizationsScrapeError           prometheus.Gauge
+	lastOrganizationsScrapeTimestamp       prometheus.Gauge
+	lastOrganizationsScrapeDurationSeconds prometheus.Gauge
 }
 
 func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *OrganizationsCollector {
-	organizationInfoDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "organization", "info"),
-		"Labeled Cloud Foundry Organization information with a constant '1' value.",
+	organizationInfo := prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Subsystem: "organization",
+			Name:      "info",
+			Help:      "Labeled Cloud Foundry Organization information with a constant '1' value.",
+		},
 		[]string{"organization_id", "organization_name"},
-		nil,
 	)
 
-	organizationsTotalDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "organizations", "total"),
-		"Total number of Cloud Foundry Organizations.",
-		[]string{},
-		nil,
+	organizationsTotal := prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Subsystem: "organizations",
+			Name:      "total",
+			Help:      "Total number of Cloud Foundry Organizations.",
+		},
 	)
 
-	lastOrganizationsScrapeError := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", "last_organizations_scrape_error"),
-		"Whether the last scrape of Organizations metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
-		[]string{},
-		nil,
+	lastOrganizationsScrapeError := prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Subsystem: "",
+			Name:      "last_organizations_scrape_error",
+			Help:      "Whether the last scrape of Organizations metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+		},
 	)
 
-	lastOrganizationsScrapeTimestampDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", "last_organizations_scrape_timestamp"),
-		"Number of seconds since 1970 since last scrape of Organizations metrics from Cloud Foundry.",
-		[]string{},
-		nil,
+	lastOrganizationsScrapeTimestamp := prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Subsystem: "",
+			Name:      "last_organizations_scrape_timestamp",
+			Help:      "Number of seconds since 1970 since last scrape of Organizations metrics from Cloud Foundry.",
+		},
 	)
 
-	lastOrganizationsScrapeDurationSecondsDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", "last_organizations_scrape_duration_seconds"),
-		"Duration of the last scrape of Organizations metrics from Cloud Foundry.",
-		[]string{},
-		nil,
+	lastOrganizationsScrapeDurationSeconds := prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Subsystem: "",
+			Name:      "last_organizations_scrape_duration_seconds",
+			Help:      "Duration of the last scrape of Organizations metrics from Cloud Foundry.",
+		},
 	)
 
 	return &OrganizationsCollector{
-		namespace:                                  namespace,
-		cfClient:                                   cfClient,
-		organizationInfoDesc:                       organizationInfoDesc,
-		organizationsTotalDesc:                     organizationsTotalDesc,
-		lastOrganizationsScrapeError:               lastOrganizationsScrapeError,
-		lastOrganizationsScrapeTimestampDesc:       lastOrganizationsScrapeTimestampDesc,
-		lastOrganizationsScrapeDurationSecondsDesc: lastOrganizationsScrapeDurationSecondsDesc,
+		namespace:                              namespace,
+		cfClient:                               cfClient,
+		organizationInfo:                       organizationInfo,
+		organizationsTotal:                     organizationsTotal,
+		lastOrganizationsScrapeError:           lastOrganizationsScrapeError,
+		lastOrganizationsScrapeTimestamp:       lastOrganizationsScrapeTimestamp,
+		lastOrganizationsScrapeDurationSeconds: lastOrganizationsScrapeDurationSeconds,
 	}
 }
 
@@ -76,53 +87,39 @@ func (c OrganizationsCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, organization := range organizations {
-		ch <- prometheus.MustNewConstMetric(
-			c.organizationInfoDesc,
-			prometheus.GaugeValue,
-			float64(1),
+		c.organizationInfo.WithLabelValues(
 			organization.Guid,
 			organization.Name,
-		)
+		).Set(float64(1))
 	}
+	c.organizationInfo.Collect(ch)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.organizationsTotalDesc,
-		prometheus.GaugeValue,
-		float64(len(organizations)),
-	)
+	c.organizationsTotal.Set(float64(len(organizations)))
+	c.organizationsTotal.Collect(ch)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.lastOrganizationsScrapeTimestampDesc,
-		prometheus.GaugeValue,
-		float64(time.Now().Unix()),
-	)
+	c.lastOrganizationsScrapeTimestamp.Set(float64(time.Now().Unix()))
+	c.lastOrganizationsScrapeTimestamp.Collect(ch)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.lastOrganizationsScrapeDurationSecondsDesc,
-		prometheus.GaugeValue,
-		time.Since(begun).Seconds(),
-	)
+	c.lastOrganizationsScrapeDurationSeconds.Set(time.Since(begun).Seconds())
+	c.lastOrganizationsScrapeDurationSeconds.Collect(ch)
 
 	c.reportErrorMetric(false, ch)
 }
 
 func (c OrganizationsCollector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- c.organizationInfoDesc
-	ch <- c.organizationsTotalDesc
-	ch <- c.lastOrganizationsScrapeError
-	ch <- c.lastOrganizationsScrapeTimestampDesc
-	ch <- c.lastOrganizationsScrapeDurationSecondsDesc
+	c.organizationInfo.Describe(ch)
+	c.organizationsTotal.Describe(ch)
+	c.lastOrganizationsScrapeError.Describe(ch)
+	c.lastOrganizationsScrapeTimestamp.Describe(ch)
+	c.lastOrganizationsScrapeDurationSeconds.Describe(ch)
 }
 
 func (c OrganizationsCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
-	error_metric := float64(0)
+	errorMetric := float64(0)
 	if errorHappend {
-		error_metric = float64(1)
+		errorMetric = float64(1)
 	}
 
-	ch <- prometheus.MustNewConstMetric(
-		c.lastOrganizationsScrapeError,
-		prometheus.GaugeValue,
-		error_metric,
-	)
+	c.lastOrganizationsScrapeError.Set(errorMetric)
+	c.lastOrganizationsScrapeError.Collect(ch)
 }

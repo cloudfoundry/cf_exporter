@@ -9,59 +9,70 @@ import (
 )
 
 type SpacesCollector struct {
-	namespace                           string
-	cfClient                            *cfclient.Client
-	spaceInfoDesc                       *prometheus.Desc
-	spacesTotalDesc                     *prometheus.Desc
-	lastSpacesScrapeError               *prometheus.Desc
-	lastSpacesScrapeTimestampDesc       *prometheus.Desc
-	lastSpacesScrapeDurationSecondsDesc *prometheus.Desc
+	namespace                       string
+	cfClient                        *cfclient.Client
+	spaceInfo                       *prometheus.GaugeVec
+	spacesTotal                     prometheus.Gauge
+	lastSpacesScrapeError           prometheus.Gauge
+	lastSpacesScrapeTimestamp       prometheus.Gauge
+	lastSpacesScrapeDurationSeconds prometheus.Gauge
 }
 
 func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesCollector {
-	spaceInfoDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "space", "info"),
-		"Labeled Cloud Foundry Space information with a constant '1' value.",
+	spaceInfo := prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Subsystem: "space",
+			Name:      "info",
+			Help:      "Labeled Cloud Foundry Space information with a constant '1' value.",
+		},
 		[]string{"space_id", "space_name"},
-		nil,
 	)
 
-	spacesTotalDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "spaces", "total"),
-		"Total number of Cloud Foundry Spaces.",
-		[]string{},
-		nil,
+	spacesTotal := prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Subsystem: "spaces",
+			Name:      "total",
+			Help:      "Total number of Cloud Foundry Spaces.",
+		},
 	)
 
-	lastSpacesScrapeError := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", "last_spaces_scrape_error"),
-		"Whether the last scrape of Spaces metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
-		[]string{},
-		nil,
+	lastSpacesScrapeError := prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Subsystem: "",
+			Name:      "last_spaces_scrape_error",
+			Help:      "Whether the last scrape of Spaces metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+		},
 	)
 
-	lastSpacesScrapeTimestampDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", "last_spaces_scrape_timestamp"),
-		"Number of seconds since 1970 since last scrape of Spaces metrics from Cloud Foundry.",
-		[]string{},
-		nil,
+	lastSpacesScrapeTimestamp := prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Subsystem: "",
+			Name:      "last_spaces_scrape_timestamp",
+			Help:      "Number of seconds since 1970 since last scrape of Spaces metrics from Cloud Foundry.",
+		},
 	)
 
-	lastSpacesScrapeDurationSecondsDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", "last_spaces_scrape_duration_seconds"),
-		"Duration of the last scrape of Spaces metrics from Cloud Foundry.",
-		[]string{},
-		nil,
+	lastSpacesScrapeDurationSeconds := prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: namespace,
+			Subsystem: "",
+			Name:      "last_spaces_scrape_duration_seconds",
+			Help:      "Duration of the last scrape of Spaces metrics from Cloud Foundry.",
+		},
 	)
 
 	return &SpacesCollector{
-		namespace:                           namespace,
-		cfClient:                            cfClient,
-		spaceInfoDesc:                       spaceInfoDesc,
-		spacesTotalDesc:                     spacesTotalDesc,
-		lastSpacesScrapeError:               lastSpacesScrapeError,
-		lastSpacesScrapeTimestampDesc:       lastSpacesScrapeTimestampDesc,
-		lastSpacesScrapeDurationSecondsDesc: lastSpacesScrapeDurationSecondsDesc,
+		namespace:                       namespace,
+		cfClient:                        cfClient,
+		spaceInfo:                       spaceInfo,
+		spacesTotal:                     spacesTotal,
+		lastSpacesScrapeError:           lastSpacesScrapeError,
+		lastSpacesScrapeTimestamp:       lastSpacesScrapeTimestamp,
+		lastSpacesScrapeDurationSeconds: lastSpacesScrapeDurationSeconds,
 	}
 }
 
@@ -76,53 +87,39 @@ func (c SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, space := range spaces {
-		ch <- prometheus.MustNewConstMetric(
-			c.spaceInfoDesc,
-			prometheus.GaugeValue,
-			float64(1),
+		c.spaceInfo.WithLabelValues(
 			space.Guid,
 			space.Name,
-		)
+		).Set(float64(1))
 	}
+	c.spaceInfo.Collect(ch)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.spacesTotalDesc,
-		prometheus.GaugeValue,
-		float64(len(spaces)),
-	)
+	c.spacesTotal.Set(float64(len(spaces)))
+	c.spacesTotal.Collect(ch)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.lastSpacesScrapeTimestampDesc,
-		prometheus.GaugeValue,
-		float64(time.Now().Unix()),
-	)
+	c.lastSpacesScrapeTimestamp.Set(float64(time.Now().Unix()))
+	c.lastSpacesScrapeTimestamp.Collect(ch)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.lastSpacesScrapeDurationSecondsDesc,
-		prometheus.GaugeValue,
-		time.Since(begun).Seconds(),
-	)
+	c.lastSpacesScrapeDurationSeconds.Set(time.Since(begun).Seconds())
+	c.lastSpacesScrapeDurationSeconds.Collect(ch)
 
 	c.reportErrorMetric(false, ch)
 }
 
 func (c SpacesCollector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- c.spaceInfoDesc
-	ch <- c.spacesTotalDesc
-	ch <- c.lastSpacesScrapeError
-	ch <- c.lastSpacesScrapeTimestampDesc
-	ch <- c.lastSpacesScrapeDurationSecondsDesc
+	c.spaceInfo.Describe(ch)
+	c.spacesTotal.Describe(ch)
+	c.lastSpacesScrapeError.Describe(ch)
+	c.lastSpacesScrapeTimestamp.Describe(ch)
+	c.lastSpacesScrapeDurationSeconds.Describe(ch)
 }
 
 func (c SpacesCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
-	error_metric := float64(0)
+	errorMetric := float64(0)
 	if errorHappend {
-		error_metric = float64(1)
+		errorMetric = float64(1)
 	}
 
-	ch <- prometheus.MustNewConstMetric(
-		c.lastSpacesScrapeError,
-		prometheus.GaugeValue,
-		error_metric,
-	)
+	c.lastSpacesScrapeError.Set(errorMetric)
+	c.lastSpacesScrapeError.Collect(ch)
 }
