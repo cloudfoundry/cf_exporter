@@ -14,6 +14,7 @@ type OrganizationsCollector struct {
 	organizationInfoMetric                       *prometheus.GaugeVec
 	organizationsTotalMetric                     prometheus.Gauge
 	organizationsScrapesTotalMetric              prometheus.Counter
+	organizationsScrapeErrorsTotalMetric         prometheus.Counter
 	lastOrganizationsScrapeErrorMetric           prometheus.Gauge
 	lastOrganizationsScrapeTimestampMetric       prometheus.Gauge
 	lastOrganizationsScrapeDurationSecondsMetric prometheus.Gauge
@@ -45,6 +46,15 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Subsystem: "organizations_scrapes",
 			Name:      "total",
 			Help:      "Total number of scrapes for Cloud Foundry Organizations.",
+		},
+	)
+
+	organizationsScrapeErrorsTotalMetric := prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: namespace,
+			Subsystem: "organizations_scrape_errors",
+			Name:      "total",
+			Help:      "Total number of scrape errors of Cloud Foundry Organizations.",
 		},
 	)
 
@@ -81,6 +91,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 		organizationInfoMetric:                       organizationInfoMetric,
 		organizationsTotalMetric:                     organizationsTotalMetric,
 		organizationsScrapesTotalMetric:              organizationsScrapesTotalMetric,
+		organizationsScrapeErrorsTotalMetric:         organizationsScrapeErrorsTotalMetric,
 		lastOrganizationsScrapeErrorMetric:           lastOrganizationsScrapeErrorMetric,
 		lastOrganizationsScrapeTimestampMetric:       lastOrganizationsScrapeTimestampMetric,
 		lastOrganizationsScrapeDurationSecondsMetric: lastOrganizationsScrapeDurationSecondsMetric,
@@ -90,14 +101,44 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 func (c OrganizationsCollector) Collect(ch chan<- prometheus.Metric) {
 	var begun = time.Now()
 
-	c.organizationInfoMetric.Reset()
+	errorMetric := float64(0)
+	if err := c.reportOrganizationsMetrics(ch); err != nil {
+		errorMetric = float64(1)
+		c.organizationsScrapeErrorsTotalMetric.Inc()
+	}
+
 	c.organizationsScrapesTotalMetric.Inc()
+	c.organizationsScrapesTotalMetric.Collect(ch)
+
+	c.organizationsScrapeErrorsTotalMetric.Collect(ch)
+
+	c.lastOrganizationsScrapeErrorMetric.Set(errorMetric)
+	c.lastOrganizationsScrapeErrorMetric.Collect(ch)
+
+	c.lastOrganizationsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
+	c.lastOrganizationsScrapeTimestampMetric.Collect(ch)
+
+	c.lastOrganizationsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastOrganizationsScrapeDurationSecondsMetric.Collect(ch)
+}
+
+func (c OrganizationsCollector) Describe(ch chan<- *prometheus.Desc) {
+	c.organizationInfoMetric.Describe(ch)
+	c.organizationsTotalMetric.Describe(ch)
+	c.organizationsScrapesTotalMetric.Describe(ch)
+	c.organizationsScrapeErrorsTotalMetric.Describe(ch)
+	c.lastOrganizationsScrapeErrorMetric.Describe(ch)
+	c.lastOrganizationsScrapeTimestampMetric.Describe(ch)
+	c.lastOrganizationsScrapeDurationSecondsMetric.Describe(ch)
+}
+
+func (c OrganizationsCollector) reportOrganizationsMetrics(ch chan<- prometheus.Metric) error {
+	c.organizationInfoMetric.Reset()
 
 	organizations, err := c.cfClient.ListOrgs()
 	if err != nil {
 		log.Errorf("Error while listing organizations: %v", err)
-		c.reportErrorMetric(true, ch)
-		return
+		return err
 	}
 
 	for _, organization := range organizations {
@@ -112,32 +153,5 @@ func (c OrganizationsCollector) Collect(ch chan<- prometheus.Metric) {
 	c.organizationsTotalMetric.Set(float64(len(organizations)))
 	c.organizationsTotalMetric.Collect(ch)
 
-	c.organizationsScrapesTotalMetric.Collect(ch)
-
-	c.lastOrganizationsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
-	c.lastOrganizationsScrapeTimestampMetric.Collect(ch)
-
-	c.lastOrganizationsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
-	c.lastOrganizationsScrapeDurationSecondsMetric.Collect(ch)
-
-	c.reportErrorMetric(false, ch)
-}
-
-func (c OrganizationsCollector) Describe(ch chan<- *prometheus.Desc) {
-	c.organizationInfoMetric.Describe(ch)
-	c.organizationsTotalMetric.Describe(ch)
-	c.organizationsScrapesTotalMetric.Describe(ch)
-	c.lastOrganizationsScrapeErrorMetric.Describe(ch)
-	c.lastOrganizationsScrapeTimestampMetric.Describe(ch)
-	c.lastOrganizationsScrapeDurationSecondsMetric.Describe(ch)
-}
-
-func (c OrganizationsCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
-	errorMetric := float64(0)
-	if errorHappend {
-		errorMetric = float64(1)
-	}
-
-	c.lastOrganizationsScrapeErrorMetric.Set(errorMetric)
-	c.lastOrganizationsScrapeErrorMetric.Collect(ch)
+	return nil
 }

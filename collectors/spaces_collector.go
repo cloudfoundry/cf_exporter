@@ -14,6 +14,7 @@ type SpacesCollector struct {
 	spaceInfoMetric                       *prometheus.GaugeVec
 	spacesTotalMetric                     prometheus.Gauge
 	spacesScrapesTotalMetric              prometheus.Counter
+	spacesScrapeErrorsTotalMetric         prometheus.Counter
 	lastSpacesScrapeErrorMetric           prometheus.Gauge
 	lastSpacesScrapeTimestampMetric       prometheus.Gauge
 	lastSpacesScrapeDurationSecondsMetric prometheus.Gauge
@@ -45,6 +46,15 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Subsystem: "spaces_scrapes",
 			Name:      "total",
 			Help:      "Total number of scrapes for Cloud Foundry Spaces.",
+		},
+	)
+
+	spacesScrapeErrorsTotalMetric := prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: namespace,
+			Subsystem: "spaces_scrape_errors",
+			Name:      "total",
+			Help:      "Total number of scrapes errors of Cloud Foundry Spaces.",
 		},
 	)
 
@@ -81,6 +91,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 		spaceInfoMetric:                       spaceInfoMetric,
 		spacesTotalMetric:                     spacesTotalMetric,
 		spacesScrapesTotalMetric:              spacesScrapesTotalMetric,
+		spacesScrapeErrorsTotalMetric:         spacesScrapeErrorsTotalMetric,
 		lastSpacesScrapeErrorMetric:           lastSpacesScrapeErrorMetric,
 		lastSpacesScrapeTimestampMetric:       lastSpacesScrapeTimestampMetric,
 		lastSpacesScrapeDurationSecondsMetric: lastSpacesScrapeDurationSecondsMetric,
@@ -90,14 +101,44 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 func (c SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 	var begun = time.Now()
 
-	c.spaceInfoMetric.Reset()
+	errorMetric := float64(0)
+	if err := c.reportSpacesMetrics(ch); err != nil {
+		errorMetric = float64(1)
+		c.spacesScrapeErrorsTotalMetric.Inc()
+	}
+
 	c.spacesScrapesTotalMetric.Inc()
+	c.spacesScrapesTotalMetric.Collect(ch)
+
+	c.spacesScrapeErrorsTotalMetric.Collect(ch)
+
+	c.lastSpacesScrapeErrorMetric.Set(errorMetric)
+	c.lastSpacesScrapeErrorMetric.Collect(ch)
+
+	c.lastSpacesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
+	c.lastSpacesScrapeTimestampMetric.Collect(ch)
+
+	c.lastSpacesScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastSpacesScrapeDurationSecondsMetric.Collect(ch)
+}
+
+func (c SpacesCollector) Describe(ch chan<- *prometheus.Desc) {
+	c.spaceInfoMetric.Describe(ch)
+	c.spacesTotalMetric.Describe(ch)
+	c.spacesScrapesTotalMetric.Describe(ch)
+	c.spacesScrapeErrorsTotalMetric.Describe(ch)
+	c.lastSpacesScrapeErrorMetric.Describe(ch)
+	c.lastSpacesScrapeTimestampMetric.Describe(ch)
+	c.lastSpacesScrapeDurationSecondsMetric.Describe(ch)
+}
+
+func (c SpacesCollector) reportSpacesMetrics(ch chan<- prometheus.Metric) error {
+	c.spaceInfoMetric.Reset()
 
 	spaces, err := c.cfClient.ListSpaces()
 	if err != nil {
 		log.Errorf("Error while listing spaces: %v", err)
-		c.reportErrorMetric(true, ch)
-		return
+		return err
 	}
 
 	for _, space := range spaces {
@@ -112,32 +153,5 @@ func (c SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 	c.spacesTotalMetric.Set(float64(len(spaces)))
 	c.spacesTotalMetric.Collect(ch)
 
-	c.spacesScrapesTotalMetric.Collect(ch)
-
-	c.lastSpacesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
-	c.lastSpacesScrapeTimestampMetric.Collect(ch)
-
-	c.lastSpacesScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
-	c.lastSpacesScrapeDurationSecondsMetric.Collect(ch)
-
-	c.reportErrorMetric(false, ch)
-}
-
-func (c SpacesCollector) Describe(ch chan<- *prometheus.Desc) {
-	c.spaceInfoMetric.Describe(ch)
-	c.spacesTotalMetric.Describe(ch)
-	c.spacesScrapesTotalMetric.Describe(ch)
-	c.lastSpacesScrapeErrorMetric.Describe(ch)
-	c.lastSpacesScrapeTimestampMetric.Describe(ch)
-	c.lastSpacesScrapeDurationSecondsMetric.Describe(ch)
-}
-
-func (c SpacesCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
-	errorMetric := float64(0)
-	if errorHappend {
-		errorMetric = float64(1)
-	}
-
-	c.lastSpacesScrapeErrorMetric.Set(errorMetric)
-	c.lastSpacesScrapeErrorMetric.Collect(ch)
+	return nil
 }

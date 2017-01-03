@@ -14,6 +14,7 @@ type ServicesCollector struct {
 	serviceInfoMetric                       *prometheus.GaugeVec
 	servicesTotalMetric                     prometheus.Gauge
 	servicesScrapesTotalMetric              prometheus.Counter
+	servicesScrapeErrorsTotalMetric         prometheus.Counter
 	lastServicesScrapeErrorMetric           prometheus.Gauge
 	lastServicesScrapeTimestampMetric       prometheus.Gauge
 	lastServicesScrapeDurationSecondsMetric prometheus.Gauge
@@ -45,6 +46,15 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 			Subsystem: "services_scrapes",
 			Name:      "total",
 			Help:      "Total number of scrapes for Cloud Foundry Services.",
+		},
+	)
+
+	servicesScrapeErrorsTotalMetric := prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: namespace,
+			Subsystem: "services_scrape_errors",
+			Name:      "total",
+			Help:      "Total number of scrape error of Cloud Foundry Services.",
 		},
 	)
 
@@ -81,6 +91,7 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 		serviceInfoMetric:                       serviceInfoMetric,
 		servicesTotalMetric:                     servicesTotalMetric,
 		servicesScrapesTotalMetric:              servicesScrapesTotalMetric,
+		servicesScrapeErrorsTotalMetric:         servicesScrapeErrorsTotalMetric,
 		lastServicesScrapeErrorMetric:           lastServicesScrapeErrorMetric,
 		lastServicesScrapeTimestampMetric:       lastServicesScrapeTimestampMetric,
 		lastServicesScrapeDurationSecondsMetric: lastServicesScrapeDurationSecondsMetric,
@@ -90,14 +101,44 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 func (c ServicesCollector) Collect(ch chan<- prometheus.Metric) {
 	var begun = time.Now()
 
-	c.serviceInfoMetric.Reset()
+	errorMetric := float64(0)
+	if err := c.reportServicesMetrics(ch); err != nil {
+		errorMetric = float64(1)
+		c.servicesScrapeErrorsTotalMetric.Inc()
+	}
+
 	c.servicesScrapesTotalMetric.Inc()
+	c.servicesScrapesTotalMetric.Collect(ch)
+
+	c.servicesScrapeErrorsTotalMetric.Collect(ch)
+
+	c.lastServicesScrapeErrorMetric.Set(errorMetric)
+	c.lastServicesScrapeErrorMetric.Collect(ch)
+
+	c.lastServicesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
+	c.lastServicesScrapeTimestampMetric.Collect(ch)
+
+	c.lastServicesScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastServicesScrapeDurationSecondsMetric.Collect(ch)
+}
+
+func (c ServicesCollector) Describe(ch chan<- *prometheus.Desc) {
+	c.serviceInfoMetric.Describe(ch)
+	c.servicesTotalMetric.Describe(ch)
+	c.servicesScrapesTotalMetric.Describe(ch)
+	c.servicesScrapeErrorsTotalMetric.Describe(ch)
+	c.lastServicesScrapeErrorMetric.Describe(ch)
+	c.lastServicesScrapeTimestampMetric.Describe(ch)
+	c.lastServicesScrapeDurationSecondsMetric.Describe(ch)
+}
+
+func (c ServicesCollector) reportServicesMetrics(ch chan<- prometheus.Metric) error {
+	c.serviceInfoMetric.Reset()
 
 	services, err := c.cfClient.ListServices()
 	if err != nil {
 		log.Errorf("Error while listing services: %v", err)
-		c.reportErrorMetric(true, ch)
-		return
+		return err
 	}
 
 	for _, service := range services {
@@ -112,32 +153,5 @@ func (c ServicesCollector) Collect(ch chan<- prometheus.Metric) {
 	c.servicesTotalMetric.Set(float64(len(services)))
 	c.servicesTotalMetric.Collect(ch)
 
-	c.servicesScrapesTotalMetric.Collect(ch)
-
-	c.lastServicesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
-	c.lastServicesScrapeTimestampMetric.Collect(ch)
-
-	c.lastServicesScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
-	c.lastServicesScrapeDurationSecondsMetric.Collect(ch)
-
-	c.reportErrorMetric(false, ch)
-}
-
-func (c ServicesCollector) Describe(ch chan<- *prometheus.Desc) {
-	c.serviceInfoMetric.Describe(ch)
-	c.servicesTotalMetric.Describe(ch)
-	c.servicesScrapesTotalMetric.Describe(ch)
-	c.lastServicesScrapeErrorMetric.Describe(ch)
-	c.lastServicesScrapeTimestampMetric.Describe(ch)
-	c.lastServicesScrapeDurationSecondsMetric.Describe(ch)
-}
-
-func (c ServicesCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
-	errorMetric := float64(0)
-	if errorHappend {
-		errorMetric = float64(1)
-	}
-
-	c.lastServicesScrapeErrorMetric.Set(errorMetric)
-	c.lastServicesScrapeErrorMetric.Collect(ch)
+	return nil
 }
