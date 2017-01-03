@@ -13,6 +13,7 @@ type ApplicationEventsCollector struct {
 	namespace                                        string
 	cfClient                                         *cfclient.Client
 	applicationEventsTotalMetric                     *prometheus.CounterVec
+	applicationEventsScrapesTotalMetric              prometheus.Counter
 	lastApplicationEventsScrapeErrorMetric           prometheus.Gauge
 	lastApplicationEventsScrapeTimestampMetric       prometheus.Gauge
 	lastApplicationEventsScrapeDurationSecondsMetric prometheus.Gauge
@@ -27,6 +28,15 @@ func NewApplicationEventsCollector(namespace string, cfClient *cfclient.Client) 
 			Help:      "Total number of Cloud Foundry Application Events.",
 		},
 		[]string{"application_id", "event_type"},
+	)
+
+	applicationEventsScrapesTotalMetric := prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: namespace,
+			Subsystem: "application_events_scrapes",
+			Name:      "total",
+			Help:      "Total number of scrapes for Cloud Foundry Application Events.",
+		},
 	)
 
 	lastApplicationEventsScrapeErrorMetric := prometheus.NewGauge(
@@ -60,6 +70,7 @@ func NewApplicationEventsCollector(namespace string, cfClient *cfclient.Client) 
 		namespace:                                        namespace,
 		cfClient:                                         cfClient,
 		applicationEventsTotalMetric:                     applicationEventsTotalMetric,
+		applicationEventsScrapesTotalMetric:              applicationEventsScrapesTotalMetric,
 		lastApplicationEventsScrapeErrorMetric:           lastApplicationEventsScrapeErrorMetric,
 		lastApplicationEventsScrapeTimestampMetric:       lastApplicationEventsScrapeTimestampMetric,
 		lastApplicationEventsScrapeDurationSecondsMetric: lastApplicationEventsScrapeDurationSecondsMetric,
@@ -81,6 +92,7 @@ func (c ApplicationEventsCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	c.applicationEventsTotalMetric.Reset()
+	c.applicationEventsScrapesTotalMetric.Inc()
 
 	doneChannel := make(chan bool, 1)
 	errChannel := make(chan error, 1)
@@ -109,6 +121,8 @@ func (c ApplicationEventsCollector) Collect(ch chan<- prometheus.Metric) {
 
 	c.applicationEventsTotalMetric.Collect(ch)
 
+	c.applicationEventsScrapesTotalMetric.Collect(ch)
+
 	c.lastApplicationEventsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastApplicationEventsScrapeTimestampMetric.Collect(ch)
 
@@ -118,6 +132,7 @@ func (c ApplicationEventsCollector) Collect(ch chan<- prometheus.Metric) {
 
 func (c ApplicationEventsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.applicationEventsTotalMetric.Describe(ch)
+	c.applicationEventsScrapesTotalMetric.Describe(ch)
 	c.lastApplicationEventsScrapeErrorMetric.Describe(ch)
 	c.lastApplicationEventsScrapeTimestampMetric.Describe(ch)
 	c.lastApplicationEventsScrapeDurationSecondsMetric.Describe(ch)

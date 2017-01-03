@@ -13,6 +13,7 @@ type ApplicationsCollector struct {
 	cfClient                                    *cfclient.Client
 	applicationInfoMetric                       *prometheus.GaugeVec
 	applicationsTotalMetric                     prometheus.Gauge
+	applicationsScrapesTotalMetric              prometheus.Counter
 	lastApplicationsScrapeErrorMetric           prometheus.Gauge
 	lastApplicationsScrapeTimestampMetric       prometheus.Gauge
 	lastApplicationsScrapeDurationSecondsMetric prometheus.Gauge
@@ -35,6 +36,15 @@ func NewApplicationsCollector(namespace string, cfClient *cfclient.Client) *Appl
 			Subsystem: "applications",
 			Name:      "total",
 			Help:      "Total number of Cloud Foundry Applications.",
+		},
+	)
+
+	applicationsScrapesTotalMetric := prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: namespace,
+			Subsystem: "applications_scrapes",
+			Name:      "total",
+			Help:      "Total number of scrapes for Cloud Foundry Applications.",
 		},
 	)
 
@@ -70,6 +80,7 @@ func NewApplicationsCollector(namespace string, cfClient *cfclient.Client) *Appl
 		cfClient:                                    cfClient,
 		applicationInfoMetric:                       applicationInfoMetric,
 		applicationsTotalMetric:                     applicationsTotalMetric,
+		applicationsScrapesTotalMetric:              applicationsScrapesTotalMetric,
 		lastApplicationsScrapeErrorMetric:           lastApplicationsScrapeErrorMetric,
 		lastApplicationsScrapeTimestampMetric:       lastApplicationsScrapeTimestampMetric,
 		lastApplicationsScrapeDurationSecondsMetric: lastApplicationsScrapeDurationSecondsMetric,
@@ -80,6 +91,7 @@ func (c ApplicationsCollector) Collect(ch chan<- prometheus.Metric) {
 	var begun = time.Now()
 
 	c.applicationInfoMetric.Reset()
+	c.applicationsScrapesTotalMetric.Inc()
 
 	applications, err := c.cfClient.ListApps()
 	if err != nil {
@@ -104,6 +116,8 @@ func (c ApplicationsCollector) Collect(ch chan<- prometheus.Metric) {
 	c.applicationsTotalMetric.Set(float64(len(applications)))
 	c.applicationsTotalMetric.Collect(ch)
 
+	c.applicationsScrapesTotalMetric.Collect(ch)
+
 	c.lastApplicationsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastApplicationsScrapeTimestampMetric.Collect(ch)
 
@@ -116,6 +130,7 @@ func (c ApplicationsCollector) Collect(ch chan<- prometheus.Metric) {
 func (c ApplicationsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.applicationInfoMetric.Describe(ch)
 	c.applicationsTotalMetric.Describe(ch)
+	c.applicationsScrapesTotalMetric.Describe(ch)
 	c.lastApplicationsScrapeErrorMetric.Describe(ch)
 	c.lastApplicationsScrapeTimestampMetric.Describe(ch)
 	c.lastApplicationsScrapeDurationSecondsMetric.Describe(ch)

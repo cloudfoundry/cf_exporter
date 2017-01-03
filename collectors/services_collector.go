@@ -13,6 +13,7 @@ type ServicesCollector struct {
 	cfClient                                *cfclient.Client
 	serviceInfoMetric                       *prometheus.GaugeVec
 	servicesTotalMetric                     prometheus.Gauge
+	servicesScrapesTotalMetric              prometheus.Counter
 	lastServicesScrapeErrorMetric           prometheus.Gauge
 	lastServicesScrapeTimestampMetric       prometheus.Gauge
 	lastServicesScrapeDurationSecondsMetric prometheus.Gauge
@@ -35,6 +36,15 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 			Subsystem: "services",
 			Name:      "total",
 			Help:      "Total number of Cloud Foundry Services.",
+		},
+	)
+
+	servicesScrapesTotalMetric := prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: namespace,
+			Subsystem: "services_scrapes",
+			Name:      "total",
+			Help:      "Total number of scrapes for Cloud Foundry Services.",
 		},
 	)
 
@@ -70,6 +80,7 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 		cfClient:                                cfClient,
 		serviceInfoMetric:                       serviceInfoMetric,
 		servicesTotalMetric:                     servicesTotalMetric,
+		servicesScrapesTotalMetric:              servicesScrapesTotalMetric,
 		lastServicesScrapeErrorMetric:           lastServicesScrapeErrorMetric,
 		lastServicesScrapeTimestampMetric:       lastServicesScrapeTimestampMetric,
 		lastServicesScrapeDurationSecondsMetric: lastServicesScrapeDurationSecondsMetric,
@@ -80,6 +91,7 @@ func (c ServicesCollector) Collect(ch chan<- prometheus.Metric) {
 	var begun = time.Now()
 
 	c.serviceInfoMetric.Reset()
+	c.servicesScrapesTotalMetric.Inc()
 
 	services, err := c.cfClient.ListServices()
 	if err != nil {
@@ -100,6 +112,8 @@ func (c ServicesCollector) Collect(ch chan<- prometheus.Metric) {
 	c.servicesTotalMetric.Set(float64(len(services)))
 	c.servicesTotalMetric.Collect(ch)
 
+	c.servicesScrapesTotalMetric.Collect(ch)
+
 	c.lastServicesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastServicesScrapeTimestampMetric.Collect(ch)
 
@@ -112,6 +126,7 @@ func (c ServicesCollector) Collect(ch chan<- prometheus.Metric) {
 func (c ServicesCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.serviceInfoMetric.Describe(ch)
 	c.servicesTotalMetric.Describe(ch)
+	c.servicesScrapesTotalMetric.Describe(ch)
 	c.lastServicesScrapeErrorMetric.Describe(ch)
 	c.lastServicesScrapeTimestampMetric.Describe(ch)
 	c.lastServicesScrapeDurationSecondsMetric.Describe(ch)

@@ -13,6 +13,7 @@ type SpacesCollector struct {
 	cfClient                              *cfclient.Client
 	spaceInfoMetric                       *prometheus.GaugeVec
 	spacesTotalMetric                     prometheus.Gauge
+	spacesScrapesTotalMetric              prometheus.Counter
 	lastSpacesScrapeErrorMetric           prometheus.Gauge
 	lastSpacesScrapeTimestampMetric       prometheus.Gauge
 	lastSpacesScrapeDurationSecondsMetric prometheus.Gauge
@@ -35,6 +36,15 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Subsystem: "spaces",
 			Name:      "total",
 			Help:      "Total number of Cloud Foundry Spaces.",
+		},
+	)
+
+	spacesScrapesTotalMetric := prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: namespace,
+			Subsystem: "spaces_scrapes",
+			Name:      "total",
+			Help:      "Total number of scrapes for Cloud Foundry Spaces.",
 		},
 	)
 
@@ -70,6 +80,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 		cfClient:                              cfClient,
 		spaceInfoMetric:                       spaceInfoMetric,
 		spacesTotalMetric:                     spacesTotalMetric,
+		spacesScrapesTotalMetric:              spacesScrapesTotalMetric,
 		lastSpacesScrapeErrorMetric:           lastSpacesScrapeErrorMetric,
 		lastSpacesScrapeTimestampMetric:       lastSpacesScrapeTimestampMetric,
 		lastSpacesScrapeDurationSecondsMetric: lastSpacesScrapeDurationSecondsMetric,
@@ -80,6 +91,7 @@ func (c SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 	var begun = time.Now()
 
 	c.spaceInfoMetric.Reset()
+	c.spacesScrapesTotalMetric.Inc()
 
 	spaces, err := c.cfClient.ListSpaces()
 	if err != nil {
@@ -100,6 +112,8 @@ func (c SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 	c.spacesTotalMetric.Set(float64(len(spaces)))
 	c.spacesTotalMetric.Collect(ch)
 
+	c.spacesScrapesTotalMetric.Collect(ch)
+
 	c.lastSpacesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastSpacesScrapeTimestampMetric.Collect(ch)
 
@@ -112,6 +126,7 @@ func (c SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 func (c SpacesCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.spaceInfoMetric.Describe(ch)
 	c.spacesTotalMetric.Describe(ch)
+	c.spacesScrapesTotalMetric.Describe(ch)
 	c.lastSpacesScrapeErrorMetric.Describe(ch)
 	c.lastSpacesScrapeTimestampMetric.Describe(ch)
 	c.lastSpacesScrapeDurationSecondsMetric.Describe(ch)

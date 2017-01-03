@@ -13,6 +13,7 @@ type OrganizationsCollector struct {
 	cfClient                                     *cfclient.Client
 	organizationInfoMetric                       *prometheus.GaugeVec
 	organizationsTotalMetric                     prometheus.Gauge
+	organizationsScrapesTotalMetric              prometheus.Counter
 	lastOrganizationsScrapeErrorMetric           prometheus.Gauge
 	lastOrganizationsScrapeTimestampMetric       prometheus.Gauge
 	lastOrganizationsScrapeDurationSecondsMetric prometheus.Gauge
@@ -35,6 +36,15 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Subsystem: "organizations",
 			Name:      "total",
 			Help:      "Total number of Cloud Foundry Organizations.",
+		},
+	)
+
+	organizationsScrapesTotalMetric := prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: namespace,
+			Subsystem: "organizations_scrapes",
+			Name:      "total",
+			Help:      "Total number of scrapes for Cloud Foundry Organizations.",
 		},
 	)
 
@@ -70,6 +80,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 		cfClient:                                     cfClient,
 		organizationInfoMetric:                       organizationInfoMetric,
 		organizationsTotalMetric:                     organizationsTotalMetric,
+		organizationsScrapesTotalMetric:              organizationsScrapesTotalMetric,
 		lastOrganizationsScrapeErrorMetric:           lastOrganizationsScrapeErrorMetric,
 		lastOrganizationsScrapeTimestampMetric:       lastOrganizationsScrapeTimestampMetric,
 		lastOrganizationsScrapeDurationSecondsMetric: lastOrganizationsScrapeDurationSecondsMetric,
@@ -80,6 +91,7 @@ func (c OrganizationsCollector) Collect(ch chan<- prometheus.Metric) {
 	var begun = time.Now()
 
 	c.organizationInfoMetric.Reset()
+	c.organizationsScrapesTotalMetric.Inc()
 
 	organizations, err := c.cfClient.ListOrgs()
 	if err != nil {
@@ -100,6 +112,8 @@ func (c OrganizationsCollector) Collect(ch chan<- prometheus.Metric) {
 	c.organizationsTotalMetric.Set(float64(len(organizations)))
 	c.organizationsTotalMetric.Collect(ch)
 
+	c.organizationsScrapesTotalMetric.Collect(ch)
+
 	c.lastOrganizationsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastOrganizationsScrapeTimestampMetric.Collect(ch)
 
@@ -112,6 +126,7 @@ func (c OrganizationsCollector) Collect(ch chan<- prometheus.Metric) {
 func (c OrganizationsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.organizationInfoMetric.Describe(ch)
 	c.organizationsTotalMetric.Describe(ch)
+	c.organizationsScrapesTotalMetric.Describe(ch)
 	c.lastOrganizationsScrapeErrorMetric.Describe(ch)
 	c.lastOrganizationsScrapeTimestampMetric.Describe(ch)
 	c.lastOrganizationsScrapeDurationSecondsMetric.Describe(ch)
