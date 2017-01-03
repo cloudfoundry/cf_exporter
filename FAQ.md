@@ -22,9 +22,13 @@ The Cloud Foundry Prometheus Exporter gets information from the [Cloud Foundry A
   * Space information (id, name)
   * Total number of spaces
 
-### Known issues
+### What are the caveats when using this exporter?
 
-This exporter is known to require quite some resources on the `cloud_controller` since the queries include an `inline-relations-depth=2` API call, which basically dumps the `ccdb` and transforms it into `json` response. This may result in a very poor `cloud_controller` API performance. To prevent this, consider setting a reasonable `scrape_interval`.
+There are several collectors that require quite some resources on the `cloud_controller` and may result in a very poor CF API performance. To prevent this, consider setting a reasonable `scrape_interval` when using this exporter.
+
+* `Applications` collector: the query to get all applications includes an `inline-relations-depth=2` API call, which basically dumps the `ccdb` and transforms it into `json` response.
+
+* `ApplicationEvents` collector: the query fetches all events for ALL applications, and this may require sending some long queries.
 
 ### How can I get detailed application metrics like CPU & Memory?
 
@@ -47,7 +51,7 @@ The *on* specifies the matching label, in this case, the *application_id*. The *
 
 ### How can I enable only a particular collector?
 
-The `filter.collectors` command flag allows you to filter what collectors will be enabled. Possible values are `Applications`, `ApplicationEvents`, `Organizations`, `SecurityGroups`, `Services`, `Spaces` (or a combination of them).
+The `filter.collectors` command flag allows you to filter what collectors will be enabled (if not set, all collectors will be enabled by default). Possible values are `Applications`, `ApplicationEvents`, `Organizations`, `SecurityGroups`, `Services`, `Spaces` (or a combination of them).
 
 ### Can I target multiple Cloud Foundry API endpoints with a single exporter instance?
 
