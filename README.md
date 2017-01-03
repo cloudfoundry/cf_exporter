@@ -51,13 +51,17 @@ This exporter can be deployed using the [Prometheus BOSH Release][prometheus-bos
 | Flag / Environment Variable | Required | Default | Description |
 | --------------------------- | -------- | ------- | ----------- |
 | `cf.api_url`<br />`CF_EXPORTER_CF_API_URL` | Yes | | Cloud Foundry API URL |
-| `cf.username`<br />`CF_EXPORTER_CF_USERNAME` | Yes | | Cloud Foundry Username (must be an `administrator` user) |
-| `cf.password`<br />`CF_EXPORTER_CF_PASSWORD` | Yes | | Cloud Foundry Password |
+| `cf.username`<br />`CF_EXPORTER_CF_USERNAME` | *[1]* | | Cloud Foundry Username (must be an `administrator` user) |
+| `cf.password`<br />`CF_EXPORTER_CF_PASSWORD` | *[1]* | | Cloud Foundry Password |
+| `cf.client-id`<br />`CF_EXPORTER_CF_CLIENT_ID` | *[1]* | | Cloud Foundry Client ID (must have the `cloud_controller.admin` or `cloud_controller.admin_read_only` scope) |
+| `cf.client-secret`<br />`CF_EXPORTER_CF_CLIENT_SECRET` | *[1]* | | Cloud Foundry Client Secret |
 | `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter (`Applications`, `ApplicationEvents`, `Organizations`, `SecurityGroups`, `Services`, `Spaces`) |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
 | `web.listen-address`<br />`CF_EXPORTER_WEB_LISTEN_ADDRESS` | No | `:9193` | Address to listen on for web interface and telemetry |
 | `web.telemetry-path`<br />`CF_EXPORTER_WEB_TELEMETRY_PATH` | No | `/metrics` | Path under which to expose Prometheus metrics |
+
+*[1]* Either `cf.username` and `cf.password` or `cf.client-id` and `cf.client-secret` must be provided, depending on the desired authentication method.
 
 ### Metrics
 

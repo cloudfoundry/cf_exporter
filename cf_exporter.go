@@ -33,6 +33,16 @@ var (
 		"Cloud Foundry Password ($CF_EXPORTER_CF_PASSWORD).",
 	)
 
+	cfClientID = flag.String(
+		"cf.client-id", "",
+		"Cloud Foundry Client ID ($CF_EXPORTER_CF_CLIENT_ID).",
+	)
+
+	cfClientSecret = flag.String(
+		"cf.client-secret", "",
+		"Cloud Foundry Client Secret ($CF_EXPORTER_CF_CLIENT_SECRET).",
+	)
+
 	filterCollectors = flag.String(
 		"filter.collectors", "",
 		"Comma separated collectors to filter (Applications,ApplicationEvents,Organizations,SecurityGroups,Services,Spaces) ($CF_EXPORTER_FILTER_COLLECTORS).",
@@ -72,6 +82,8 @@ func overrideFlagsWithEnvVars() {
 	overrideWithEnvVar("CF_EXPORTER_CF_API_URL", cfAPIUrl)
 	overrideWithEnvVar("CF_EXPORTER_CF_USERNAME", cfUsername)
 	overrideWithEnvVar("CF_EXPORTER_CF_PASSWORD", cfPassword)
+	overrideWithEnvVar("CF_EXPORTER_CF_CLIENT_ID", cfClientID)
+	overrideWithEnvVar("CF_EXPORTER_CF_CLIENT_SECRET", cfClientSecret)
 	overrideWithEnvVar("CF_EXPORTER_FILTER_COLLECTORS", filterCollectors)
 	overrideWithEnvVar("CF_EXPORTER_METRICS_NAMESPACE", metricsNamespace)
 	overrideWithEnvBool("CF_EXPORTER_SKIP_SSL_VERIFY", skipSSLValidation)
@@ -113,8 +125,10 @@ func main() {
 		ApiAddress:        *cfAPIUrl,
 		Username:          *cfUsername,
 		Password:          *cfPassword,
+		ClientID:          *cfClientID,
+		ClientSecret:      *cfClientSecret,
 		SkipSslValidation: *skipSSLValidation,
-		UserAgent:         fmt.Sprintf("cf_exporter_%s", version.Version),
+		UserAgent:         fmt.Sprintf("cf_exporter/%s", version.Version),
 	}
 	cfClient, err := cfclient.NewClient(cfConfig)
 	if err != nil {
