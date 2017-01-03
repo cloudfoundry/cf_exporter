@@ -125,13 +125,16 @@ func (c ApplicationEventsCollector) reportApplicationEventsMetrics(ch chan<- pro
 	var wg = &sync.WaitGroup{}
 	var eventTypes = []string{
 		cfclient.AppCrash,
-		cfclient.AppStart,
-		cfclient.AppStop,
-		cfclient.AppUpdate,
 		cfclient.AppCreate,
 		cfclient.AppDelete,
+		cfclient.AppMapRoute,
+		cfclient.AppRestage,
 		cfclient.AppSSHAuth,
 		cfclient.AppSSHUnauth,
+		cfclient.AppStart,
+		cfclient.AppStop,
+		cfclient.AppUnmapRoute,
+		cfclient.AppUpdate,
 	}
 
 	c.applicationEventsTotalMetric.Reset()
