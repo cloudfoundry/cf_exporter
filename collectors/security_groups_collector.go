@@ -9,17 +9,17 @@ import (
 )
 
 type SecurityGroupsCollector struct {
-	namespace                               string
-	cfClient                                *cfclient.Client
-	securityGroupInfo                       *prometheus.GaugeVec
-	securityGroupsTotal                     prometheus.Gauge
-	lastSecurityGroupsScrapeError           prometheus.Gauge
-	lastSecurityGroupsScrapeTimestamp       prometheus.Gauge
-	lastSecurityGroupsScrapeDurationSeconds prometheus.Gauge
+	namespace                                     string
+	cfClient                                      *cfclient.Client
+	securityGroupInfoMetric                       *prometheus.GaugeVec
+	securityGroupsTotalMetric                     prometheus.Gauge
+	lastSecurityGroupsScrapeErrorMetric           prometheus.Gauge
+	lastSecurityGroupsScrapeTimestampMetric       prometheus.Gauge
+	lastSecurityGroupsScrapeDurationSecondsMetric prometheus.Gauge
 }
 
 func NewSecurityGroupsCollector(namespace string, cfClient *cfclient.Client) *SecurityGroupsCollector {
-	securityGroupInfo := prometheus.NewGaugeVec(
+	securityGroupInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "security_group",
@@ -29,7 +29,7 @@ func NewSecurityGroupsCollector(namespace string, cfClient *cfclient.Client) *Se
 		[]string{"security_group_id", "security_group_name"},
 	)
 
-	securityGroupsTotal := prometheus.NewGauge(
+	securityGroupsTotalMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "security_groups",
@@ -38,7 +38,7 @@ func NewSecurityGroupsCollector(namespace string, cfClient *cfclient.Client) *Se
 		},
 	)
 
-	lastSecurityGroupsScrapeError := prometheus.NewGauge(
+	lastSecurityGroupsScrapeErrorMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -47,7 +47,7 @@ func NewSecurityGroupsCollector(namespace string, cfClient *cfclient.Client) *Se
 		},
 	)
 
-	lastSecurityGroupsScrapeTimestamp := prometheus.NewGauge(
+	lastSecurityGroupsScrapeTimestampMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -56,7 +56,7 @@ func NewSecurityGroupsCollector(namespace string, cfClient *cfclient.Client) *Se
 		},
 	)
 
-	lastSecurityGroupsScrapeDurationSeconds := prometheus.NewGauge(
+	lastSecurityGroupsScrapeDurationSecondsMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -66,18 +66,20 @@ func NewSecurityGroupsCollector(namespace string, cfClient *cfclient.Client) *Se
 	)
 
 	return &SecurityGroupsCollector{
-		namespace:                               namespace,
-		cfClient:                                cfClient,
-		securityGroupInfo:                       securityGroupInfo,
-		securityGroupsTotal:                     securityGroupsTotal,
-		lastSecurityGroupsScrapeError:           lastSecurityGroupsScrapeError,
-		lastSecurityGroupsScrapeTimestamp:       lastSecurityGroupsScrapeTimestamp,
-		lastSecurityGroupsScrapeDurationSeconds: lastSecurityGroupsScrapeDurationSeconds,
+		namespace:                                     namespace,
+		cfClient:                                      cfClient,
+		securityGroupInfoMetric:                       securityGroupInfoMetric,
+		securityGroupsTotalMetric:                     securityGroupsTotalMetric,
+		lastSecurityGroupsScrapeErrorMetric:           lastSecurityGroupsScrapeErrorMetric,
+		lastSecurityGroupsScrapeTimestampMetric:       lastSecurityGroupsScrapeTimestampMetric,
+		lastSecurityGroupsScrapeDurationSecondsMetric: lastSecurityGroupsScrapeDurationSecondsMetric,
 	}
 }
 
 func (c SecurityGroupsCollector) Collect(ch chan<- prometheus.Metric) {
 	var begun = time.Now()
+
+	c.securityGroupInfoMetric.Reset()
 
 	securityGroups, err := c.cfClient.ListSecGroups()
 	if err != nil {
@@ -87,31 +89,32 @@ func (c SecurityGroupsCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, securityGroup := range securityGroups {
-		c.securityGroupInfo.WithLabelValues(
+		c.securityGroupInfoMetric.WithLabelValues(
 			securityGroup.Guid,
 			securityGroup.Name,
 		).Set(float64(1))
 	}
-	c.securityGroupInfo.Collect(ch)
 
-	c.securityGroupsTotal.Set(float64(len(securityGroups)))
-	c.securityGroupsTotal.Collect(ch)
+	c.securityGroupInfoMetric.Collect(ch)
 
-	c.lastSecurityGroupsScrapeTimestamp.Set(float64(time.Now().Unix()))
-	c.lastSecurityGroupsScrapeTimestamp.Collect(ch)
+	c.securityGroupsTotalMetric.Set(float64(len(securityGroups)))
+	c.securityGroupsTotalMetric.Collect(ch)
 
-	c.lastSecurityGroupsScrapeDurationSeconds.Set(time.Since(begun).Seconds())
-	c.lastSecurityGroupsScrapeDurationSeconds.Collect(ch)
+	c.lastSecurityGroupsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
+	c.lastSecurityGroupsScrapeTimestampMetric.Collect(ch)
+
+	c.lastSecurityGroupsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastSecurityGroupsScrapeDurationSecondsMetric.Collect(ch)
 
 	c.reportErrorMetric(false, ch)
 }
 
 func (c SecurityGroupsCollector) Describe(ch chan<- *prometheus.Desc) {
-	c.securityGroupInfo.Describe(ch)
-	c.securityGroupsTotal.Describe(ch)
-	c.lastSecurityGroupsScrapeError.Describe(ch)
-	c.lastSecurityGroupsScrapeTimestamp.Describe(ch)
-	c.lastSecurityGroupsScrapeDurationSeconds.Describe(ch)
+	c.securityGroupInfoMetric.Describe(ch)
+	c.securityGroupsTotalMetric.Describe(ch)
+	c.lastSecurityGroupsScrapeErrorMetric.Describe(ch)
+	c.lastSecurityGroupsScrapeTimestampMetric.Describe(ch)
+	c.lastSecurityGroupsScrapeDurationSecondsMetric.Describe(ch)
 }
 
 func (c SecurityGroupsCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
@@ -120,7 +123,6 @@ func (c SecurityGroupsCollector) reportErrorMetric(errorHappend bool, ch chan<- 
 		errorMetric = float64(1)
 	}
 
-	c.lastSecurityGroupsScrapeError.Set(errorMetric)
-	c.lastSecurityGroupsScrapeError.Collect(ch)
-
+	c.lastSecurityGroupsScrapeErrorMetric.Set(errorMetric)
+	c.lastSecurityGroupsScrapeErrorMetric.Collect(ch)
 }

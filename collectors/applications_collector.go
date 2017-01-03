@@ -9,17 +9,17 @@ import (
 )
 
 type ApplicationsCollector struct {
-	namespace                             string
-	cfClient                              *cfclient.Client
-	applicationInfo                       *prometheus.GaugeVec
-	applicationsTotal                     prometheus.Gauge
-	lastApplicationsScrapeError           prometheus.Gauge
-	lastApplicationsScrapeTimestamp       prometheus.Gauge
-	lastApplicationsScrapeDurationSeconds prometheus.Gauge
+	namespace                                   string
+	cfClient                                    *cfclient.Client
+	applicationInfoMetric                       *prometheus.GaugeVec
+	applicationsTotalMetric                     prometheus.Gauge
+	lastApplicationsScrapeErrorMetric           prometheus.Gauge
+	lastApplicationsScrapeTimestampMetric       prometheus.Gauge
+	lastApplicationsScrapeDurationSecondsMetric prometheus.Gauge
 }
 
 func NewApplicationsCollector(namespace string, cfClient *cfclient.Client) *ApplicationsCollector {
-	applicationInfo := prometheus.NewGaugeVec(
+	applicationInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "application",
@@ -29,7 +29,7 @@ func NewApplicationsCollector(namespace string, cfClient *cfclient.Client) *Appl
 		[]string{"application_id", "application_name", "space_id", "space_name", "organization_id", "organization_name"},
 	)
 
-	applicationsTotal := prometheus.NewGauge(
+	applicationsTotalMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "applications",
@@ -38,7 +38,7 @@ func NewApplicationsCollector(namespace string, cfClient *cfclient.Client) *Appl
 		},
 	)
 
-	lastApplicationsScrapeError := prometheus.NewGauge(
+	lastApplicationsScrapeErrorMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -47,7 +47,7 @@ func NewApplicationsCollector(namespace string, cfClient *cfclient.Client) *Appl
 		},
 	)
 
-	lastApplicationsScrapeTimestamp := prometheus.NewGauge(
+	lastApplicationsScrapeTimestampMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -56,7 +56,7 @@ func NewApplicationsCollector(namespace string, cfClient *cfclient.Client) *Appl
 		},
 	)
 
-	lastApplicationsScrapeDurationSeconds := prometheus.NewGauge(
+	lastApplicationsScrapeDurationSecondsMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -66,18 +66,20 @@ func NewApplicationsCollector(namespace string, cfClient *cfclient.Client) *Appl
 	)
 
 	return &ApplicationsCollector{
-		namespace:                             namespace,
-		cfClient:                              cfClient,
-		applicationInfo:                       applicationInfo,
-		applicationsTotal:                     applicationsTotal,
-		lastApplicationsScrapeError:           lastApplicationsScrapeError,
-		lastApplicationsScrapeTimestamp:       lastApplicationsScrapeTimestamp,
-		lastApplicationsScrapeDurationSeconds: lastApplicationsScrapeDurationSeconds,
+		namespace:                                   namespace,
+		cfClient:                                    cfClient,
+		applicationInfoMetric:                       applicationInfoMetric,
+		applicationsTotalMetric:                     applicationsTotalMetric,
+		lastApplicationsScrapeErrorMetric:           lastApplicationsScrapeErrorMetric,
+		lastApplicationsScrapeTimestampMetric:       lastApplicationsScrapeTimestampMetric,
+		lastApplicationsScrapeDurationSecondsMetric: lastApplicationsScrapeDurationSecondsMetric,
 	}
 }
 
 func (c ApplicationsCollector) Collect(ch chan<- prometheus.Metric) {
 	var begun = time.Now()
+
+	c.applicationInfoMetric.Reset()
 
 	applications, err := c.cfClient.ListApps()
 	if err != nil {
@@ -87,7 +89,7 @@ func (c ApplicationsCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, application := range applications {
-		c.applicationInfo.WithLabelValues(
+		c.applicationInfoMetric.WithLabelValues(
 			application.Guid,
 			application.Name,
 			application.SpaceData.Entity.Guid,
@@ -96,26 +98,27 @@ func (c ApplicationsCollector) Collect(ch chan<- prometheus.Metric) {
 			application.SpaceData.Entity.OrgData.Entity.Name,
 		).Set(float64(1))
 	}
-	c.applicationInfo.Collect(ch)
 
-	c.applicationsTotal.Set(float64(len(applications)))
-	c.applicationsTotal.Collect(ch)
+	c.applicationInfoMetric.Collect(ch)
 
-	c.lastApplicationsScrapeTimestamp.Set(float64(time.Now().Unix()))
-	c.lastApplicationsScrapeTimestamp.Collect(ch)
+	c.applicationsTotalMetric.Set(float64(len(applications)))
+	c.applicationsTotalMetric.Collect(ch)
 
-	c.lastApplicationsScrapeDurationSeconds.Set(time.Since(begun).Seconds())
-	c.lastApplicationsScrapeDurationSeconds.Collect(ch)
+	c.lastApplicationsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
+	c.lastApplicationsScrapeTimestampMetric.Collect(ch)
+
+	c.lastApplicationsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastApplicationsScrapeDurationSecondsMetric.Collect(ch)
 
 	c.reportErrorMetric(false, ch)
 }
 
 func (c ApplicationsCollector) Describe(ch chan<- *prometheus.Desc) {
-	c.applicationInfo.Describe(ch)
-	c.applicationsTotal.Describe(ch)
-	c.lastApplicationsScrapeError.Describe(ch)
-	c.lastApplicationsScrapeTimestamp.Describe(ch)
-	c.lastApplicationsScrapeDurationSeconds.Describe(ch)
+	c.applicationInfoMetric.Describe(ch)
+	c.applicationsTotalMetric.Describe(ch)
+	c.lastApplicationsScrapeErrorMetric.Describe(ch)
+	c.lastApplicationsScrapeTimestampMetric.Describe(ch)
+	c.lastApplicationsScrapeDurationSecondsMetric.Describe(ch)
 }
 
 func (c ApplicationsCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
@@ -124,6 +127,6 @@ func (c ApplicationsCollector) reportErrorMetric(errorHappend bool, ch chan<- pr
 		errorMetric = float64(1)
 	}
 
-	c.lastApplicationsScrapeError.Set(errorMetric)
-	c.lastApplicationsScrapeError.Collect(ch)
+	c.lastApplicationsScrapeErrorMetric.Set(errorMetric)
+	c.lastApplicationsScrapeErrorMetric.Collect(ch)
 }

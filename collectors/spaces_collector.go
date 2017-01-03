@@ -9,17 +9,17 @@ import (
 )
 
 type SpacesCollector struct {
-	namespace                       string
-	cfClient                        *cfclient.Client
-	spaceInfo                       *prometheus.GaugeVec
-	spacesTotal                     prometheus.Gauge
-	lastSpacesScrapeError           prometheus.Gauge
-	lastSpacesScrapeTimestamp       prometheus.Gauge
-	lastSpacesScrapeDurationSeconds prometheus.Gauge
+	namespace                             string
+	cfClient                              *cfclient.Client
+	spaceInfoMetric                       *prometheus.GaugeVec
+	spacesTotalMetric                     prometheus.Gauge
+	lastSpacesScrapeErrorMetric           prometheus.Gauge
+	lastSpacesScrapeTimestampMetric       prometheus.Gauge
+	lastSpacesScrapeDurationSecondsMetric prometheus.Gauge
 }
 
 func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesCollector {
-	spaceInfo := prometheus.NewGaugeVec(
+	spaceInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "space",
@@ -29,7 +29,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 		[]string{"space_id", "space_name"},
 	)
 
-	spacesTotal := prometheus.NewGauge(
+	spacesTotalMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "spaces",
@@ -38,7 +38,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 		},
 	)
 
-	lastSpacesScrapeError := prometheus.NewGauge(
+	lastSpacesScrapeErrorMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -47,7 +47,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 		},
 	)
 
-	lastSpacesScrapeTimestamp := prometheus.NewGauge(
+	lastSpacesScrapeTimestampMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -56,7 +56,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 		},
 	)
 
-	lastSpacesScrapeDurationSeconds := prometheus.NewGauge(
+	lastSpacesScrapeDurationSecondsMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -66,18 +66,20 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 	)
 
 	return &SpacesCollector{
-		namespace:                       namespace,
-		cfClient:                        cfClient,
-		spaceInfo:                       spaceInfo,
-		spacesTotal:                     spacesTotal,
-		lastSpacesScrapeError:           lastSpacesScrapeError,
-		lastSpacesScrapeTimestamp:       lastSpacesScrapeTimestamp,
-		lastSpacesScrapeDurationSeconds: lastSpacesScrapeDurationSeconds,
+		namespace:                             namespace,
+		cfClient:                              cfClient,
+		spaceInfoMetric:                       spaceInfoMetric,
+		spacesTotalMetric:                     spacesTotalMetric,
+		lastSpacesScrapeErrorMetric:           lastSpacesScrapeErrorMetric,
+		lastSpacesScrapeTimestampMetric:       lastSpacesScrapeTimestampMetric,
+		lastSpacesScrapeDurationSecondsMetric: lastSpacesScrapeDurationSecondsMetric,
 	}
 }
 
 func (c SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 	var begun = time.Now()
+
+	c.spaceInfoMetric.Reset()
 
 	spaces, err := c.cfClient.ListSpaces()
 	if err != nil {
@@ -87,31 +89,32 @@ func (c SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, space := range spaces {
-		c.spaceInfo.WithLabelValues(
+		c.spaceInfoMetric.WithLabelValues(
 			space.Guid,
 			space.Name,
 		).Set(float64(1))
 	}
-	c.spaceInfo.Collect(ch)
 
-	c.spacesTotal.Set(float64(len(spaces)))
-	c.spacesTotal.Collect(ch)
+	c.spaceInfoMetric.Collect(ch)
 
-	c.lastSpacesScrapeTimestamp.Set(float64(time.Now().Unix()))
-	c.lastSpacesScrapeTimestamp.Collect(ch)
+	c.spacesTotalMetric.Set(float64(len(spaces)))
+	c.spacesTotalMetric.Collect(ch)
 
-	c.lastSpacesScrapeDurationSeconds.Set(time.Since(begun).Seconds())
-	c.lastSpacesScrapeDurationSeconds.Collect(ch)
+	c.lastSpacesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
+	c.lastSpacesScrapeTimestampMetric.Collect(ch)
+
+	c.lastSpacesScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastSpacesScrapeDurationSecondsMetric.Collect(ch)
 
 	c.reportErrorMetric(false, ch)
 }
 
 func (c SpacesCollector) Describe(ch chan<- *prometheus.Desc) {
-	c.spaceInfo.Describe(ch)
-	c.spacesTotal.Describe(ch)
-	c.lastSpacesScrapeError.Describe(ch)
-	c.lastSpacesScrapeTimestamp.Describe(ch)
-	c.lastSpacesScrapeDurationSeconds.Describe(ch)
+	c.spaceInfoMetric.Describe(ch)
+	c.spacesTotalMetric.Describe(ch)
+	c.lastSpacesScrapeErrorMetric.Describe(ch)
+	c.lastSpacesScrapeTimestampMetric.Describe(ch)
+	c.lastSpacesScrapeDurationSecondsMetric.Describe(ch)
 }
 
 func (c SpacesCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
@@ -120,6 +123,6 @@ func (c SpacesCollector) reportErrorMetric(errorHappend bool, ch chan<- promethe
 		errorMetric = float64(1)
 	}
 
-	c.lastSpacesScrapeError.Set(errorMetric)
-	c.lastSpacesScrapeError.Collect(ch)
+	c.lastSpacesScrapeErrorMetric.Set(errorMetric)
+	c.lastSpacesScrapeErrorMetric.Collect(ch)
 }

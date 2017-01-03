@@ -9,17 +9,17 @@ import (
 )
 
 type ServicesCollector struct {
-	namespace                         string
-	cfClient                          *cfclient.Client
-	serviceInfo                       *prometheus.GaugeVec
-	servicesTotal                     prometheus.Gauge
-	lastServicesScrapeError           prometheus.Gauge
-	lastServicesScrapeTimestamp       prometheus.Gauge
-	lastServicesScrapeDurationSeconds prometheus.Gauge
+	namespace                               string
+	cfClient                                *cfclient.Client
+	serviceInfoMetric                       *prometheus.GaugeVec
+	servicesTotalMetric                     prometheus.Gauge
+	lastServicesScrapeErrorMetric           prometheus.Gauge
+	lastServicesScrapeTimestampMetric       prometheus.Gauge
+	lastServicesScrapeDurationSecondsMetric prometheus.Gauge
 }
 
 func NewServicesCollector(namespace string, cfClient *cfclient.Client) *ServicesCollector {
-	serviceInfo := prometheus.NewGaugeVec(
+	serviceInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "service",
@@ -29,7 +29,7 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 		[]string{"service_id", "service_label"},
 	)
 
-	servicesTotal := prometheus.NewGauge(
+	servicesTotalMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "services",
@@ -38,7 +38,7 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 		},
 	)
 
-	lastServicesScrapeError := prometheus.NewGauge(
+	lastServicesScrapeErrorMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -47,7 +47,7 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 		},
 	)
 
-	lastServicesScrapeTimestamp := prometheus.NewGauge(
+	lastServicesScrapeTimestampMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -56,7 +56,7 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 		},
 	)
 
-	lastServicesScrapeDurationSeconds := prometheus.NewGauge(
+	lastServicesScrapeDurationSecondsMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
@@ -66,18 +66,20 @@ func NewServicesCollector(namespace string, cfClient *cfclient.Client) *Services
 	)
 
 	return &ServicesCollector{
-		namespace:                         namespace,
-		cfClient:                          cfClient,
-		serviceInfo:                       serviceInfo,
-		servicesTotal:                     servicesTotal,
-		lastServicesScrapeError:           lastServicesScrapeError,
-		lastServicesScrapeTimestamp:       lastServicesScrapeTimestamp,
-		lastServicesScrapeDurationSeconds: lastServicesScrapeDurationSeconds,
+		namespace:                               namespace,
+		cfClient:                                cfClient,
+		serviceInfoMetric:                       serviceInfoMetric,
+		servicesTotalMetric:                     servicesTotalMetric,
+		lastServicesScrapeErrorMetric:           lastServicesScrapeErrorMetric,
+		lastServicesScrapeTimestampMetric:       lastServicesScrapeTimestampMetric,
+		lastServicesScrapeDurationSecondsMetric: lastServicesScrapeDurationSecondsMetric,
 	}
 }
 
 func (c ServicesCollector) Collect(ch chan<- prometheus.Metric) {
 	var begun = time.Now()
+
+	c.serviceInfoMetric.Reset()
 
 	services, err := c.cfClient.ListServices()
 	if err != nil {
@@ -87,31 +89,32 @@ func (c ServicesCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, service := range services {
-		c.serviceInfo.WithLabelValues(
+		c.serviceInfoMetric.WithLabelValues(
 			service.Guid,
 			service.Label,
 		).Set(float64(1))
 	}
-	c.serviceInfo.Collect(ch)
 
-	c.servicesTotal.Set(float64(len(services)))
-	c.servicesTotal.Collect(ch)
+	c.serviceInfoMetric.Collect(ch)
 
-	c.lastServicesScrapeTimestamp.Set(float64(time.Now().Unix()))
-	c.lastServicesScrapeTimestamp.Collect(ch)
+	c.servicesTotalMetric.Set(float64(len(services)))
+	c.servicesTotalMetric.Collect(ch)
 
-	c.lastServicesScrapeDurationSeconds.Set(time.Since(begun).Seconds())
-	c.lastServicesScrapeDurationSeconds.Collect(ch)
+	c.lastServicesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
+	c.lastServicesScrapeTimestampMetric.Collect(ch)
+
+	c.lastServicesScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastServicesScrapeDurationSecondsMetric.Collect(ch)
 
 	c.reportErrorMetric(false, ch)
 }
 
 func (c ServicesCollector) Describe(ch chan<- *prometheus.Desc) {
-	c.serviceInfo.Describe(ch)
-	c.servicesTotal.Describe(ch)
-	c.lastServicesScrapeError.Describe(ch)
-	c.lastServicesScrapeTimestamp.Describe(ch)
-	c.lastServicesScrapeDurationSeconds.Describe(ch)
+	c.serviceInfoMetric.Describe(ch)
+	c.servicesTotalMetric.Describe(ch)
+	c.lastServicesScrapeErrorMetric.Describe(ch)
+	c.lastServicesScrapeTimestampMetric.Describe(ch)
+	c.lastServicesScrapeDurationSecondsMetric.Describe(ch)
 }
 
 func (c ServicesCollector) reportErrorMetric(errorHappend bool, ch chan<- prometheus.Metric) {
@@ -120,7 +123,6 @@ func (c ServicesCollector) reportErrorMetric(errorHappend bool, ch chan<- promet
 		errorMetric = float64(1)
 	}
 
-	c.lastServicesScrapeError.Set(errorMetric)
-	c.lastServicesScrapeError.Collect(ch)
-
+	c.lastServicesScrapeErrorMetric.Set(errorMetric)
+	c.lastServicesScrapeErrorMetric.Collect(ch)
 }
