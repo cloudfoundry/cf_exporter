@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/url"
 )
 
 type OrgResponse struct {
@@ -20,14 +21,31 @@ type OrgResource struct {
 }
 
 type Org struct {
-	Guid string `json:"guid"`
-	Name string `json:"name"`
-	c    *Client
+	Guid                string `json:"guid"`
+	Name                string `json:"name"`
+	QuotaDefinitionGuid string `json:"quota_definition_guid"`
+	c                   *Client
 }
 
-func (c *Client) ListOrgs() ([]Org, error) {
+type OrgSummary struct {
+	Guid   string             `json:"guid"`
+	Name   string             `json:"name"`
+	Status string             `json:"status"`
+	Spaces []OrgSummarySpaces `json:"spaces"`
+}
+
+type OrgSummarySpaces struct {
+	Guid         string `json:"guid"`
+	Name         string `json:"name"`
+	ServiceCount int    `json:"service_count"`
+	AppCount     int    `json:"app_count"`
+	MemDevTotal  int    `json:"mem_dev_total"`
+	MemProdTotal int    `json:"mem_prod_total"`
+}
+
+func (c *Client) ListOrgsByQuery(query url.Values) ([]Org, error) {
 	var orgs []Org
-	requestUrl := "/v2/organizations"
+	requestUrl := "/v2/organizations?" + query.Encode()
 	for {
 		orgResp, err := c.getOrgResponse(requestUrl)
 		if err != nil {
@@ -44,6 +62,24 @@ func (c *Client) ListOrgs() ([]Org, error) {
 		}
 	}
 	return orgs, nil
+}
+
+func (c *Client) ListOrgs() ([]Org, error) {
+	return c.ListOrgsByQuery(nil)
+}
+
+func (c *Client) GetOrgByName(name string) (Org, error) {
+	var org Org
+	q := url.Values{}
+	q.Set("q", "name:"+name)
+	orgs, err := c.ListOrgsByQuery(q)
+	if err != nil {
+		return org, err
+	}
+	if len(orgs) == 0 {
+		return org, fmt.Errorf("Unable to find org %s", name)
+	}
+	return orgs[0], nil
 }
 
 func (c *Client) getOrgResponse(requestUrl string) (OrgResponse, error) {
@@ -89,5 +125,51 @@ func (c *Client) OrgSpaces(guid string) ([]Space, error) {
 	}
 
 	return spaces, nil
+}
 
+func (o *Org) Summary() (OrgSummary, error) {
+	var orgSummary OrgSummary
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/summary", o.Guid)
+	r := o.c.NewRequest("GET", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return OrgSummary{}, fmt.Errorf("Error requesting org summary %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return OrgSummary{}, fmt.Errorf("Error reading org summary body %v", err)
+	}
+	err = json.Unmarshal(resBody, &orgSummary)
+	if err != nil {
+		return OrgSummary{}, fmt.Errorf("Error unmarshalling org summary %v", err)
+	}
+	return orgSummary, nil
+}
+
+func (o *Org) Quota() (*OrgQuota, error) {
+	var orgQuota *OrgQuota
+	var orgQuotaResource OrgQuotasResource
+	if o.QuotaDefinitionGuid == "" {
+		return nil, nil
+	}
+	requestUrl := fmt.Sprintf("/v2/quota_definitions/%s", o.QuotaDefinitionGuid)
+	r := o.c.NewRequest("GET", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return &OrgQuota{}, fmt.Errorf("Error requesting org quota %v", err)
+	}
+	resBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return &OrgQuota{}, fmt.Errorf("Error reading org quota body %v", err)
+	}
+	err = json.Unmarshal(resBody, &orgQuotaResource)
+	if err != nil {
+		return &OrgQuota{}, fmt.Errorf("Error unmarshalling org quota %v", err)
+	}
+	orgQuota = &orgQuotaResource.Entity
+	orgQuota.Guid = orgQuotaResource.Meta.Guid
+	orgQuota.c = o.c
+	return orgQuota, nil
 }
