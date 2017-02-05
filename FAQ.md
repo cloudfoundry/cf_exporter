@@ -11,6 +11,7 @@ The Cloud Foundry Prometheus Exporter gets information from the [Cloud Foundry A
   * Total number of application events (id, event type)
 * Organizations information:
   * Organization information (id, name)
+  * Organization Quota information
   * Total number of organizations
 * Security Groups information:
   * Security Group information (id, name)

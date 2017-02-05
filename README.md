@@ -93,6 +93,16 @@ The exporter returns the following `Organizations` metrics:
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
 | *metrics.namespace*_organization_info | Labeled Cloud Foundry Organization information with a constant `1` value | `organization_id`, `organization_name` |
+| *metrics.namespace*_organization_non_basic_services_allowed | A Cloud Foundry Organization can provision instances of paid service plans? (1 for true, 0 for false) | `organization_id`, `organization_name` |
+| *metrics.namespace*_organization_instance_memory_mb_limit | Maximum amount of memory (Mb) an application instance can have in a Cloud Foundry Organization | `organization_id`, `organization_name` |
+| *metrics.namespace*_organization_total_app_instances_quota | Total number of application instances that may be created in a Cloud Foundry Organization | `organization_id`, `organization_name` |
+| *metrics.namespace*_organization_total_app_tasks_quota | Total number of application tasks that may be created in a Cloud Foundry Organization | `organization_id`, `organization_name` |
+| *metrics.namespace*_organization_total_memory_mb_quota | Total amount of memory (Mb) a Cloud Foundry Organization can have | `organization_id`, `organization_name` |
+| *metrics.namespace*_organization_total_private_domains_quota | Total number of private domains that may be created in a Cloud Foundry Organization | `organization_id`, `organization_name` |
+| *metrics.namespace*_organization_total_reserved_route_ports_quota | Total number of routes that may be created with reserved ports in a Cloud Foundry Organization | `organization_id`, `organization_name` |
+| *metrics.namespace*_organization_total_routes_quota | Total number of routes that may be created in a Cloud Foundry Organization | `organization_id`, `organization_name` |
+| *metrics.namespace*_organization_total_service_keys_quota | Total number of service keys that may be created in a Cloud Foundry Organization | `organization_id`, `organization_name` |
+| *metrics.namespace*_organization_total_services_quota | Total number of service instances that may be created in a Cloud Foundry Organization | `organization_id`, `organization_name` |
 | *metrics.namespace*_organizations_total | Total number of Cloud Foundry Organizations | |
 | *metrics.namespace*_organizations_scrapes_total | Total number of scrapes for Cloud Foundry Organizations | |
 | *metrics.namespace*_organizations_scrape_errors_total | Total number of scrape errors of Cloud Foundry Organizations | |
