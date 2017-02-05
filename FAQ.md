@@ -20,6 +20,7 @@ The Cloud Foundry Prometheus Exporter gets information from the [Cloud Foundry A
   * Total number of services
 * Spaces information:
   * Space information (id, name)
+  * Space Quota information
   * Total number of spaces
 
 ### What are the caveats when using this exporter?

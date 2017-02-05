@@ -129,6 +129,15 @@ The exporter returns the following `Spaces` metrics:
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
 | *metrics.namespace*_space_info | Labeled Cloud Foundry Space information with a constant `1` value | `space_id`, `space_name` |
+| *metrics.namespace*_space_non_basic_services_allowed | A Cloud Foundry Space can provision instances of paid service plans? (1 for true, 0 for false) | `space_id`, `space_name` |
+| *metrics.namespace*_space_instance_memory_mb_limit | Maximum amount of memory (Mb) an application instance can have in a Cloud Foundry Space | `space_id`, `space_name` |
+| *metrics.namespace*_space_total_app_instances_quota | Total number of application instances that may be created in a Cloud Foundry Space | `space_id`, `space_name` |
+| *metrics.namespace*_space_total_app_tasks_quota | Total number of application tasks that may be created in a Cloud Foundry Space | `space_id`, `space_name` |
+| *metrics.namespace*_space_total_memory_mb_quota | Total amount of memory (Mb) a Cloud Foundry Space can have | `space_id`, `space_name` |
+| *metrics.namespace*_space_total_reserved_route_ports_quota | Total number of routes that may be created with reserved ports in a Cloud Foundry Space | `space_id`, `space_name` |
+| *metrics.namespace*_space_total_routes_quota | Total number of routes that may be created in a Cloud Foundry Space | `space_id`, `space_name` |
+| *metrics.namespace*_space_total_service_keys_quota | Total number of service keys that may be created in a Cloud Foundry Space | `space_id`, `space_name` |
+| *metrics.namespace*_space_total_services_quota | Total number of service instances that may be created in a Cloud Foundry Space | `space_id`, `space_name` |
 | *metrics.namespace*_spaces_total | Total number of Cloud Foundry Spaces | |
 | *metrics.namespace*_spaces_scrapes_total | Total number of scrapes for Cloud Foundry Spaces | |
 | *metrics.namespace*_spaces_scrape_errors_total | Total number of scrape errors of Cloud Foundry Spaces | |
