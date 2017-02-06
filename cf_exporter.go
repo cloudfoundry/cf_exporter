@@ -82,6 +82,16 @@ var (
 		"web.auth.password", "",
 		"Password for web interface basic auth ($CF_EXPORTER_WEB_AUTH_PASSWORD).",
 	)
+
+	tlsCertFile = flag.String(
+		"web.tls.cert_file", "",
+		"Path to a file that contains the TLS certificate (PEM format). If the certificate is signed by a certificate authority, the file should be the concatenation of the server's certificate, any intermediates, and the CA's certificate ($CF_EXPORTER_WEB_TLS_CERTFILE).",
+	)
+
+	tlsKeyFile = flag.String(
+		"web.tls.key_file", "",
+		"Path to a file that contains the TLS private key (PEM format) ($CF_EXPORTER_WEB_TLS_KEYFILE).",
+	)
 )
 
 func init() {
@@ -101,6 +111,8 @@ func overrideFlagsWithEnvVars() {
 	overrideWithEnvVar("CF_EXPORTER_WEB_TELEMETRY_PATH", metricsPath)
 	overrideWithEnvVar("CF_EXPORTER_WEB_AUTH_USERNAME", authUsername)
 	overrideWithEnvVar("CF_EXPORTER_WEB_AUTH_PASSWORD", authPassword)
+	overrideWithEnvVar("CF_EXPORTER_WEB_TLS_CERTFILE", tlsCertFile)
+	overrideWithEnvVar("CF_EXPORTER_WEB_TLS_KEYFILE", tlsKeyFile)
 }
 
 func overrideWithEnvVar(name string, value *string) {
@@ -232,6 +244,11 @@ func main() {
              </html>`))
 	})
 
-	log.Infoln("Listening on", *listenAddress)
-	log.Fatal(http.ListenAndServe(*listenAddress, nil))
+	if *tlsCertFile != "" && *tlsKeyFile != "" {
+		log.Infoln("Listening TLS on", *listenAddress)
+		log.Fatal(http.ListenAndServeTLS(*listenAddress, *tlsCertFile, *tlsKeyFile, nil))
+	} else {
+		log.Infoln("Listening on", *listenAddress)
+		log.Fatal(http.ListenAndServe(*listenAddress, nil))
+	}
 }
