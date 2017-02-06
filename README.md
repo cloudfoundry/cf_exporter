@@ -139,7 +139,7 @@ The exporter returns the following `Service Instances` metrics:
 
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
-| *metrics.namespace*_service_instance_info | Labeled Cloud Foundry Service Instance information with a constant `1` value | `deployment`, `service_instance_id`, `service_instance_name`, `service_plan_id`, `space_id` |
+| *metrics.namespace*_service_instance_info | Labeled Cloud Foundry Service Instance information with a constant `1` value | `deployment`, `service_instance_id`, `service_instance_name`, `service_plan_id`, `space_id`, `type` |
 | *metrics.namespace*_service_instances_scrapes_total | Total number of scrapes for Cloud Foundry Service Instances | `deployment` |
 | *metrics.namespace*_service_instances_scrape_errors_total | Total number of scrape errors of Cloud Foundry Service Instances | `deployment` |
 | *metrics.namespace*_last_service_instances_scrape_error | Whether the last scrape of Service Instances metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |

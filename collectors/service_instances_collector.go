@@ -28,7 +28,7 @@ func NewServiceInstancesCollector(namespace string, deploymentName string, cfCli
 			Name:      "info",
 			Help:      "Labeled Cloud Foundry Service Instance information with a constant '1' value.",
 		},
-		[]string{"deployment", "service_instance_id", "service_instance_name", "service_plan_id", "space_id"},
+		[]string{"deployment", "service_instance_id", "service_instance_name", "service_plan_id", "space_id", "type"},
 	)
 
 	serviceInstancesScrapesTotalMetric := prometheus.NewCounterVec(
@@ -142,6 +142,7 @@ func (c ServiceInstancesCollector) reportServiceInstancesMetrics(ch chan<- prome
 			serviceInstance.Name,
 			serviceInstance.ServicePlanGuid,
 			serviceInstance.SpaceGuid,
+			serviceInstance.Type,
 		).Set(float64(1))
 	}
 
