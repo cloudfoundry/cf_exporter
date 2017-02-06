@@ -60,6 +60,8 @@ This exporter can be deployed using the [Prometheus BOSH Release][prometheus-bos
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
 | `web.listen-address`<br />`CF_EXPORTER_WEB_LISTEN_ADDRESS` | No | `:9193` | Address to listen on for web interface and telemetry |
 | `web.telemetry-path`<br />`CF_EXPORTER_WEB_TELEMETRY_PATH` | No | `/metrics` | Path under which to expose Prometheus metrics |
+| `web.auth.username`<br />`CF_EXPORTER_WEB_AUTH_USERNAME` | No | | Username for web interface basic auth |
+| `web.auth.pasword`<br />`CF_EXPORTER_WEB_AUTH_PASSWORD` | No | | Password for web interface basic auth |
 
 *[1]* Either `cf.username` and `cf.password` or `cf.client-id` and `cf.client-secret` must be provided, depending on the desired authentication method.
 

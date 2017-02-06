@@ -72,6 +72,16 @@ var (
 		"web.telemetry-path", "/metrics",
 		"Path under which to expose Prometheus metrics ($CF_EXPORTER_WEB_TELEMETRY_PATH).",
 	)
+
+	authUsername = flag.String(
+		"web.auth.username", "",
+		"Username for web interface basic auth ($CF_EXPORTER_WEB_AUTH_USERNAME).",
+	)
+
+	authPassword = flag.String(
+		"web.auth.password", "",
+		"Password for web interface basic auth ($CF_EXPORTER_WEB_AUTH_PASSWORD).",
+	)
 )
 
 func init() {
@@ -89,6 +99,8 @@ func overrideFlagsWithEnvVars() {
 	overrideWithEnvBool("CF_EXPORTER_SKIP_SSL_VERIFY", skipSSLValidation)
 	overrideWithEnvVar("CF_EXPORTER_WEB_LISTEN_ADDRESS", listenAddress)
 	overrideWithEnvVar("CF_EXPORTER_WEB_TELEMETRY_PATH", metricsPath)
+	overrideWithEnvVar("CF_EXPORTER_WEB_AUTH_USERNAME", authUsername)
+	overrideWithEnvVar("CF_EXPORTER_WEB_AUTH_PASSWORD", authPassword)
 }
 
 func overrideWithEnvVar(name string, value *string) {
@@ -107,6 +119,38 @@ func overrideWithEnvBool(name string, value *bool) {
 			log.Fatalf("Invalid `%s`: %s", name, err)
 		}
 	}
+}
+
+type basicAuthHandler struct {
+	handler  http.HandlerFunc
+	username string
+	password string
+}
+
+func (h *basicAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	username, password, ok := r.BasicAuth()
+	if !ok || username != h.username || password != h.password {
+		log.Errorf("Invalid HTTP auth from `%s`", r.RemoteAddr)
+		w.Header().Set("WWW-Authenticate", "Basic realm=\"metrics\"")
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+	h.handler(w, r)
+	return
+}
+
+func prometheusHandler() http.Handler {
+	handler := prometheus.Handler()
+
+	if *authUsername != "" && *authPassword != "" {
+		handler = &basicAuthHandler{
+			handler:  prometheus.Handler().ServeHTTP,
+			username: *authUsername,
+			password: *authPassword,
+		}
+	}
+
+	return handler
 }
 
 func main() {
@@ -176,7 +220,8 @@ func main() {
 		prometheus.MustRegister(spacesCollector)
 	}
 
-	http.Handle(*metricsPath, prometheus.Handler())
+	handler := prometheusHandler()
+	http.Handle(*metricsPath, handler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
              <head><title>Cloud Foundry Exporter</title></head>
