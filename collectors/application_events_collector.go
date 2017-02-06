@@ -11,16 +11,17 @@ import (
 
 type ApplicationEventsCollector struct {
 	namespace                                        string
+	deploymentName                                   string
 	cfClient                                         *cfclient.Client
 	applicationEventsTotalMetric                     *prometheus.CounterVec
-	applicationEventsScrapesTotalMetric              prometheus.Counter
-	applicationEventsScrapeErrorsTotalMetric         prometheus.Counter
-	lastApplicationEventsScrapeErrorMetric           prometheus.Gauge
-	lastApplicationEventsScrapeTimestampMetric       prometheus.Gauge
-	lastApplicationEventsScrapeDurationSecondsMetric prometheus.Gauge
+	applicationEventsScrapesTotalMetric              *prometheus.CounterVec
+	applicationEventsScrapeErrorsTotalMetric         *prometheus.CounterVec
+	lastApplicationEventsScrapeErrorMetric           *prometheus.GaugeVec
+	lastApplicationEventsScrapeTimestampMetric       *prometheus.GaugeVec
+	lastApplicationEventsScrapeDurationSecondsMetric *prometheus.GaugeVec
 }
 
-func NewApplicationEventsCollector(namespace string, cfClient *cfclient.Client) *ApplicationEventsCollector {
+func NewApplicationEventsCollector(namespace string, deploymentName string, cfClient *cfclient.Client) *ApplicationEventsCollector {
 	applicationEventsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: namespace,
@@ -28,56 +29,62 @@ func NewApplicationEventsCollector(namespace string, cfClient *cfclient.Client) 
 			Name:      "total",
 			Help:      "Total number of Cloud Foundry Application Events.",
 		},
-		[]string{"application_id", "event_type"},
+		[]string{"deployment", "application_id", "event_type"},
 	)
 
-	applicationEventsScrapesTotalMetric := prometheus.NewCounter(
+	applicationEventsScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: namespace,
 			Subsystem: "application_events_scrapes",
 			Name:      "total",
 			Help:      "Total number of scrapes for Cloud Foundry Application Events.",
 		},
+		[]string{"deployment"},
 	)
 
-	applicationEventsScrapeErrorsTotalMetric := prometheus.NewCounter(
+	applicationEventsScrapeErrorsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: namespace,
 			Subsystem: "application_events_scrape_errors",
 			Name:      "total",
 			Help:      "Total number of scrape errors of Cloud Foundry Application Events.",
 		},
+		[]string{"deployment"},
 	)
 
-	lastApplicationEventsScrapeErrorMetric := prometheus.NewGauge(
+	lastApplicationEventsScrapeErrorMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
 			Name:      "last_application_events_scrape_error",
 			Help:      "Whether the last scrape of Application Events metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
 		},
+		[]string{"deployment"},
 	)
 
-	lastApplicationEventsScrapeTimestampMetric := prometheus.NewGauge(
+	lastApplicationEventsScrapeTimestampMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
 			Name:      "last_application_events_scrape_timestamp",
 			Help:      "Number of seconds since 1970 since last scrape of Application Events metrics from Cloud Foundry.",
 		},
+		[]string{"deployment"},
 	)
 
-	lastApplicationEventsScrapeDurationSecondsMetric := prometheus.NewGauge(
+	lastApplicationEventsScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
 			Name:      "last_application_events_scrape_duration_seconds",
 			Help:      "Duration of the last scrape of Application Events metrics from Cloud Foundry.",
 		},
+		[]string{"deployment"},
 	)
 
 	return &ApplicationEventsCollector{
 		namespace:                                        namespace,
+		deploymentName:                                   deploymentName,
 		cfClient:                                         cfClient,
 		applicationEventsTotalMetric:                     applicationEventsTotalMetric,
 		applicationEventsScrapesTotalMetric:              applicationEventsScrapesTotalMetric,
@@ -94,21 +101,20 @@ func (c ApplicationEventsCollector) Collect(ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
 	if err := c.reportApplicationEventsMetrics(ch); err != nil {
 		errorMetric = float64(1)
-		c.applicationEventsScrapeErrorsTotalMetric.Inc()
+		c.applicationEventsScrapeErrorsTotalMetric.WithLabelValues(c.deploymentName).Inc()
 	}
-
-	c.applicationEventsScrapesTotalMetric.Inc()
-	c.applicationEventsScrapesTotalMetric.Collect(ch)
-
 	c.applicationEventsScrapeErrorsTotalMetric.Collect(ch)
 
-	c.lastApplicationEventsScrapeErrorMetric.Set(errorMetric)
+	c.applicationEventsScrapesTotalMetric.WithLabelValues(c.deploymentName).Inc()
+	c.applicationEventsScrapesTotalMetric.Collect(ch)
+
+	c.lastApplicationEventsScrapeErrorMetric.WithLabelValues(c.deploymentName).Set(errorMetric)
 	c.lastApplicationEventsScrapeErrorMetric.Collect(ch)
 
-	c.lastApplicationEventsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
+	c.lastApplicationEventsScrapeTimestampMetric.WithLabelValues(c.deploymentName).Set(float64(time.Now().Unix()))
 	c.lastApplicationEventsScrapeTimestampMetric.Collect(ch)
 
-	c.lastApplicationEventsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastApplicationEventsScrapeDurationSecondsMetric.WithLabelValues(c.deploymentName).Set(time.Since(begun).Seconds())
 	c.lastApplicationEventsScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -178,6 +184,7 @@ func (c ApplicationEventsCollector) gatherApplicationEvents(eventType string, ch
 	for _, event := range events {
 		if event.ActeeType == "app" {
 			c.applicationEventsTotalMetric.WithLabelValues(
+				c.deploymentName,
 				event.Actee,
 				eventType,
 			).Inc()

@@ -43,6 +43,11 @@ var (
 		"Cloud Foundry Client Secret ($CF_EXPORTER_CF_CLIENT_SECRET).",
 	)
 
+	cfDeploymentName = flag.String(
+		"cf.deployment-name", "",
+		"Cloud Foundry Deployment Name to be reported as a metric label ($CF_EXPORTER_CF_DEPLOYMENT_NAME).",
+	)
+
 	filterCollectors = flag.String(
 		"filter.collectors", "",
 		"Comma separated collectors to filter (Applications,ApplicationEvents,Organizations,SecurityGroups,Services,Spaces) ($CF_EXPORTER_FILTER_COLLECTORS).",
@@ -104,6 +109,7 @@ func overrideFlagsWithEnvVars() {
 	overrideWithEnvVar("CF_EXPORTER_CF_PASSWORD", cfPassword)
 	overrideWithEnvVar("CF_EXPORTER_CF_CLIENT_ID", cfClientID)
 	overrideWithEnvVar("CF_EXPORTER_CF_CLIENT_SECRET", cfClientSecret)
+	overrideWithEnvVar("CF_EXPORTER_CF_DEPLOYMENT_NAME", cfDeploymentName)
 	overrideWithEnvVar("CF_EXPORTER_FILTER_COLLECTORS", filterCollectors)
 	overrideWithEnvVar("CF_EXPORTER_METRICS_NAMESPACE", metricsNamespace)
 	overrideWithEnvBool("CF_EXPORTER_SKIP_SSL_VERIFY", skipSSLValidation)
@@ -203,32 +209,32 @@ func main() {
 	}
 
 	if collectorsFilter.Enabled(filters.ApplicationsCollector) {
-		applicationsCollector := collectors.NewApplicationsCollector(*metricsNamespace, cfClient)
+		applicationsCollector := collectors.NewApplicationsCollector(*metricsNamespace, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(applicationsCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.ApplicationEventsCollector) {
-		applicationEventsCollector := collectors.NewApplicationEventsCollector(*metricsNamespace, cfClient)
+		applicationEventsCollector := collectors.NewApplicationEventsCollector(*metricsNamespace, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(applicationEventsCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.OrganizationsCollector) {
-		organizationsCollector := collectors.NewOrganizationsCollector(*metricsNamespace, cfClient)
+		organizationsCollector := collectors.NewOrganizationsCollector(*metricsNamespace, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(organizationsCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.SecurityGroupsCollector) {
-		securityGroupsCollector := collectors.NewSecurityGroupsCollector(*metricsNamespace, cfClient)
+		securityGroupsCollector := collectors.NewSecurityGroupsCollector(*metricsNamespace, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(securityGroupsCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.ServicesCollector) {
-		servicesCollector := collectors.NewServicesCollector(*metricsNamespace, cfClient)
+		servicesCollector := collectors.NewServicesCollector(*metricsNamespace, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(servicesCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.SpacesCollector) {
-		spacesCollector := collectors.NewSpacesCollector(*metricsNamespace, cfClient)
+		spacesCollector := collectors.NewSpacesCollector(*metricsNamespace, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(spacesCollector)
 	}
 

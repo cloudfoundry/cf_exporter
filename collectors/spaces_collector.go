@@ -10,6 +10,7 @@ import (
 
 type SpacesCollector struct {
 	namespace                               string
+	deploymentName                          string
 	cfClient                                *cfclient.Client
 	spaceInfoMetric                         *prometheus.GaugeVec
 	spaceNonBasicServicesAllowedMetric      *prometheus.GaugeVec
@@ -21,15 +22,15 @@ type SpacesCollector struct {
 	spaceTotalRoutesQuotaMetric             *prometheus.GaugeVec
 	spaceTotalServiceKeysQuotaMetric        *prometheus.GaugeVec
 	spaceTotalServicesQuotaMetric           *prometheus.GaugeVec
-	spacesTotalMetric                       prometheus.Gauge
-	spacesScrapesTotalMetric                prometheus.Counter
-	spacesScrapeErrorsTotalMetric           prometheus.Counter
-	lastSpacesScrapeErrorMetric             prometheus.Gauge
-	lastSpacesScrapeTimestampMetric         prometheus.Gauge
-	lastSpacesScrapeDurationSecondsMetric   prometheus.Gauge
+	spacesTotalMetric                       *prometheus.GaugeVec
+	spacesScrapesTotalMetric                *prometheus.CounterVec
+	spacesScrapeErrorsTotalMetric           *prometheus.CounterVec
+	lastSpacesScrapeErrorMetric             *prometheus.GaugeVec
+	lastSpacesScrapeTimestampMetric         *prometheus.GaugeVec
+	lastSpacesScrapeDurationSecondsMetric   *prometheus.GaugeVec
 }
 
-func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesCollector {
+func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfclient.Client) *SpacesCollector {
 	spaceInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
@@ -37,7 +38,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Name:      "info",
 			Help:      "Labeled Cloud Foundry Space information with a constant '1' value.",
 		},
-		[]string{"space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name"},
 	)
 
 	spaceNonBasicServicesAllowedMetric := prometheus.NewGaugeVec(
@@ -47,7 +48,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Name:      "non_basic_services_allowed",
 			Help:      "A Cloud Foundry Space can provision instances of paid service plans? (1 for true, 0 for false).",
 		},
-		[]string{"space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name"},
 	)
 
 	spaceInstanceMemoryMbLimitMetric := prometheus.NewGaugeVec(
@@ -57,7 +58,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Name:      "instance_memory_mb_limit",
 			Help:      "Maximum amount of memory (Mb) an application instance can have in a Cloud Foundry Space.",
 		},
-		[]string{"space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name"},
 	)
 
 	spaceTotalAppInstancesQuotaMetric := prometheus.NewGaugeVec(
@@ -67,7 +68,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Name:      "total_app_instances_quota",
 			Help:      "Total number of application instances that may be created in a Cloud Foundry Space.",
 		},
-		[]string{"space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name"},
 	)
 
 	spaceTotalAppTasksQuotaMetric := prometheus.NewGaugeVec(
@@ -77,7 +78,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Name:      "total_app_tasks_quota",
 			Help:      "Total number of application tasks that may be created in a Cloud Foundry Space.",
 		},
-		[]string{"space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name"},
 	)
 
 	spaceTotalMemoryMbQuotaMetric := prometheus.NewGaugeVec(
@@ -87,7 +88,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Name:      "total_memory_mb_quota",
 			Help:      "Total amount of memory (Mb) a Cloud Foundry Space can have.",
 		},
-		[]string{"space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name"},
 	)
 
 	spaceTotalReservedRoutePortsQuotaMetric := prometheus.NewGaugeVec(
@@ -97,7 +98,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Name:      "total_reserved_route_ports_quota",
 			Help:      "Total number of routes that may be created with reserved ports in a Cloud Foundry Space.",
 		},
-		[]string{"space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name"},
 	)
 
 	spaceTotalRoutesQuotaMetric := prometheus.NewGaugeVec(
@@ -107,7 +108,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Name:      "total_routes_quota",
 			Help:      "Total number of routes that may be created in a Cloud Foundry Space.",
 		},
-		[]string{"space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name"},
 	)
 
 	spaceTotalServiceKeysQuotaMetric := prometheus.NewGaugeVec(
@@ -117,7 +118,7 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Name:      "total_service_keys_quota",
 			Help:      "Total number of service keys that may be created in a Cloud Foundry Space.",
 		},
-		[]string{"space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name"},
 	)
 
 	spaceTotalServicesQuotaMetric := prometheus.NewGaugeVec(
@@ -127,65 +128,72 @@ func NewSpacesCollector(namespace string, cfClient *cfclient.Client) *SpacesColl
 			Name:      "total_services_quota",
 			Help:      "Total number of service instances that may be created in a Cloud Foundry Space.",
 		},
-		[]string{"space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name"},
 	)
 
-	spacesTotalMetric := prometheus.NewGauge(
+	spacesTotalMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "spaces",
 			Name:      "total",
 			Help:      "Total number of Cloud Foundry Spaces.",
 		},
+		[]string{"deployment"},
 	)
 
-	spacesScrapesTotalMetric := prometheus.NewCounter(
+	spacesScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: namespace,
 			Subsystem: "spaces_scrapes",
 			Name:      "total",
 			Help:      "Total number of scrapes for Cloud Foundry Spaces.",
 		},
+		[]string{"deployment"},
 	)
 
-	spacesScrapeErrorsTotalMetric := prometheus.NewCounter(
+	spacesScrapeErrorsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: namespace,
 			Subsystem: "spaces_scrape_errors",
 			Name:      "total",
 			Help:      "Total number of scrapes errors of Cloud Foundry Spaces.",
 		},
+		[]string{"deployment"},
 	)
 
-	lastSpacesScrapeErrorMetric := prometheus.NewGauge(
+	lastSpacesScrapeErrorMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
 			Name:      "last_spaces_scrape_error",
 			Help:      "Whether the last scrape of Spaces metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
 		},
+		[]string{"deployment"},
 	)
 
-	lastSpacesScrapeTimestampMetric := prometheus.NewGauge(
+	lastSpacesScrapeTimestampMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
 			Name:      "last_spaces_scrape_timestamp",
 			Help:      "Number of seconds since 1970 since last scrape of Spaces metrics from Cloud Foundry.",
 		},
+		[]string{"deployment"},
 	)
 
-	lastSpacesScrapeDurationSecondsMetric := prometheus.NewGauge(
+	lastSpacesScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
 			Name:      "last_spaces_scrape_duration_seconds",
 			Help:      "Duration of the last scrape of Spaces metrics from Cloud Foundry.",
 		},
+		[]string{"deployment"},
 	)
 
 	return &SpacesCollector{
 		namespace:                               namespace,
+		deploymentName:                          deploymentName,
 		cfClient:                                cfClient,
 		spaceInfoMetric:                         spaceInfoMetric,
 		spaceNonBasicServicesAllowedMetric:      spaceNonBasicServicesAllowedMetric,
@@ -212,21 +220,20 @@ func (c SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
 	if err := c.reportSpacesMetrics(ch); err != nil {
 		errorMetric = float64(1)
-		c.spacesScrapeErrorsTotalMetric.Inc()
+		c.spacesScrapeErrorsTotalMetric.WithLabelValues(c.deploymentName).Inc()
 	}
-
-	c.spacesScrapesTotalMetric.Inc()
-	c.spacesScrapesTotalMetric.Collect(ch)
-
 	c.spacesScrapeErrorsTotalMetric.Collect(ch)
 
-	c.lastSpacesScrapeErrorMetric.Set(errorMetric)
+	c.spacesScrapesTotalMetric.WithLabelValues(c.deploymentName).Inc()
+	c.spacesScrapesTotalMetric.Collect(ch)
+
+	c.lastSpacesScrapeErrorMetric.WithLabelValues(c.deploymentName).Set(errorMetric)
 	c.lastSpacesScrapeErrorMetric.Collect(ch)
 
-	c.lastSpacesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
+	c.lastSpacesScrapeTimestampMetric.WithLabelValues(c.deploymentName).Set(float64(time.Now().Unix()))
 	c.lastSpacesScrapeTimestampMetric.Collect(ch)
 
-	c.lastSpacesScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastSpacesScrapeDurationSecondsMetric.WithLabelValues(c.deploymentName).Set(time.Since(begun).Seconds())
 	c.lastSpacesScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -274,6 +281,7 @@ func (c SpacesCollector) reportSpacesMetrics(ch chan<- prometheus.Metric) error 
 
 	for _, space := range spaces {
 		c.spaceInfoMetric.WithLabelValues(
+			c.deploymentName,
 			space.Guid,
 			space.Name,
 		).Set(float64(1))
@@ -297,7 +305,7 @@ func (c SpacesCollector) reportSpacesMetrics(ch chan<- prometheus.Metric) error 
 	c.spaceTotalServiceKeysQuotaMetric.Collect(ch)
 	c.spaceTotalServicesQuotaMetric.Collect(ch)
 
-	c.spacesTotalMetric.Set(float64(len(spaces)))
+	c.spacesTotalMetric.WithLabelValues(c.deploymentName).Set(float64(len(spaces)))
 	c.spacesTotalMetric.Collect(ch)
 
 	return nil
@@ -323,46 +331,55 @@ func (c SpacesCollector) reportSpaceQuotasMetrics(spaceGuid string, spaceName st
 		nonBasicServicesAllowed = 1
 	}
 	c.spaceNonBasicServicesAllowedMetric.WithLabelValues(
+		c.deploymentName,
 		spaceGuid,
 		spaceName,
 	).Set(float64(nonBasicServicesAllowed))
 
 	c.spaceInstanceMemoryMbLimitMetric.WithLabelValues(
+		c.deploymentName,
 		spaceGuid,
 		spaceName,
 	).Set(float64(spaceQuota.InstanceMemoryLimit))
 
 	c.spaceTotalAppInstancesQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		spaceGuid,
 		spaceName,
 	).Set(float64(spaceQuota.AppInstanceLimit))
 
 	c.spaceTotalAppTasksQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		spaceGuid,
 		spaceName,
 	).Set(float64(spaceQuota.AppTaskLimit))
 
 	c.spaceTotalMemoryMbQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		spaceGuid,
 		spaceName,
 	).Set(float64(spaceQuota.MemoryLimit))
 
 	c.spaceTotalReservedRoutePortsQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		spaceGuid,
 		spaceName,
 	).Set(float64(spaceQuota.TotalReservedRoutePorts))
 
 	c.spaceTotalRoutesQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		spaceGuid,
 		spaceName,
 	).Set(float64(spaceQuota.TotalRoutes))
 
 	c.spaceTotalServiceKeysQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		spaceGuid,
 		spaceName,
 	).Set(float64(spaceQuota.TotalServiceKeys))
 
 	c.spaceTotalServicesQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		spaceGuid,
 		spaceName,
 	).Set(float64(spaceQuota.TotalServices))

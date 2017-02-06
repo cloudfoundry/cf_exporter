@@ -57,7 +57,7 @@ The `filter.collectors` command flag allows you to filter what collectors will b
 
 ### Can I target multiple Cloud Foundry API endpoints with a single exporter instance?
 
-No, this exporter only supports targetting a single [Cloud Foundry API][cf_api] endpoint. If you want to get metrics from several endpoints, you will need to use one exporter per endpoint.
+No, this exporter only supports targetting a single [Cloud Foundry API][cf_api] endpoint. If you want to get metrics from several endpoints, you will need to use one exporter per endpoint. You can use the `cf.deployment-name` command flag to report the CF name (as a metric label) where metrics come from.
 
 ### I have a question but I don't see it answered at this FAQ
 

@@ -10,6 +10,7 @@ import (
 
 type OrganizationsCollector struct {
 	namespace                                      string
+	deploymentName                                 string
 	cfClient                                       *cfclient.Client
 	organizationInfoMetric                         *prometheus.GaugeVec
 	organizationNonBasicServicesAllowedMetric      *prometheus.GaugeVec
@@ -22,15 +23,15 @@ type OrganizationsCollector struct {
 	organizationTotalRoutesQuotaMetric             *prometheus.GaugeVec
 	organizationTotalServiceKeysQuotaMetric        *prometheus.GaugeVec
 	organizationTotalServicesQuotaMetric           *prometheus.GaugeVec
-	organizationsTotalMetric                       prometheus.Gauge
-	organizationsScrapesTotalMetric                prometheus.Counter
-	organizationsScrapeErrorsTotalMetric           prometheus.Counter
-	lastOrganizationsScrapeErrorMetric             prometheus.Gauge
-	lastOrganizationsScrapeTimestampMetric         prometheus.Gauge
-	lastOrganizationsScrapeDurationSecondsMetric   prometheus.Gauge
+	organizationsTotalMetric                       *prometheus.GaugeVec
+	organizationsScrapesTotalMetric                *prometheus.CounterVec
+	organizationsScrapeErrorsTotalMetric           *prometheus.CounterVec
+	lastOrganizationsScrapeErrorMetric             *prometheus.GaugeVec
+	lastOrganizationsScrapeTimestampMetric         *prometheus.GaugeVec
+	lastOrganizationsScrapeDurationSecondsMetric   *prometheus.GaugeVec
 }
 
-func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *OrganizationsCollector {
+func NewOrganizationsCollector(namespace string, deploymentName string, cfClient *cfclient.Client) *OrganizationsCollector {
 	organizationInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
@@ -38,7 +39,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Name:      "info",
 			Help:      "Labeled Cloud Foundry Organization information with a constant '1' value.",
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationNonBasicServicesAllowedMetric := prometheus.NewGaugeVec(
@@ -48,7 +49,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Name:      "non_basic_services_allowed",
 			Help:      "A Cloud Foundry Organization can provision instances of paid service plans? (1 for true, 0 for false).",
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationInstanceMemoryMbLimitMetric := prometheus.NewGaugeVec(
@@ -58,7 +59,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Name:      "instance_memory_mb_limit",
 			Help:      "Maximum amount of memory (Mb) an application instance can have in a Cloud Foundry Organization.",
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalAppInstancesQuotaMetric := prometheus.NewGaugeVec(
@@ -68,7 +69,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Name:      "total_app_instances_quota",
 			Help:      "Total number of application instances that may be created in a Cloud Foundry Organization.",
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalAppTasksQuotaMetric := prometheus.NewGaugeVec(
@@ -78,7 +79,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Name:      "total_app_tasks_quota",
 			Help:      "Total number of application tasks that may be created in a Cloud Foundry Organization.",
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalMemoryMbQuotaMetric := prometheus.NewGaugeVec(
@@ -88,7 +89,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Name:      "total_memory_mb_quota",
 			Help:      "Total amount of memory (Mb) a Cloud Foundry Organization can have.",
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalPrivateDomainsQuotaMetric := prometheus.NewGaugeVec(
@@ -98,7 +99,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Name:      "total_private_domains_quota",
 			Help:      "Total number of private domains that may be created in a Cloud Foundry Organization.",
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalReservedRoutePortsQuotaMetric := prometheus.NewGaugeVec(
@@ -108,7 +109,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Name:      "total_reserved_route_ports_quota",
 			Help:      "Total number of routes that may be created with reserved ports in a Cloud Foundry Organization.",
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalRoutesQuotaMetric := prometheus.NewGaugeVec(
@@ -118,7 +119,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Name:      "total_routes_quota",
 			Help:      "Total number of routes that may be created in a Cloud Foundry Organization.",
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalServiceKeysQuotaMetric := prometheus.NewGaugeVec(
@@ -128,7 +129,7 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Name:      "total_service_keys_quota",
 			Help:      "Total number of service keys that may be created in a Cloud Foundry Organization.",
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalServicesQuotaMetric := prometheus.NewGaugeVec(
@@ -138,65 +139,72 @@ func NewOrganizationsCollector(namespace string, cfClient *cfclient.Client) *Org
 			Name:      "total_services_quota",
 			Help:      "Total number of service instances that may be created in a Cloud Foundry Organization.",
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
-	organizationsTotalMetric := prometheus.NewGauge(
+	organizationsTotalMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "organizations",
 			Name:      "total",
 			Help:      "Total number of Cloud Foundry Organizations.",
 		},
+		[]string{"deployment"},
 	)
 
-	organizationsScrapesTotalMetric := prometheus.NewCounter(
+	organizationsScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: namespace,
 			Subsystem: "organizations_scrapes",
 			Name:      "total",
 			Help:      "Total number of scrapes for Cloud Foundry Organizations.",
 		},
+		[]string{"deployment"},
 	)
 
-	organizationsScrapeErrorsTotalMetric := prometheus.NewCounter(
+	organizationsScrapeErrorsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: namespace,
 			Subsystem: "organizations_scrape_errors",
 			Name:      "total",
 			Help:      "Total number of scrape errors of Cloud Foundry Organizations.",
 		},
+		[]string{"deployment"},
 	)
 
-	lastOrganizationsScrapeErrorMetric := prometheus.NewGauge(
+	lastOrganizationsScrapeErrorMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
 			Name:      "last_organizations_scrape_error",
 			Help:      "Whether the last scrape of Organizations metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
 		},
+		[]string{"deployment"},
 	)
 
-	lastOrganizationsScrapeTimestampMetric := prometheus.NewGauge(
+	lastOrganizationsScrapeTimestampMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
 			Name:      "last_organizations_scrape_timestamp",
 			Help:      "Number of seconds since 1970 since last scrape of Organizations metrics from Cloud Foundry.",
 		},
+		[]string{"deployment"},
 	)
 
-	lastOrganizationsScrapeDurationSecondsMetric := prometheus.NewGauge(
+	lastOrganizationsScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: namespace,
 			Subsystem: "",
 			Name:      "last_organizations_scrape_duration_seconds",
 			Help:      "Duration of the last scrape of Organizations metrics from Cloud Foundry.",
 		},
+		[]string{"deployment"},
 	)
 
 	return &OrganizationsCollector{
 		namespace:                                      namespace,
+		deploymentName:                                 deploymentName,
 		cfClient:                                       cfClient,
 		organizationInfoMetric:                         organizationInfoMetric,
 		organizationNonBasicServicesAllowedMetric:      organizationNonBasicServicesAllowedMetric,
@@ -224,21 +232,20 @@ func (c OrganizationsCollector) Collect(ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
 	if err := c.reportOrganizationsMetrics(ch); err != nil {
 		errorMetric = float64(1)
-		c.organizationsScrapeErrorsTotalMetric.Inc()
+		c.organizationsScrapeErrorsTotalMetric.WithLabelValues(c.deploymentName).Inc()
 	}
-
-	c.organizationsScrapesTotalMetric.Inc()
-	c.organizationsScrapesTotalMetric.Collect(ch)
-
 	c.organizationsScrapeErrorsTotalMetric.Collect(ch)
 
-	c.lastOrganizationsScrapeErrorMetric.Set(errorMetric)
+	c.organizationsScrapesTotalMetric.WithLabelValues(c.deploymentName).Inc()
+	c.organizationsScrapesTotalMetric.Collect(ch)
+
+	c.lastOrganizationsScrapeErrorMetric.WithLabelValues(c.deploymentName).Set(errorMetric)
 	c.lastOrganizationsScrapeErrorMetric.Collect(ch)
 
-	c.lastOrganizationsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
+	c.lastOrganizationsScrapeTimestampMetric.WithLabelValues(c.deploymentName).Set(float64(time.Now().Unix()))
 	c.lastOrganizationsScrapeTimestampMetric.Collect(ch)
 
-	c.lastOrganizationsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastOrganizationsScrapeDurationSecondsMetric.WithLabelValues(c.deploymentName).Set(time.Since(begun).Seconds())
 	c.lastOrganizationsScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -289,6 +296,7 @@ func (c OrganizationsCollector) reportOrganizationsMetrics(ch chan<- prometheus.
 
 	for _, organization := range organizations {
 		c.organizationInfoMetric.WithLabelValues(
+			c.deploymentName,
 			organization.Guid,
 			organization.Name,
 		).Set(float64(1))
@@ -313,7 +321,7 @@ func (c OrganizationsCollector) reportOrganizationsMetrics(ch chan<- prometheus.
 	c.organizationTotalServiceKeysQuotaMetric.Collect(ch)
 	c.organizationTotalServicesQuotaMetric.Collect(ch)
 
-	c.organizationsTotalMetric.Set(float64(len(organizations)))
+	c.organizationsTotalMetric.WithLabelValues(c.deploymentName).Set(float64(len(organizations)))
 	c.organizationsTotalMetric.Collect(ch)
 
 	return nil
@@ -339,51 +347,61 @@ func (c OrganizationsCollector) reportOrganizationQuotasMetrics(orgGuid string, 
 		nonBasicServicesAllowed = 1
 	}
 	c.organizationNonBasicServicesAllowedMetric.WithLabelValues(
+		c.deploymentName,
 		orgGuid,
 		orgName,
 	).Set(float64(nonBasicServicesAllowed))
 
 	c.organizationInstanceMemoryMbLimitMetric.WithLabelValues(
+		c.deploymentName,
 		orgGuid,
 		orgName,
 	).Set(float64(orgQuota.InstanceMemoryLimit))
 
 	c.organizationTotalAppInstancesQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		orgGuid,
 		orgName,
 	).Set(float64(orgQuota.AppInstanceLimit))
 
 	c.organizationTotalAppTasksQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		orgGuid,
 		orgName,
 	).Set(float64(orgQuota.AppTaskLimit))
 
 	c.organizationTotalMemoryMbQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		orgGuid,
 		orgName,
 	).Set(float64(orgQuota.MemoryLimit))
 
 	c.organizationTotalPrivateDomainsQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		orgGuid,
 		orgName,
 	).Set(float64(orgQuota.TotalPrivateDomains))
 
 	c.organizationTotalReservedRoutePortsQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		orgGuid,
 		orgName,
 	).Set(float64(orgQuota.TotalReservedRoutePorts))
 
 	c.organizationTotalRoutesQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		orgGuid,
 		orgName,
 	).Set(float64(orgQuota.TotalRoutes))
 
 	c.organizationTotalServiceKeysQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		orgGuid,
 		orgName,
 	).Set(float64(orgQuota.TotalServiceKeys))
 
 	c.organizationTotalServicesQuotaMetric.WithLabelValues(
+		c.deploymentName,
 		orgGuid,
 		orgName,
 	).Set(float64(orgQuota.TotalServices))
