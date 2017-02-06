@@ -56,7 +56,7 @@ This exporter can be deployed using the [Prometheus BOSH Release][prometheus-bos
 | `cf.client-id`<br />`CF_EXPORTER_CF_CLIENT_ID` | *[1]* | | Cloud Foundry Client ID (must have the `cloud_controller.admin` or `cloud_controller.admin_read_only` scope) |
 | `cf.client-secret`<br />`CF_EXPORTER_CF_CLIENT_SECRET` | *[1]* | | Cloud Foundry Client Secret |
 | `cf.deployment-name`<br />`CF_EXPORTER_CF_DEPLOYMENT_NAME` | No | | Cloud Foundry Deployment Name to be reported as a metric label |
-| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `ApplicationEvents`, `Organizations`, `SecurityGroups`, `Services`, `Spaces`) |
+| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `ApplicationEvents`, `Organizations`, `SecurityGroups`, `ServiceInstances`, `Services`, `Spaces`) |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
 | `web.listen-address`<br />`CF_EXPORTER_WEB_LISTEN_ADDRESS` | No | `:9193` | Address to listen on for web interface and telemetry |
@@ -134,6 +134,17 @@ The exporter returns the following `Services` metrics:
 | *metrics.namespace*_last_services_scrape_error | Whether the last scrape of Services metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |
 | *metrics.namespace*_last_services_scrape_timestamp | Number of seconds since 1970 since last scrape of Services metrics from Cloud Foundry | `deployment` |
 | *metrics.namespace*_last_services_scrape_duration_seconds | Duration of the last scrape of Services metrics from Cloud Foundry | `deployment` |
+
+The exporter returns the following `Service Instances` metrics:
+
+| Metric | Description | Labels |
+| ------ | ----------- | ------ |
+| *metrics.namespace*_service_instance_info | Labeled Cloud Foundry Service Instance information with a constant `1` value | `deployment`, `service_instance_id`, `service_instance_name`, `service_plan_id`, `space_id` |
+| *metrics.namespace*_service_instances_scrapes_total | Total number of scrapes for Cloud Foundry Service Instances | `deployment` |
+| *metrics.namespace*_service_instances_scrape_errors_total | Total number of scrape errors of Cloud Foundry Service Instances | `deployment` |
+| *metrics.namespace*_last_service_instances_scrape_error | Whether the last scrape of Service Instances metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |
+| *metrics.namespace*_last_service_instances_scrape_timestamp | Number of seconds since 1970 since last scrape of Service Instances metrics from Cloud Foundry | `deployment` |
+| *metrics.namespace*_last_service_instances_scrape_duration_seconds | Duration of the last scrape of Service Instances metrics from Cloud Foundry | `deployment` |
 
 The exporter returns the following `Spaces` metrics:
 
