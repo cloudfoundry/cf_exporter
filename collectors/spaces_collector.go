@@ -22,7 +22,6 @@ type SpacesCollector struct {
 	spaceTotalRoutesQuotaMetric             *prometheus.GaugeVec
 	spaceTotalServiceKeysQuotaMetric        *prometheus.GaugeVec
 	spaceTotalServicesQuotaMetric           *prometheus.GaugeVec
-	spacesTotalMetric                       *prometheus.GaugeVec
 	spacesScrapesTotalMetric                *prometheus.CounterVec
 	spacesScrapeErrorsTotalMetric           *prometheus.CounterVec
 	lastSpacesScrapeErrorMetric             *prometheus.GaugeVec
@@ -131,16 +130,6 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 		[]string{"deployment", "space_id", "space_name"},
 	)
 
-	spacesTotalMetric := prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "spaces",
-			Name:      "total",
-			Help:      "Total number of Cloud Foundry Spaces.",
-		},
-		[]string{"deployment"},
-	)
-
 	spacesScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: namespace,
@@ -205,7 +194,6 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 		spaceTotalRoutesQuotaMetric:             spaceTotalRoutesQuotaMetric,
 		spaceTotalServiceKeysQuotaMetric:        spaceTotalServiceKeysQuotaMetric,
 		spaceTotalServicesQuotaMetric:           spaceTotalServicesQuotaMetric,
-		spacesTotalMetric:                       spacesTotalMetric,
 		spacesScrapesTotalMetric:                spacesScrapesTotalMetric,
 		spacesScrapeErrorsTotalMetric:           spacesScrapeErrorsTotalMetric,
 		lastSpacesScrapeErrorMetric:             lastSpacesScrapeErrorMetric,
@@ -304,9 +292,6 @@ func (c SpacesCollector) reportSpacesMetrics(ch chan<- prometheus.Metric) error 
 	c.spaceTotalRoutesQuotaMetric.Collect(ch)
 	c.spaceTotalServiceKeysQuotaMetric.Collect(ch)
 	c.spaceTotalServicesQuotaMetric.Collect(ch)
-
-	c.spacesTotalMetric.WithLabelValues(c.deploymentName).Set(float64(len(spaces)))
-	c.spacesTotalMetric.Collect(ch)
 
 	return nil
 }

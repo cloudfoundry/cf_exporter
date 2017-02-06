@@ -13,7 +13,6 @@ type ServicesCollector struct {
 	deploymentName                          string
 	cfClient                                *cfclient.Client
 	serviceInfoMetric                       *prometheus.GaugeVec
-	servicesTotalMetric                     *prometheus.GaugeVec
 	servicesScrapesTotalMetric              *prometheus.CounterVec
 	servicesScrapeErrorsTotalMetric         *prometheus.CounterVec
 	lastServicesScrapeErrorMetric           *prometheus.GaugeVec
@@ -30,16 +29,6 @@ func NewServicesCollector(namespace string, deploymentName string, cfClient *cfc
 			Help:      "Labeled Cloud Foundry Service information with a constant '1' value.",
 		},
 		[]string{"deployment", "service_id", "service_label"},
-	)
-
-	servicesTotalMetric := prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "services",
-			Name:      "total",
-			Help:      "Total number of Cloud Foundry Services.",
-		},
-		[]string{"deployment"},
 	)
 
 	servicesScrapesTotalMetric := prometheus.NewCounterVec(
@@ -97,7 +86,6 @@ func NewServicesCollector(namespace string, deploymentName string, cfClient *cfc
 		deploymentName:                          deploymentName,
 		cfClient:                                cfClient,
 		serviceInfoMetric:                       serviceInfoMetric,
-		servicesTotalMetric:                     servicesTotalMetric,
 		servicesScrapesTotalMetric:              servicesScrapesTotalMetric,
 		servicesScrapeErrorsTotalMetric:         servicesScrapeErrorsTotalMetric,
 		lastServicesScrapeErrorMetric:           lastServicesScrapeErrorMetric,
@@ -131,7 +119,6 @@ func (c ServicesCollector) Collect(ch chan<- prometheus.Metric) {
 
 func (c ServicesCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.serviceInfoMetric.Describe(ch)
-	c.servicesTotalMetric.Describe(ch)
 	c.servicesScrapesTotalMetric.Describe(ch)
 	c.servicesScrapeErrorsTotalMetric.Describe(ch)
 	c.lastServicesScrapeErrorMetric.Describe(ch)
@@ -157,9 +144,6 @@ func (c ServicesCollector) reportServicesMetrics(ch chan<- prometheus.Metric) er
 	}
 
 	c.serviceInfoMetric.Collect(ch)
-
-	c.servicesTotalMetric.WithLabelValues(c.deploymentName).Set(float64(len(services)))
-	c.servicesTotalMetric.Collect(ch)
 
 	return nil
 }

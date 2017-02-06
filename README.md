@@ -75,7 +75,6 @@ The exporter returns the following `Applications` metrics:
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
 | *metrics.namespace*_application_info | Labeled Cloud Foundry Application information with a constant `1` value | `deployment`, `application_id`, `application_name`, `space_id`, `space_name`, `organization_id`, `organization_name` |
-| *metrics.namespace*_applications_total | Total number of Cloud Foundry Applications | |
 | *metrics.namespace*_applications_scrapes_total | Total number of scrapes for Cloud Foundry Applications | `deployment` |
 | *metrics.namespace*_applications_scrape_errors_total | Total number of scrape errors of Cloud Foundry Applications | `deployment` |
 | *metrics.namespace*_last_applications_scrape_error | Whether the last scrape of Applications metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |
@@ -108,7 +107,6 @@ The exporter returns the following `Organizations` metrics:
 | *metrics.namespace*_organization_total_routes_quota | Total number of routes that may be created in a Cloud Foundry Organization | `deployment`, `organization_id`, `organization_name` |
 | *metrics.namespace*_organization_total_service_keys_quota | Total number of service keys that may be created in a Cloud Foundry Organization | `deployment`, `organization_id`, `organization_name` |
 | *metrics.namespace*_organization_total_services_quota | Total number of service instances that may be created in a Cloud Foundry Organization | `deployment`, `organization_id`, `organization_name` |
-| *metrics.namespace*_organizations_total | Total number of Cloud Foundry Organizations | `deployment` |
 | *metrics.namespace*_organizations_scrapes_total | Total number of scrapes for Cloud Foundry Organizations | `deployment` |
 | *metrics.namespace*_organizations_scrape_errors_total | Total number of scrape errors of Cloud Foundry Organizations | `deployment` |
 | *metrics.namespace*_last_organizations_scrape_error | Whether the last scrape of Organizations metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |
@@ -120,7 +118,6 @@ The exporter returns the following `Security Groups` metrics:
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
 | *metrics.namespace*_security_group_info | Labeled Cloud Foundry Security Group information with a constant `1` value | `deployment`, `security_group_id`, `security_group_name` |
-| *metrics.namespace*_security_groups_total | Total number of Cloud Foundry Security Groups | `deployment` |
 | *metrics.namespace*_security_groups_scrapes_total | Total number of scrapes for Cloud Foundry Security Groups | `deployment` |
 | *metrics.namespace*_security_groups_scrape_errors_total | Total number of scrape errors of Cloud Foundry Security Groups | `deployment` |
 | *metrics.namespace*_last_security_groups_scrape_error | Whether the last scrape of Security Groups metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |
@@ -132,7 +129,6 @@ The exporter returns the following `Services` metrics:
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
 | *metrics.namespace*_service_info | Labeled Cloud Foundry Service information with a constant `1` value | `deployment`, `service_id`, `service_label` |
-| *metrics.namespace*_services_total | Total number of Cloud Foundry Services | `deployment` |
 | *metrics.namespace*_services_scrapes_total | Total number of scrapes for Cloud Foundry Services | `deployment` |
 | *metrics.namespace*_services_scrape_errors_total | Total number of scrape errors of Cloud Foundry Services | `deployment` |
 | *metrics.namespace*_last_services_scrape_error | Whether the last scrape of Services metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |
@@ -153,7 +149,6 @@ The exporter returns the following `Spaces` metrics:
 | *metrics.namespace*_space_total_routes_quota | Total number of routes that may be created in a Cloud Foundry Space | `deployment`, `space_id`, `space_name` |
 | *metrics.namespace*_space_total_service_keys_quota | Total number of service keys that may be created in a Cloud Foundry Space | `deployment`, `space_id`, `space_name` |
 | *metrics.namespace*_space_total_services_quota | Total number of service instances that may be created in a Cloud Foundry Space | `deployment`, `space_id`, `space_name` |
-| *metrics.namespace*_spaces_total | Total number of Cloud Foundry Spaces | `deployment` |
 | *metrics.namespace*_spaces_scrapes_total | Total number of scrapes for Cloud Foundry Spaces | `deployment` |
 | *metrics.namespace*_spaces_scrape_errors_total | Total number of scrape errors of Cloud Foundry Spaces | `deployment` |
 | *metrics.namespace*_last_spaces_scrape_error | Whether the last scrape of Spaces metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |

@@ -23,7 +23,6 @@ type OrganizationsCollector struct {
 	organizationTotalRoutesQuotaMetric             *prometheus.GaugeVec
 	organizationTotalServiceKeysQuotaMetric        *prometheus.GaugeVec
 	organizationTotalServicesQuotaMetric           *prometheus.GaugeVec
-	organizationsTotalMetric                       *prometheus.GaugeVec
 	organizationsScrapesTotalMetric                *prometheus.CounterVec
 	organizationsScrapeErrorsTotalMetric           *prometheus.CounterVec
 	lastOrganizationsScrapeErrorMetric             *prometheus.GaugeVec
@@ -142,16 +141,6 @@ func NewOrganizationsCollector(namespace string, deploymentName string, cfClient
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
-	organizationsTotalMetric := prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organizations",
-			Name:      "total",
-			Help:      "Total number of Cloud Foundry Organizations.",
-		},
-		[]string{"deployment"},
-	)
-
 	organizationsScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: namespace,
@@ -217,7 +206,6 @@ func NewOrganizationsCollector(namespace string, deploymentName string, cfClient
 		organizationTotalRoutesQuotaMetric:             organizationTotalRoutesQuotaMetric,
 		organizationTotalServiceKeysQuotaMetric:        organizationTotalServiceKeysQuotaMetric,
 		organizationTotalServicesQuotaMetric:           organizationTotalServicesQuotaMetric,
-		organizationsTotalMetric:                       organizationsTotalMetric,
 		organizationsScrapesTotalMetric:                organizationsScrapesTotalMetric,
 		organizationsScrapeErrorsTotalMetric:           organizationsScrapeErrorsTotalMetric,
 		lastOrganizationsScrapeErrorMetric:             lastOrganizationsScrapeErrorMetric,
@@ -261,7 +249,6 @@ func (c OrganizationsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.organizationTotalRoutesQuotaMetric.Describe(ch)
 	c.organizationTotalServiceKeysQuotaMetric.Describe(ch)
 	c.organizationTotalServicesQuotaMetric.Describe(ch)
-	c.organizationsTotalMetric.Describe(ch)
 	c.organizationsScrapesTotalMetric.Describe(ch)
 	c.organizationsScrapeErrorsTotalMetric.Describe(ch)
 	c.lastOrganizationsScrapeErrorMetric.Describe(ch)
@@ -320,9 +307,6 @@ func (c OrganizationsCollector) reportOrganizationsMetrics(ch chan<- prometheus.
 	c.organizationTotalRoutesQuotaMetric.Collect(ch)
 	c.organizationTotalServiceKeysQuotaMetric.Collect(ch)
 	c.organizationTotalServicesQuotaMetric.Collect(ch)
-
-	c.organizationsTotalMetric.WithLabelValues(c.deploymentName).Set(float64(len(organizations)))
-	c.organizationsTotalMetric.Collect(ch)
 
 	return nil
 }

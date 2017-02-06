@@ -13,7 +13,6 @@ type SecurityGroupsCollector struct {
 	deploymentName                                string
 	cfClient                                      *cfclient.Client
 	securityGroupInfoMetric                       *prometheus.GaugeVec
-	securityGroupsTotalMetric                     *prometheus.GaugeVec
 	securityGroupsScrapesTotalMetric              *prometheus.CounterVec
 	securityGroupsScrapeErrorsTotalMetric         *prometheus.CounterVec
 	lastSecurityGroupsScrapeErrorMetric           *prometheus.GaugeVec
@@ -30,16 +29,6 @@ func NewSecurityGroupsCollector(namespace string, deploymentName string, cfClien
 			Help:      "Labeled Cloud Foundry Security Group information with a constant '1' value.",
 		},
 		[]string{"deployment", "security_group_id", "security_group_name"},
-	)
-
-	securityGroupsTotalMetric := prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "security_groups",
-			Name:      "total",
-			Help:      "Total number of Cloud Foundry Security Groups.",
-		},
-		[]string{"deployment"},
 	)
 
 	securityGroupsScrapesTotalMetric := prometheus.NewCounterVec(
@@ -97,7 +86,6 @@ func NewSecurityGroupsCollector(namespace string, deploymentName string, cfClien
 		deploymentName:                                deploymentName,
 		cfClient:                                      cfClient,
 		securityGroupInfoMetric:                       securityGroupInfoMetric,
-		securityGroupsTotalMetric:                     securityGroupsTotalMetric,
 		securityGroupsScrapesTotalMetric:              securityGroupsScrapesTotalMetric,
 		securityGroupsScrapeErrorsTotalMetric:         securityGroupsScrapeErrorsTotalMetric,
 		lastSecurityGroupsScrapeErrorMetric:           lastSecurityGroupsScrapeErrorMetric,
@@ -131,7 +119,6 @@ func (c SecurityGroupsCollector) Collect(ch chan<- prometheus.Metric) {
 
 func (c SecurityGroupsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.securityGroupInfoMetric.Describe(ch)
-	c.securityGroupsTotalMetric.Describe(ch)
 	c.securityGroupsScrapesTotalMetric.Describe(ch)
 	c.securityGroupsScrapeErrorsTotalMetric.Describe(ch)
 	c.lastSecurityGroupsScrapeErrorMetric.Describe(ch)
@@ -157,9 +144,6 @@ func (c SecurityGroupsCollector) reportSecurityGroupsMetrics(ch chan<- prometheu
 	}
 
 	c.securityGroupInfoMetric.Collect(ch)
-
-	c.securityGroupsTotalMetric.WithLabelValues(c.deploymentName).Set(float64(len(securityGroups)))
-	c.securityGroupsTotalMetric.Collect(ch)
 
 	return nil
 }

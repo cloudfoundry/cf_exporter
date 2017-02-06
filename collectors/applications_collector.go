@@ -13,7 +13,6 @@ type ApplicationsCollector struct {
 	deploymentName                              string
 	cfClient                                    *cfclient.Client
 	applicationInfoMetric                       *prometheus.GaugeVec
-	applicationsTotalMetric                     *prometheus.GaugeVec
 	applicationsScrapesTotalMetric              *prometheus.CounterVec
 	applicationsScrapeErrorsTotalMetric         *prometheus.CounterVec
 	lastApplicationsScrapeErrorMetric           *prometheus.GaugeVec
@@ -30,16 +29,6 @@ func NewApplicationsCollector(namespace string, deploymentName string, cfClient 
 			Help:      "Labeled Cloud Foundry Application information with a constant '1' value.",
 		},
 		[]string{"deployment", "application_id", "application_name", "space_id", "space_name", "organization_id", "organization_name"},
-	)
-
-	applicationsTotalMetric := prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "applications",
-			Name:      "total",
-			Help:      "Total number of Cloud Foundry Applications.",
-		},
-		[]string{"deployment"},
 	)
 
 	applicationsScrapesTotalMetric := prometheus.NewCounterVec(
@@ -97,7 +86,6 @@ func NewApplicationsCollector(namespace string, deploymentName string, cfClient 
 		deploymentName:                              deploymentName,
 		cfClient:                                    cfClient,
 		applicationInfoMetric:                       applicationInfoMetric,
-		applicationsTotalMetric:                     applicationsTotalMetric,
 		applicationsScrapesTotalMetric:              applicationsScrapesTotalMetric,
 		applicationsScrapeErrorsTotalMetric:         applicationsScrapeErrorsTotalMetric,
 		lastApplicationsScrapeErrorMetric:           lastApplicationsScrapeErrorMetric,
@@ -131,7 +119,6 @@ func (c ApplicationsCollector) Collect(ch chan<- prometheus.Metric) {
 
 func (c ApplicationsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.applicationInfoMetric.Describe(ch)
-	c.applicationsTotalMetric.Describe(ch)
 	c.applicationsScrapesTotalMetric.Describe(ch)
 	c.applicationsScrapeErrorsTotalMetric.Describe(ch)
 	c.lastApplicationsScrapeErrorMetric.Describe(ch)
@@ -161,9 +148,6 @@ func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Me
 	}
 
 	c.applicationInfoMetric.Collect(ch)
-
-	c.applicationsTotalMetric.WithLabelValues(c.deploymentName).Set(float64(len(applications)))
-	c.applicationsTotalMetric.Collect(ch)
 
 	return nil
 }
