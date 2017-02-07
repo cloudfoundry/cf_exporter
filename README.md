@@ -56,7 +56,7 @@ This exporter can be deployed using the [Prometheus BOSH Release][prometheus-bos
 | `cf.client-id`<br />`CF_EXPORTER_CF_CLIENT_ID` | *[1]* | | Cloud Foundry Client ID (must have the `cloud_controller.admin` or `cloud_controller.admin_read_only` scope) |
 | `cf.client-secret`<br />`CF_EXPORTER_CF_CLIENT_SECRET` | *[1]* | | Cloud Foundry Client Secret |
 | `cf.deployment-name`<br />`CF_EXPORTER_CF_DEPLOYMENT_NAME` | No | | Cloud Foundry Deployment Name to be reported as a metric label |
-| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `ApplicationEvents`, `Organizations`, `SecurityGroups`, `ServiceInstances`, `Services`, `Spaces`) |
+| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `ApplicationEvents`, `Organizations`, `SecurityGroups`, `ServiceInstances`, `Services`, `Spaces`, `Stacks`) |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
 | `web.listen-address`<br />`CF_EXPORTER_WEB_LISTEN_ADDRESS` | No | `:9193` | Address to listen on for web interface and telemetry |
@@ -165,6 +165,17 @@ The exporter returns the following `Spaces` metrics:
 | *metrics.namespace*_last_spaces_scrape_error | Whether the last scrape of Spaces metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |
 | *metrics.namespace*_last_spaces_scrape_timestamp | Number of seconds since 1970 since last scrape of Spaces metrics from Cloud Foundry | `deployment` |
 | *metrics.namespace*_last_spaces_scrape_duration_seconds | Duration of the last scrape of Spaces metrics from Cloud Foundry | `deployment` |
+
+The exporter returns the following `Stacks` metrics:
+
+| Metric | Description | Labels |
+| ------ | ----------- | ------ |
+| *metrics.namespace*_stack_info | Labeled Cloud Foundry Stack information with a constant `1` value | `deployment`, `stack_id`, `stack_name` |
+| *metrics.namespace*_stacks_scrapes_total | Total number of scrapes for Cloud Foundry Stacks | `deployment` |
+| *metrics.namespace*_stacks_scrape_errors_total | Total number of scrape errors of Cloud Foundry Stacks | `deployment` |
+| *metrics.namespace*_last_stacks_scrape_error | Whether the last scrape of Stacks metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |
+| *metrics.namespace*_last_stackss_scrape_timestamp | Number of seconds since 1970 since last scrape of Stacks metrics from Cloud Foundry | `deployment` |
+| *metrics.namespace*_last_stackss_scrape_duration_seconds | Duration of the last scrape of Stacks metrics from Cloud Foundry | `deployment` |
 
 ## Acknowledgements
 

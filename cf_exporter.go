@@ -50,7 +50,7 @@ var (
 
 	filterCollectors = flag.String(
 		"filter.collectors", "",
-		"Comma separated collectors to filter (Applications,ApplicationEvents,Organizations,SecurityGroups,ServiceInstances,Services,Spaces) ($CF_EXPORTER_FILTER_COLLECTORS).",
+		"Comma separated collectors to filter (Applications,ApplicationEvents,Organizations,SecurityGroups,ServiceInstances,Services,Spaces,Stacks) ($CF_EXPORTER_FILTER_COLLECTORS).",
 	)
 
 	metricsNamespace = flag.String(
@@ -241,6 +241,11 @@ func main() {
 	if collectorsFilter.Enabled(filters.SpacesCollector) {
 		spacesCollector := collectors.NewSpacesCollector(*metricsNamespace, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(spacesCollector)
+	}
+
+	if collectorsFilter.Enabled(filters.StacksCollector) {
+		stacksCollector := collectors.NewStacksCollector(*metricsNamespace, *cfDeploymentName, cfClient)
+		prometheus.MustRegister(stacksCollector)
 	}
 
 	handler := prometheusHandler()

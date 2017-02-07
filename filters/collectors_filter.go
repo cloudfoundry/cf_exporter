@@ -13,6 +13,7 @@ const (
 	ServiceInstancesCollector  = "ServiceInstances"
 	ServicesCollector          = "Services"
 	SpacesCollector            = "Spaces"
+	StacksCollector            = "Stacks"
 )
 
 type CollectorsFilter struct {
@@ -38,6 +39,8 @@ func NewCollectorsFilter(filters []string) (*CollectorsFilter, error) {
 			collectorsEnabled[ServicesCollector] = true
 		case SpacesCollector:
 			collectorsEnabled[SpacesCollector] = true
+		case StacksCollector:
+			collectorsEnabled[StacksCollector] = true
 		default:
 			return &CollectorsFilter{}, errors.New(fmt.Sprintf("Collector filter `%s` is not supported", collectorName))
 		}

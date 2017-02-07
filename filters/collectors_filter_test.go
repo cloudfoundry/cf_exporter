@@ -22,7 +22,16 @@ var _ = Describe("CollectorsFilter", func() {
 	Describe("New", func() {
 		Context("when filters are supported", func() {
 			BeforeEach(func() {
-				filters = []string{ApplicationsCollector, ApplicationEventsCollector, OrganizationsCollector, SecurityGroupsCollector, ServiceInstancesCollector, ServicesCollector, SpacesCollector}
+				filters = []string{
+					ApplicationsCollector,
+					ApplicationEventsCollector,
+					OrganizationsCollector,
+					SecurityGroupsCollector,
+					ServiceInstancesCollector,
+					ServicesCollector,
+					SpacesCollector,
+					StacksCollector,
+				}
 			})
 
 			It("does not return an error", func() {
