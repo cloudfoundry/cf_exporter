@@ -6,6 +6,9 @@ The Cloud Foundry Prometheus Exporter gets information from the [Cloud Foundry A
 
 * Applications information:
   * Application information (id, name, space id and name, organization id and name)
+  * Application Instances
+  * Application Memory
+  * Application Disk Quota
 * Application Events information:
   * Total number of application events (id, event type)
 * Routes information:

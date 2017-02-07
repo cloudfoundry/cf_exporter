@@ -74,7 +74,10 @@ The exporter returns the following `Applications` metrics:
 
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
-| *metrics.namespace*_application_info | Labeled Cloud Foundry Application information with a constant `1` value | `deployment`, `application_id`, `application_name`, `space_id`, `space_name`, `organization_id`, `organization_name` |
+| *metrics.namespace*_application_info | Labeled Cloud Foundry Application information with a constant `1` value | `deployment`, `application_id`, `application_name`, `buildpack`, `organization_id`, `organization_name`, `space_id`, `space_name`, `stack_id`, `state` |
+| *metrics.namespace*_application_instances | Cloud Foundry Application Instances | `deployment`, `application_id`, `application_name` |
+| *metrics.namespace*_application_memory_mb | Cloud Foundry Application Memory (Mb) | `deployment`, `application_id`, `application_name` |
+| *metrics.namespace*_application_disk_quota_mb | Cloud Foundry Application Disk Quota (Mb) | `deployment`, `application_id`, `application_name` |
 | *metrics.namespace*_applications_scrapes_total | Total number of scrapes for Cloud Foundry Applications | `deployment` |
 | *metrics.namespace*_applications_scrape_errors_total | Total number of scrape errors of Cloud Foundry Applications | `deployment` |
 | *metrics.namespace*_last_applications_scrape_error | Whether the last scrape of Applications metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |
