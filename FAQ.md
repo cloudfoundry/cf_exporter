@@ -8,6 +8,8 @@ The Cloud Foundry Prometheus Exporter gets information from the [Cloud Foundry A
   * Application information (id, name, space id and name, organization id and name)
 * Application Events information:
   * Total number of application events (id, event type)
+* Routes information:
+  *  Route information (id, host, path. domain_id, space_id, service_instance_id)
 * Organizations information:
   * Organization information (id, name)
   * Organization Quota information
@@ -52,7 +54,7 @@ The *on* specifies the matching label, in this case, the *application_id*. The *
 
 ### How can I enable only a particular collector?
 
-The `filter.collectors` command flag allows you to filter what collectors will be enabled (if not set, all collectors will be enabled by default). Possible values are `Applications`, `ApplicationEvents`, `Organizations`, `SecurityGroups`, `ServiceInstances,`, `Services`, `Spaces`, `Stacks` (or a combination of them).
+The `filter.collectors` command flag allows you to filter what collectors will be enabled (if not set, all collectors will be enabled by default). Possible values are `Applications`, `ApplicationEvents`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceInstances,`, `Services`, `Spaces`, `Stacks` (or a combination of them).
 
 ### Can I target multiple Cloud Foundry API endpoints with a single exporter instance?
 

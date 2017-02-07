@@ -9,6 +9,7 @@ const (
 	ApplicationsCollector      = "Applications"
 	ApplicationEventsCollector = "ApplicationEvents"
 	OrganizationsCollector     = "Organizations"
+	RoutesCollector            = "Routes"
 	SecurityGroupsCollector    = "SecurityGroups"
 	ServiceInstancesCollector  = "ServiceInstances"
 	ServicesCollector          = "Services"
@@ -31,6 +32,8 @@ func NewCollectorsFilter(filters []string) (*CollectorsFilter, error) {
 			collectorsEnabled[ApplicationEventsCollector] = true
 		case OrganizationsCollector:
 			collectorsEnabled[OrganizationsCollector] = true
+		case RoutesCollector:
+			collectorsEnabled[RoutesCollector] = true
 		case SecurityGroupsCollector:
 			collectorsEnabled[SecurityGroupsCollector] = true
 		case ServiceInstancesCollector:

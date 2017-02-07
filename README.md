@@ -113,6 +113,18 @@ The exporter returns the following `Organizations` metrics:
 | *metrics.namespace*_last_organizations_scrape_timestamp | Number of seconds since 1970 since last scrape of Organizations metrics from Cloud Foundry | `deployment` |
 | *metrics.namespace*_last_organizations_scrape_duration_seconds | Duration of the last scrape of Organizations metrics from Cloud Foundry | `deployment` |
 
+The exporter returns the following `Routes` metrics:
+
+| Metric | Description | Labels |
+| ------ | ----------- | ------ |
+| *metrics.namespace*_route_info | Labeled Cloud Foundry Route information with a constant `1` value | `deployment`, `route_id`, `route_host`, `route_path`, `domain_id`, `space_id`, `service_instance_id` |
+| *metrics.namespace*_routes_scrapes_total | Total number of scrapes for Cloud Foundry Routes | `deployment` |
+| *metrics.namespace*_routes_scrape_errors_total | Total number of scrape errors of Cloud Foundry Routes | `deployment` |
+| *metrics.namespace*_last_routes_scrape_error | Whether the last scrape of Routes metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |
+| *metrics.namespace*_last_routes_scrape_timestamp | Number of seconds since 1970 since last scrape of Routes metrics from Cloud Foundry | `deployment` |
+| *metrics.namespace*_last_routes_scrape_duration_seconds | Duration of the last scrape of Routes metrics from Cloud Foundry | `deployment` |
+
+
 The exporter returns the following `Security Groups` metrics:
 
 | Metric | Description | Labels |
@@ -174,8 +186,8 @@ The exporter returns the following `Stacks` metrics:
 | *metrics.namespace*_stacks_scrapes_total | Total number of scrapes for Cloud Foundry Stacks | `deployment` |
 | *metrics.namespace*_stacks_scrape_errors_total | Total number of scrape errors of Cloud Foundry Stacks | `deployment` |
 | *metrics.namespace*_last_stacks_scrape_error | Whether the last scrape of Stacks metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `deployment` |
-| *metrics.namespace*_last_stackss_scrape_timestamp | Number of seconds since 1970 since last scrape of Stacks metrics from Cloud Foundry | `deployment` |
-| *metrics.namespace*_last_stackss_scrape_duration_seconds | Duration of the last scrape of Stacks metrics from Cloud Foundry | `deployment` |
+| *metrics.namespace*_last_stacks_scrape_timestamp | Number of seconds since 1970 since last scrape of Stacks metrics from Cloud Foundry | `deployment` |
+| *metrics.namespace*_last_stacks_scrape_duration_seconds | Duration of the last scrape of Stacks metrics from Cloud Foundry | `deployment` |
 
 ## Acknowledgements
 

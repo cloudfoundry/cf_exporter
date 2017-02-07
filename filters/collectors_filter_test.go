@@ -26,6 +26,7 @@ var _ = Describe("CollectorsFilter", func() {
 					ApplicationsCollector,
 					ApplicationEventsCollector,
 					OrganizationsCollector,
+					RoutesCollector,
 					SecurityGroupsCollector,
 					ServiceInstancesCollector,
 					ServicesCollector,
