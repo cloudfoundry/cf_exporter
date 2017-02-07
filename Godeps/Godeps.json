@@ -17,7 +17,7 @@
 		},
 		{
 			"ImportPath": "github.com/cloudfoundry-community/go-cfclient",
-			"Rev": "3bedab50bd5706d60dcc0af0f62060343a75316c"
+			"Rev": "3fa856bab9486ab8178d5fc20797fb853e2cc1b4"
 		},
 		{
 			"ImportPath": "github.com/golang/protobuf/proto",
