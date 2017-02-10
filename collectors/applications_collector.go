@@ -41,7 +41,7 @@ func NewApplicationsCollector(namespace string, deploymentName string, cfClient 
 			Name:      "instances",
 			Help:      "Cloud Foundry Application Instances.",
 		},
-		[]string{"deployment", "application_id", "application_name"},
+		[]string{"deployment", "application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
 	)
 
 	applicationMemoryMbMetric := prometheus.NewGaugeVec(
@@ -51,7 +51,7 @@ func NewApplicationsCollector(namespace string, deploymentName string, cfClient 
 			Name:      "memory_mb",
 			Help:      "Cloud Foundry Application Memory (Mb).",
 		},
-		[]string{"deployment", "application_id", "application_name"},
+		[]string{"deployment", "application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
 	)
 
 	applicationDiskQuotaMbMetric := prometheus.NewGaugeVec(
@@ -61,7 +61,7 @@ func NewApplicationsCollector(namespace string, deploymentName string, cfClient 
 			Name:      "disk_quota_mb",
 			Help:      "Cloud Foundry Application Disk Quota (Mb).",
 		},
-		[]string{"deployment", "application_id", "application_name"},
+		[]string{"deployment", "application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
 	)
 
 	applicationsScrapesTotalMetric := prometheus.NewCounterVec(
@@ -195,18 +195,30 @@ func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Me
 			c.deploymentName,
 			application.Guid,
 			application.Name,
+			application.SpaceData.Entity.OrgData.Entity.Guid,
+			application.SpaceData.Entity.OrgData.Entity.Name,
+			application.SpaceData.Entity.Guid,
+			application.SpaceData.Entity.Name,
 		).Set(float64(application.Memory))
 
 		c.applicationInstancesMetric.WithLabelValues(
 			c.deploymentName,
 			application.Guid,
 			application.Name,
+			application.SpaceData.Entity.OrgData.Entity.Guid,
+			application.SpaceData.Entity.OrgData.Entity.Name,
+			application.SpaceData.Entity.Guid,
+			application.SpaceData.Entity.Name,
 		).Set(float64(application.Instances))
 
 		c.applicationDiskQuotaMbMetric.WithLabelValues(
 			c.deploymentName,
 			application.Guid,
 			application.Name,
+			application.SpaceData.Entity.OrgData.Entity.Guid,
+			application.SpaceData.Entity.OrgData.Entity.Name,
+			application.SpaceData.Entity.Guid,
+			application.SpaceData.Entity.Name,
 		).Set(float64(application.DiskQuota))
 	}
 
