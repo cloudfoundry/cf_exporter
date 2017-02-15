@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/cloudfoundry-community/cf_exporter",
 	"GoVersion": "go1.7",
-	"GodepVersion": "v77",
+	"GodepVersion": "v74",
 	"Packages": [
 		"./..."
 	],
@@ -17,7 +17,7 @@
 		},
 		{
 			"ImportPath": "github.com/cloudfoundry-community/go-cfclient",
-			"Rev": "3fa856bab9486ab8178d5fc20797fb853e2cc1b4"
+			"Rev": "22f1caf55a05cd5d487df8393baff5fe53d174c1"
 		},
 		{
 			"ImportPath": "github.com/golang/protobuf/proto",
