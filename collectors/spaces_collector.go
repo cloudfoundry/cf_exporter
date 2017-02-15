@@ -37,7 +37,7 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 			Name:      "info",
 			Help:      "Labeled Cloud Foundry Space information with a constant '1' value.",
 		},
-		[]string{"deployment", "space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceNonBasicServicesAllowedMetric := prometheus.NewGaugeVec(
@@ -47,7 +47,7 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 			Name:      "non_basic_services_allowed",
 			Help:      "A Cloud Foundry Space can provision instances of paid service plans? (1 for true, 0 for false).",
 		},
-		[]string{"deployment", "space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceInstanceMemoryMbLimitMetric := prometheus.NewGaugeVec(
@@ -57,7 +57,7 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 			Name:      "instance_memory_mb_limit",
 			Help:      "Maximum amount of memory (Mb) an application instance can have in a Cloud Foundry Space.",
 		},
-		[]string{"deployment", "space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalAppInstancesQuotaMetric := prometheus.NewGaugeVec(
@@ -67,7 +67,7 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 			Name:      "total_app_instances_quota",
 			Help:      "Total number of application instances that may be created in a Cloud Foundry Space.",
 		},
-		[]string{"deployment", "space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalAppTasksQuotaMetric := prometheus.NewGaugeVec(
@@ -77,7 +77,7 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 			Name:      "total_app_tasks_quota",
 			Help:      "Total number of application tasks that may be created in a Cloud Foundry Space.",
 		},
-		[]string{"deployment", "space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalMemoryMbQuotaMetric := prometheus.NewGaugeVec(
@@ -87,7 +87,7 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 			Name:      "total_memory_mb_quota",
 			Help:      "Total amount of memory (Mb) a Cloud Foundry Space can have.",
 		},
-		[]string{"deployment", "space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalReservedRoutePortsQuotaMetric := prometheus.NewGaugeVec(
@@ -97,7 +97,7 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 			Name:      "total_reserved_route_ports_quota",
 			Help:      "Total number of routes that may be created with reserved ports in a Cloud Foundry Space.",
 		},
-		[]string{"deployment", "space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalRoutesQuotaMetric := prometheus.NewGaugeVec(
@@ -107,7 +107,7 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 			Name:      "total_routes_quota",
 			Help:      "Total number of routes that may be created in a Cloud Foundry Space.",
 		},
-		[]string{"deployment", "space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalServiceKeysQuotaMetric := prometheus.NewGaugeVec(
@@ -117,7 +117,7 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 			Name:      "total_service_keys_quota",
 			Help:      "Total number of service keys that may be created in a Cloud Foundry Space.",
 		},
-		[]string{"deployment", "space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalServicesQuotaMetric := prometheus.NewGaugeVec(
@@ -127,7 +127,7 @@ func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfcli
 			Name:      "total_services_quota",
 			Help:      "Total number of service instances that may be created in a Cloud Foundry Space.",
 		},
-		[]string{"deployment", "space_id", "space_name"},
+		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spacesScrapesTotalMetric := prometheus.NewCounterVec(
@@ -272,11 +272,12 @@ func (c SpacesCollector) reportSpacesMetrics(ch chan<- prometheus.Metric) error 
 			c.deploymentName,
 			space.Guid,
 			space.Name,
+			space.OrganizationGuid,
 		).Set(float64(1))
 
 		if space.QuotaDefinitionGuid != "" {
 			if spaceQuota, ok := spaceQuotas[space.QuotaDefinitionGuid]; ok {
-				c.reportSpaceQuotasMetrics(space.Guid, space.Name, spaceQuota)
+				c.reportSpaceQuotasMetrics(space.Guid, space.Name, space.OrganizationGuid, spaceQuota)
 			}
 		}
 	}
@@ -310,7 +311,12 @@ func (c SpacesCollector) gatherSpaceQuotas() (map[string]*cfclient.SpaceQuota, e
 	return spaceQuotas, nil
 }
 
-func (c SpacesCollector) reportSpaceQuotasMetrics(spaceGuid string, spaceName string, spaceQuota *cfclient.SpaceQuota) {
+func (c SpacesCollector) reportSpaceQuotasMetrics(
+	spaceGuid string,
+	spaceName string,
+	organizationGuid string,
+	spaceQuota *cfclient.SpaceQuota,
+) {
 	nonBasicServicesAllowed := 0
 	if spaceQuota.NonBasicServicesAllowed {
 		nonBasicServicesAllowed = 1
@@ -319,53 +325,62 @@ func (c SpacesCollector) reportSpaceQuotasMetrics(spaceGuid string, spaceName st
 		c.deploymentName,
 		spaceGuid,
 		spaceName,
+		organizationGuid,
 	).Set(float64(nonBasicServicesAllowed))
 
 	c.spaceInstanceMemoryMbLimitMetric.WithLabelValues(
 		c.deploymentName,
 		spaceGuid,
 		spaceName,
+		organizationGuid,
 	).Set(float64(spaceQuota.InstanceMemoryLimit))
 
 	c.spaceTotalAppInstancesQuotaMetric.WithLabelValues(
 		c.deploymentName,
 		spaceGuid,
 		spaceName,
+		organizationGuid,
 	).Set(float64(spaceQuota.AppInstanceLimit))
 
 	c.spaceTotalAppTasksQuotaMetric.WithLabelValues(
 		c.deploymentName,
 		spaceGuid,
 		spaceName,
+		organizationGuid,
 	).Set(float64(spaceQuota.AppTaskLimit))
 
 	c.spaceTotalMemoryMbQuotaMetric.WithLabelValues(
 		c.deploymentName,
 		spaceGuid,
 		spaceName,
+		organizationGuid,
 	).Set(float64(spaceQuota.MemoryLimit))
 
 	c.spaceTotalReservedRoutePortsQuotaMetric.WithLabelValues(
 		c.deploymentName,
 		spaceGuid,
 		spaceName,
+		organizationGuid,
 	).Set(float64(spaceQuota.TotalReservedRoutePorts))
 
 	c.spaceTotalRoutesQuotaMetric.WithLabelValues(
 		c.deploymentName,
 		spaceGuid,
 		spaceName,
+		organizationGuid,
 	).Set(float64(spaceQuota.TotalRoutes))
 
 	c.spaceTotalServiceKeysQuotaMetric.WithLabelValues(
 		c.deploymentName,
 		spaceGuid,
 		spaceName,
+		organizationGuid,
 	).Set(float64(spaceQuota.TotalServiceKeys))
 
 	c.spaceTotalServicesQuotaMetric.WithLabelValues(
 		c.deploymentName,
 		spaceGuid,
 		spaceName,
+		organizationGuid,
 	).Set(float64(spaceQuota.TotalServices))
 }
