@@ -11,23 +11,23 @@ import (
 type ApplicationsCollector struct {
 	namespace                                   string
 	environment                                 string
-	deploymentName                              string
+	deployment                                  string
 	cfClient                                    *cfclient.Client
 	applicationInfoMetric                       *prometheus.GaugeVec
 	applicationInstancesMetric                  *prometheus.GaugeVec
 	applicationMemoryMbMetric                   *prometheus.GaugeVec
 	applicationDiskQuotaMbMetric                *prometheus.GaugeVec
-	applicationsScrapesTotalMetric              *prometheus.CounterVec
-	applicationsScrapeErrorsTotalMetric         *prometheus.CounterVec
-	lastApplicationsScrapeErrorMetric           *prometheus.GaugeVec
-	lastApplicationsScrapeTimestampMetric       *prometheus.GaugeVec
-	lastApplicationsScrapeDurationSecondsMetric *prometheus.GaugeVec
+	applicationsScrapesTotalMetric              prometheus.Counter
+	applicationsScrapeErrorsTotalMetric         prometheus.Counter
+	lastApplicationsScrapeErrorMetric           prometheus.Gauge
+	lastApplicationsScrapeTimestampMetric       prometheus.Gauge
+	lastApplicationsScrapeDurationSecondsMetric prometheus.Gauge
 }
 
 func NewApplicationsCollector(
 	namespace string,
 	environment string,
-	deploymentName string,
+	deployment string,
 	cfClient *cfclient.Client,
 ) *ApplicationsCollector {
 	applicationInfoMetric := prometheus.NewGaugeVec(
@@ -36,9 +36,9 @@ func NewApplicationsCollector(
 			Subsystem:   "application",
 			Name:        "info",
 			Help:        "Labeled Cloud Foundry Application information with a constant '1' value.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment", "application_id", "application_name", "buildpack", "organization_id", "organization_name", "space_id", "space_name", "stack_id", "state"},
+		[]string{"application_id", "application_name", "buildpack", "organization_id", "organization_name", "space_id", "space_name", "stack_id", "state"},
 	)
 
 	applicationInstancesMetric := prometheus.NewGaugeVec(
@@ -47,9 +47,9 @@ func NewApplicationsCollector(
 			Subsystem:   "application",
 			Name:        "instances",
 			Help:        "Cloud Foundry Application Instances.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment", "application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
+		[]string{"application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
 	)
 
 	applicationMemoryMbMetric := prometheus.NewGaugeVec(
@@ -58,9 +58,9 @@ func NewApplicationsCollector(
 			Subsystem:   "application",
 			Name:        "memory_mb",
 			Help:        "Cloud Foundry Application Memory (Mb).",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment", "application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
+		[]string{"application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
 	)
 
 	applicationDiskQuotaMbMetric := prometheus.NewGaugeVec(
@@ -69,70 +69,65 @@ func NewApplicationsCollector(
 			Subsystem:   "application",
 			Name:        "disk_quota_mb",
 			Help:        "Cloud Foundry Application Disk Quota (Mb).",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment", "application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
+		[]string{"application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
 	)
 
-	applicationsScrapesTotalMetric := prometheus.NewCounterVec(
+	applicationsScrapesTotalMetric := prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Namespace:   namespace,
 			Subsystem:   "applications_scrapes",
 			Name:        "total",
 			Help:        "Total number of scrapes for Cloud Foundry Applications.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	applicationsScrapeErrorsTotalMetric := prometheus.NewCounterVec(
+	applicationsScrapeErrorsTotalMetric := prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Namespace:   namespace,
 			Subsystem:   "applications_scrape_errors",
 			Name:        "total",
 			Help:        "Total number of scrape errors of Cloud Foundry Applications.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastApplicationsScrapeErrorMetric := prometheus.NewGaugeVec(
+	lastApplicationsScrapeErrorMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_applications_scrape_error",
 			Help:        "Whether the last scrape of Applications metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastApplicationsScrapeTimestampMetric := prometheus.NewGaugeVec(
+	lastApplicationsScrapeTimestampMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_applications_scrape_timestamp",
 			Help:        "Number of seconds since 1970 since last scrape of Applications metrics from Cloud Foundry.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastApplicationsScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
+	lastApplicationsScrapeDurationSecondsMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_applications_scrape_duration_seconds",
 			Help:        "Duration of the last scrape of Applications metrics from Cloud Foundry.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
 	return &ApplicationsCollector{
 		namespace:                                   namespace,
 		environment:                                 environment,
-		deploymentName:                              deploymentName,
+		deployment:                                  deployment,
 		cfClient:                                    cfClient,
 		applicationInfoMetric:                       applicationInfoMetric,
 		applicationInstancesMetric:                  applicationInstancesMetric,
@@ -152,20 +147,20 @@ func (c ApplicationsCollector) Collect(ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
 	if err := c.reportApplicationsMetrics(ch); err != nil {
 		errorMetric = float64(1)
-		c.applicationsScrapeErrorsTotalMetric.WithLabelValues(c.deploymentName).Inc()
+		c.applicationsScrapeErrorsTotalMetric.Inc()
 	}
 	c.applicationsScrapeErrorsTotalMetric.Collect(ch)
 
-	c.applicationsScrapesTotalMetric.WithLabelValues(c.deploymentName).Inc()
+	c.applicationsScrapesTotalMetric.Inc()
 	c.applicationsScrapesTotalMetric.Collect(ch)
 
-	c.lastApplicationsScrapeErrorMetric.WithLabelValues(c.deploymentName).Set(errorMetric)
+	c.lastApplicationsScrapeErrorMetric.Set(errorMetric)
 	c.lastApplicationsScrapeErrorMetric.Collect(ch)
 
-	c.lastApplicationsScrapeTimestampMetric.WithLabelValues(c.deploymentName).Set(float64(time.Now().Unix()))
+	c.lastApplicationsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastApplicationsScrapeTimestampMetric.Collect(ch)
 
-	c.lastApplicationsScrapeDurationSecondsMetric.WithLabelValues(c.deploymentName).Set(time.Since(begun).Seconds())
+	c.lastApplicationsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
 	c.lastApplicationsScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -195,7 +190,6 @@ func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Me
 
 	for _, application := range applications {
 		c.applicationInfoMetric.WithLabelValues(
-			c.deploymentName,
 			application.Guid,
 			application.Name,
 			application.Buildpack,
@@ -208,7 +202,6 @@ func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Me
 		).Set(float64(1))
 
 		c.applicationMemoryMbMetric.WithLabelValues(
-			c.deploymentName,
 			application.Guid,
 			application.Name,
 			application.SpaceData.Entity.OrgData.Entity.Guid,
@@ -218,7 +211,6 @@ func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Me
 		).Set(float64(application.Memory))
 
 		c.applicationInstancesMetric.WithLabelValues(
-			c.deploymentName,
 			application.Guid,
 			application.Name,
 			application.SpaceData.Entity.OrgData.Entity.Guid,
@@ -228,7 +220,6 @@ func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Me
 		).Set(float64(application.Instances))
 
 		c.applicationDiskQuotaMbMetric.WithLabelValues(
-			c.deploymentName,
 			application.Guid,
 			application.Name,
 			application.SpaceData.Entity.OrgData.Entity.Guid,

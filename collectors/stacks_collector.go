@@ -11,20 +11,20 @@ import (
 type StacksCollector struct {
 	namespace                             string
 	environment                           string
-	deploymentName                        string
+	deployment                            string
 	cfClient                              *cfclient.Client
 	stackInfoMetric                       *prometheus.GaugeVec
-	stacksScrapesTotalMetric              *prometheus.CounterVec
-	stacksScrapeErrorsTotalMetric         *prometheus.CounterVec
-	lastStacksScrapeErrorMetric           *prometheus.GaugeVec
-	lastStacksScrapeTimestampMetric       *prometheus.GaugeVec
-	lastStacksScrapeDurationSecondsMetric *prometheus.GaugeVec
+	stacksScrapesTotalMetric              prometheus.Counter
+	stacksScrapeErrorsTotalMetric         prometheus.Counter
+	lastStacksScrapeErrorMetric           prometheus.Gauge
+	lastStacksScrapeTimestampMetric       prometheus.Gauge
+	lastStacksScrapeDurationSecondsMetric prometheus.Gauge
 }
 
 func NewStacksCollector(
 	namespace string,
 	environment string,
-	deploymentName string,
+	deployment string,
 	cfClient *cfclient.Client,
 ) *StacksCollector {
 	stackInfoMetric := prometheus.NewGaugeVec(
@@ -33,70 +33,65 @@ func NewStacksCollector(
 			Subsystem:   "stack",
 			Name:        "info",
 			Help:        "Labeled Cloud Foundry Stack information with a constant '1' value.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment", "stack_id", "stack_name"},
+		[]string{"stack_id", "stack_name"},
 	)
 
-	stacksScrapesTotalMetric := prometheus.NewCounterVec(
+	stacksScrapesTotalMetric := prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Namespace:   namespace,
 			Subsystem:   "stacks_scrapes",
 			Name:        "total",
 			Help:        "Total number of scrapes for Cloud Foundry Stacks.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	stacksScrapeErrorsTotalMetric := prometheus.NewCounterVec(
+	stacksScrapeErrorsTotalMetric := prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Namespace:   namespace,
 			Subsystem:   "stacks_scrape_errors",
 			Name:        "total",
 			Help:        "Total number of scrape error of Cloud Foundry Stacks.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastStacksScrapeErrorMetric := prometheus.NewGaugeVec(
+	lastStacksScrapeErrorMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_stacks_scrape_error",
 			Help:        "Whether the last scrape of Stacks metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastStacksScrapeTimestampMetric := prometheus.NewGaugeVec(
+	lastStacksScrapeTimestampMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_stacks_scrape_timestamp",
 			Help:        "Number of seconds since 1970 since last scrape of Stacks metrics from Cloud Foundry.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastStacksScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
+	lastStacksScrapeDurationSecondsMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_stacks_scrape_duration_seconds",
 			Help:        "Duration of the last scrape of Stacks metrics from Cloud Foundry.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
 	return &StacksCollector{
 		namespace:                             namespace,
 		environment:                           environment,
-		deploymentName:                        deploymentName,
+		deployment:                            deployment,
 		cfClient:                              cfClient,
 		stackInfoMetric:                       stackInfoMetric,
 		stacksScrapesTotalMetric:              stacksScrapesTotalMetric,
@@ -113,20 +108,20 @@ func (c StacksCollector) Collect(ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
 	if err := c.reportStacksMetrics(ch); err != nil {
 		errorMetric = float64(1)
-		c.stacksScrapeErrorsTotalMetric.WithLabelValues(c.deploymentName).Inc()
+		c.stacksScrapeErrorsTotalMetric.Inc()
 	}
 	c.stacksScrapeErrorsTotalMetric.Collect(ch)
 
-	c.stacksScrapesTotalMetric.WithLabelValues(c.deploymentName).Inc()
+	c.stacksScrapesTotalMetric.Inc()
 	c.stacksScrapesTotalMetric.Collect(ch)
 
-	c.lastStacksScrapeErrorMetric.WithLabelValues(c.deploymentName).Set(errorMetric)
+	c.lastStacksScrapeErrorMetric.Set(errorMetric)
 	c.lastStacksScrapeErrorMetric.Collect(ch)
 
-	c.lastStacksScrapeTimestampMetric.WithLabelValues(c.deploymentName).Set(float64(time.Now().Unix()))
+	c.lastStacksScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastStacksScrapeTimestampMetric.Collect(ch)
 
-	c.lastStacksScrapeDurationSecondsMetric.WithLabelValues(c.deploymentName).Set(time.Since(begun).Seconds())
+	c.lastStacksScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
 	c.lastStacksScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -150,7 +145,6 @@ func (c StacksCollector) reportStacksMetrics(ch chan<- prometheus.Metric) error 
 
 	for _, stack := range stacks {
 		c.stackInfoMetric.WithLabelValues(
-			c.deploymentName,
 			stack.Guid,
 			stack.Name,
 		).Set(float64(1))

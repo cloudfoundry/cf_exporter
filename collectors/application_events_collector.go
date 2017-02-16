@@ -12,20 +12,20 @@ import (
 type ApplicationEventsCollector struct {
 	namespace                                        string
 	environment                                      string
-	deploymentName                                   string
+	deployment                                       string
 	cfClient                                         *cfclient.Client
 	applicationEventsTotalMetric                     *prometheus.CounterVec
-	applicationEventsScrapesTotalMetric              *prometheus.CounterVec
-	applicationEventsScrapeErrorsTotalMetric         *prometheus.CounterVec
-	lastApplicationEventsScrapeErrorMetric           *prometheus.GaugeVec
-	lastApplicationEventsScrapeTimestampMetric       *prometheus.GaugeVec
-	lastApplicationEventsScrapeDurationSecondsMetric *prometheus.GaugeVec
+	applicationEventsScrapesTotalMetric              prometheus.Counter
+	applicationEventsScrapeErrorsTotalMetric         prometheus.Counter
+	lastApplicationEventsScrapeErrorMetric           prometheus.Gauge
+	lastApplicationEventsScrapeTimestampMetric       prometheus.Gauge
+	lastApplicationEventsScrapeDurationSecondsMetric prometheus.Gauge
 }
 
 func NewApplicationEventsCollector(
 	namespace string,
 	environment string,
-	deploymentName string,
+	deployment string,
 	cfClient *cfclient.Client,
 ) *ApplicationEventsCollector {
 	applicationEventsTotalMetric := prometheus.NewCounterVec(
@@ -34,70 +34,65 @@ func NewApplicationEventsCollector(
 			Subsystem:   "application_events",
 			Name:        "total",
 			Help:        "Total number of Cloud Foundry Application Events.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment", "application_id", "event_type"},
+		[]string{"application_id", "event_type"},
 	)
 
-	applicationEventsScrapesTotalMetric := prometheus.NewCounterVec(
+	applicationEventsScrapesTotalMetric := prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Namespace:   namespace,
 			Subsystem:   "application_events_scrapes",
 			Name:        "total",
 			Help:        "Total number of scrapes for Cloud Foundry Application Events.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	applicationEventsScrapeErrorsTotalMetric := prometheus.NewCounterVec(
+	applicationEventsScrapeErrorsTotalMetric := prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Namespace:   namespace,
 			Subsystem:   "application_events_scrape_errors",
 			Name:        "total",
 			Help:        "Total number of scrape errors of Cloud Foundry Application Events.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastApplicationEventsScrapeErrorMetric := prometheus.NewGaugeVec(
+	lastApplicationEventsScrapeErrorMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_application_events_scrape_error",
 			Help:        "Whether the last scrape of Application Events metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastApplicationEventsScrapeTimestampMetric := prometheus.NewGaugeVec(
+	lastApplicationEventsScrapeTimestampMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_application_events_scrape_timestamp",
 			Help:        "Number of seconds since 1970 since last scrape of Application Events metrics from Cloud Foundry.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastApplicationEventsScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
+	lastApplicationEventsScrapeDurationSecondsMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_application_events_scrape_duration_seconds",
 			Help:        "Duration of the last scrape of Application Events metrics from Cloud Foundry.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
 	return &ApplicationEventsCollector{
 		namespace:                                        namespace,
 		environment:                                      environment,
-		deploymentName:                                   deploymentName,
+		deployment:                                       deployment,
 		cfClient:                                         cfClient,
 		applicationEventsTotalMetric:                     applicationEventsTotalMetric,
 		applicationEventsScrapesTotalMetric:              applicationEventsScrapesTotalMetric,
@@ -114,20 +109,20 @@ func (c ApplicationEventsCollector) Collect(ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
 	if err := c.reportApplicationEventsMetrics(ch); err != nil {
 		errorMetric = float64(1)
-		c.applicationEventsScrapeErrorsTotalMetric.WithLabelValues(c.deploymentName).Inc()
+		c.applicationEventsScrapeErrorsTotalMetric.Inc()
 	}
 	c.applicationEventsScrapeErrorsTotalMetric.Collect(ch)
 
-	c.applicationEventsScrapesTotalMetric.WithLabelValues(c.deploymentName).Inc()
+	c.applicationEventsScrapesTotalMetric.Inc()
 	c.applicationEventsScrapesTotalMetric.Collect(ch)
 
-	c.lastApplicationEventsScrapeErrorMetric.WithLabelValues(c.deploymentName).Set(errorMetric)
+	c.lastApplicationEventsScrapeErrorMetric.Set(errorMetric)
 	c.lastApplicationEventsScrapeErrorMetric.Collect(ch)
 
-	c.lastApplicationEventsScrapeTimestampMetric.WithLabelValues(c.deploymentName).Set(float64(time.Now().Unix()))
+	c.lastApplicationEventsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastApplicationEventsScrapeTimestampMetric.Collect(ch)
 
-	c.lastApplicationEventsScrapeDurationSecondsMetric.WithLabelValues(c.deploymentName).Set(time.Since(begun).Seconds())
+	c.lastApplicationEventsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
 	c.lastApplicationEventsScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -197,7 +192,6 @@ func (c ApplicationEventsCollector) gatherApplicationEvents(eventType string, ch
 	for _, event := range events {
 		if event.ActeeType == "app" {
 			c.applicationEventsTotalMetric.WithLabelValues(
-				c.deploymentName,
 				event.Actee,
 				eventType,
 			).Inc()

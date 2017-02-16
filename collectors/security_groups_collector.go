@@ -11,20 +11,20 @@ import (
 type SecurityGroupsCollector struct {
 	namespace                                     string
 	environment                                   string
-	deploymentName                                string
+	deployment                                    string
 	cfClient                                      *cfclient.Client
 	securityGroupInfoMetric                       *prometheus.GaugeVec
-	securityGroupsScrapesTotalMetric              *prometheus.CounterVec
-	securityGroupsScrapeErrorsTotalMetric         *prometheus.CounterVec
-	lastSecurityGroupsScrapeErrorMetric           *prometheus.GaugeVec
-	lastSecurityGroupsScrapeTimestampMetric       *prometheus.GaugeVec
-	lastSecurityGroupsScrapeDurationSecondsMetric *prometheus.GaugeVec
+	securityGroupsScrapesTotalMetric              prometheus.Counter
+	securityGroupsScrapeErrorsTotalMetric         prometheus.Counter
+	lastSecurityGroupsScrapeErrorMetric           prometheus.Gauge
+	lastSecurityGroupsScrapeTimestampMetric       prometheus.Gauge
+	lastSecurityGroupsScrapeDurationSecondsMetric prometheus.Gauge
 }
 
 func NewSecurityGroupsCollector(
 	namespace string,
 	environment string,
-	deploymentName string,
+	deployment string,
 	cfClient *cfclient.Client,
 ) *SecurityGroupsCollector {
 	securityGroupInfoMetric := prometheus.NewGaugeVec(
@@ -33,70 +33,65 @@ func NewSecurityGroupsCollector(
 			Subsystem:   "security_group",
 			Name:        "info",
 			Help:        "Labeled Cloud Foundry Security Group information with a constant '1' value.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment", "security_group_id", "security_group_name"},
+		[]string{"security_group_id", "security_group_name"},
 	)
 
-	securityGroupsScrapesTotalMetric := prometheus.NewCounterVec(
+	securityGroupsScrapesTotalMetric := prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Namespace:   namespace,
 			Subsystem:   "security_groups_scrapes",
 			Name:        "total",
 			Help:        "Total number of scrapes for Cloud Foundry Security Groups.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	securityGroupsScrapeErrorsTotalMetric := prometheus.NewCounterVec(
+	securityGroupsScrapeErrorsTotalMetric := prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Namespace:   namespace,
 			Subsystem:   "security_groups_scrape_errors",
 			Name:        "total",
 			Help:        "Total number of scrape error of Cloud Foundry Security Groups.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastSecurityGroupsScrapeErrorMetric := prometheus.NewGaugeVec(
+	lastSecurityGroupsScrapeErrorMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_security_groups_scrape_error",
 			Help:        "Whether the last scrape of Security Groups metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastSecurityGroupsScrapeTimestampMetric := prometheus.NewGaugeVec(
+	lastSecurityGroupsScrapeTimestampMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_security_groups_scrape_timestamp",
 			Help:        "Number of seconds since 1970 since last scrape of Security Groups metrics from Cloud Foundry.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastSecurityGroupsScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
+	lastSecurityGroupsScrapeDurationSecondsMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_security_groups_scrape_duration_seconds",
 			Help:        "Duration of the last scrape of Security Groups metrics from Cloud Foundry.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
 	return &SecurityGroupsCollector{
 		namespace:                                     namespace,
 		environment:                                   environment,
-		deploymentName:                                deploymentName,
+		deployment:                                    deployment,
 		cfClient:                                      cfClient,
 		securityGroupInfoMetric:                       securityGroupInfoMetric,
 		securityGroupsScrapesTotalMetric:              securityGroupsScrapesTotalMetric,
@@ -113,20 +108,20 @@ func (c SecurityGroupsCollector) Collect(ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
 	if err := c.reportSecurityGroupsMetrics(ch); err != nil {
 		errorMetric = float64(1)
-		c.securityGroupsScrapeErrorsTotalMetric.WithLabelValues(c.deploymentName).Inc()
+		c.securityGroupsScrapeErrorsTotalMetric.Inc()
 	}
 	c.securityGroupsScrapeErrorsTotalMetric.Collect(ch)
 
-	c.securityGroupsScrapesTotalMetric.WithLabelValues(c.deploymentName).Inc()
+	c.securityGroupsScrapesTotalMetric.Inc()
 	c.securityGroupsScrapesTotalMetric.Collect(ch)
 
-	c.lastSecurityGroupsScrapeErrorMetric.WithLabelValues(c.deploymentName).Set(errorMetric)
+	c.lastSecurityGroupsScrapeErrorMetric.Set(errorMetric)
 	c.lastSecurityGroupsScrapeErrorMetric.Collect(ch)
 
-	c.lastSecurityGroupsScrapeTimestampMetric.WithLabelValues(c.deploymentName).Set(float64(time.Now().Unix()))
+	c.lastSecurityGroupsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastSecurityGroupsScrapeTimestampMetric.Collect(ch)
 
-	c.lastSecurityGroupsScrapeDurationSecondsMetric.WithLabelValues(c.deploymentName).Set(time.Since(begun).Seconds())
+	c.lastSecurityGroupsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
 	c.lastSecurityGroupsScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -150,7 +145,6 @@ func (c SecurityGroupsCollector) reportSecurityGroupsMetrics(ch chan<- prometheu
 
 	for _, securityGroup := range securityGroups {
 		c.securityGroupInfoMetric.WithLabelValues(
-			c.deploymentName,
 			securityGroup.Guid,
 			securityGroup.Name,
 		).Set(float64(1))

@@ -11,20 +11,20 @@ import (
 type ServiceInstancesCollector struct {
 	namespace                                       string
 	environment                                     string
-	deploymentName                                  string
+	deployment                                      string
 	cfClient                                        *cfclient.Client
 	serviceInstanceInfoMetric                       *prometheus.GaugeVec
-	serviceInstancesScrapesTotalMetric              *prometheus.CounterVec
-	serviceInstancesScrapeErrorsTotalMetric         *prometheus.CounterVec
-	lastServiceInstancesScrapeErrorMetric           *prometheus.GaugeVec
-	lastServiceInstancesScrapeTimestampMetric       *prometheus.GaugeVec
-	lastServiceInstancesScrapeDurationSecondsMetric *prometheus.GaugeVec
+	serviceInstancesScrapesTotalMetric              prometheus.Counter
+	serviceInstancesScrapeErrorsTotalMetric         prometheus.Counter
+	lastServiceInstancesScrapeErrorMetric           prometheus.Gauge
+	lastServiceInstancesScrapeTimestampMetric       prometheus.Gauge
+	lastServiceInstancesScrapeDurationSecondsMetric prometheus.Gauge
 }
 
 func NewServiceInstancesCollector(
 	namespace string,
 	environment string,
-	deploymentName string,
+	deployment string,
 	cfClient *cfclient.Client,
 ) *ServiceInstancesCollector {
 	serviceInstanceInfoMetric := prometheus.NewGaugeVec(
@@ -33,70 +33,65 @@ func NewServiceInstancesCollector(
 			Subsystem:   "service_instance",
 			Name:        "info",
 			Help:        "Labeled Cloud Foundry Service Instance information with a constant '1' value.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment", "service_instance_id", "service_instance_name", "service_plan_id", "space_id", "type"},
+		[]string{"service_instance_id", "service_instance_name", "service_plan_id", "space_id", "type"},
 	)
 
-	serviceInstancesScrapesTotalMetric := prometheus.NewCounterVec(
+	serviceInstancesScrapesTotalMetric := prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Namespace:   namespace,
 			Subsystem:   "service_instances_scrapes",
 			Name:        "total",
 			Help:        "Total number of scrapes for Cloud Foundry Service Instances.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	serviceInstancesScrapeErrorsTotalMetric := prometheus.NewCounterVec(
+	serviceInstancesScrapeErrorsTotalMetric := prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Namespace:   namespace,
 			Subsystem:   "service_instances_scrape_errors",
 			Name:        "total",
 			Help:        "Total number of scrape error of Cloud Foundry Service Instances.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastServiceInstancesScrapeErrorMetric := prometheus.NewGaugeVec(
+	lastServiceInstancesScrapeErrorMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_service_instances_scrape_error",
 			Help:        "Whether the last scrape of Service Instances metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastServiceInstancesScrapeTimestampMetric := prometheus.NewGaugeVec(
+	lastServiceInstancesScrapeTimestampMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_service_instances_scrape_timestamp",
 			Help:        "Number of seconds since 1970 since last scrape of Service Instances metrics from Cloud Foundry.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
-	lastServiceInstancesScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
+	lastServiceInstancesScrapeDurationSecondsMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace:   namespace,
 			Subsystem:   "",
 			Name:        "last_service_instances_scrape_duration_seconds",
 			Help:        "Duration of the last scrape of Service Instances metrics from Cloud Foundry.",
-			ConstLabels: prometheus.Labels{"environment": environment},
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"deployment"},
 	)
 
 	return &ServiceInstancesCollector{
 		namespace:                                       namespace,
 		environment:                                     environment,
-		deploymentName:                                  deploymentName,
+		deployment:                                      deployment,
 		cfClient:                                        cfClient,
 		serviceInstanceInfoMetric:                       serviceInstanceInfoMetric,
 		serviceInstancesScrapesTotalMetric:              serviceInstancesScrapesTotalMetric,
@@ -113,20 +108,20 @@ func (c ServiceInstancesCollector) Collect(ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
 	if err := c.reportServiceInstancesMetrics(ch); err != nil {
 		errorMetric = float64(1)
-		c.serviceInstancesScrapeErrorsTotalMetric.WithLabelValues(c.deploymentName).Inc()
+		c.serviceInstancesScrapeErrorsTotalMetric.Inc()
 	}
 	c.serviceInstancesScrapeErrorsTotalMetric.Collect(ch)
 
-	c.serviceInstancesScrapesTotalMetric.WithLabelValues(c.deploymentName).Inc()
+	c.serviceInstancesScrapesTotalMetric.Inc()
 	c.serviceInstancesScrapesTotalMetric.Collect(ch)
 
-	c.lastServiceInstancesScrapeErrorMetric.WithLabelValues(c.deploymentName).Set(errorMetric)
+	c.lastServiceInstancesScrapeErrorMetric.Set(errorMetric)
 	c.lastServiceInstancesScrapeErrorMetric.Collect(ch)
 
-	c.lastServiceInstancesScrapeTimestampMetric.WithLabelValues(c.deploymentName).Set(float64(time.Now().Unix()))
+	c.lastServiceInstancesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastServiceInstancesScrapeTimestampMetric.Collect(ch)
 
-	c.lastServiceInstancesScrapeDurationSecondsMetric.WithLabelValues(c.deploymentName).Set(time.Since(begun).Seconds())
+	c.lastServiceInstancesScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
 	c.lastServiceInstancesScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -150,7 +145,6 @@ func (c ServiceInstancesCollector) reportServiceInstancesMetrics(ch chan<- prome
 
 	for _, serviceInstance := range serviceInstances {
 		c.serviceInstanceInfoMetric.WithLabelValues(
-			c.deploymentName,
 			serviceInstance.Guid,
 			serviceInstance.Name,
 			serviceInstance.ServicePlanGuid,
