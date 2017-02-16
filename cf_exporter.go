@@ -58,6 +58,11 @@ var (
 		"Metrics Namespace ($CF_EXPORTER_METRICS_NAMESPACE).",
 	)
 
+	metricsEnvironment = flag.String(
+		"metrics.environment", "",
+		"Environment label to be attached to metrics ($CF_EXPORTER_METRICS_ENVIRONMENT).",
+	)
+
 	showVersion = flag.Bool(
 		"version", false,
 		"Print version information.",
@@ -71,11 +76,6 @@ var (
 	listenAddress = flag.String(
 		"web.listen-address", ":9193",
 		"Address to listen on for web interface and telemetry ($CF_EXPORTER_WEB_LISTEN_ADDRESS).",
-	)
-
-	metricsEnvironment = flag.String(
-		"metrics.environment", "",
-		"Environment label to be attached to metrics ($CF_EXPORTER_METRICS_ENVIRONMENT).",
 	)
 
 	metricsPath = flag.String(
@@ -117,9 +117,9 @@ func overrideFlagsWithEnvVars() {
 	overrideWithEnvVar("CF_EXPORTER_CF_DEPLOYMENT_NAME", cfDeploymentName)
 	overrideWithEnvVar("CF_EXPORTER_FILTER_COLLECTORS", filterCollectors)
 	overrideWithEnvVar("CF_EXPORTER_METRICS_NAMESPACE", metricsNamespace)
+	overrideWithEnvVar("CF_EXPORTER_METRICS_ENVIRONMENT", metricsEnvironment)
 	overrideWithEnvBool("CF_EXPORTER_SKIP_SSL_VERIFY", skipSSLValidation)
 	overrideWithEnvVar("CF_EXPORTER_WEB_LISTEN_ADDRESS", listenAddress)
-	overrideWithEnvVar("CF_EXPORTER_METRICS_ENVIRONMENT", metricsEnvironment)
 	overrideWithEnvVar("CF_EXPORTER_WEB_TELEMETRY_PATH", metricsPath)
 	overrideWithEnvVar("CF_EXPORTER_WEB_AUTH_USERNAME", authUsername)
 	overrideWithEnvVar("CF_EXPORTER_WEB_AUTH_PASSWORD", authPassword)
