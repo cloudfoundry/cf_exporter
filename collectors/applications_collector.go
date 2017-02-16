@@ -10,6 +10,7 @@ import (
 
 type ApplicationsCollector struct {
 	namespace                                   string
+	environment                                 string
 	deploymentName                              string
 	cfClient                                    *cfclient.Client
 	applicationInfoMetric                       *prometheus.GaugeVec
@@ -23,99 +24,114 @@ type ApplicationsCollector struct {
 	lastApplicationsScrapeDurationSecondsMetric *prometheus.GaugeVec
 }
 
-func NewApplicationsCollector(namespace string, deploymentName string, cfClient *cfclient.Client) *ApplicationsCollector {
+func NewApplicationsCollector(
+	namespace string,
+	environment string,
+	deploymentName string,
+	cfClient *cfclient.Client,
+) *ApplicationsCollector {
 	applicationInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "application",
-			Name:      "info",
-			Help:      "Labeled Cloud Foundry Application information with a constant '1' value.",
+			Namespace:   namespace,
+			Subsystem:   "application",
+			Name:        "info",
+			Help:        "Labeled Cloud Foundry Application information with a constant '1' value.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "application_id", "application_name", "buildpack", "organization_id", "organization_name", "space_id", "space_name", "stack_id", "state"},
 	)
 
 	applicationInstancesMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "application",
-			Name:      "instances",
-			Help:      "Cloud Foundry Application Instances.",
+			Namespace:   namespace,
+			Subsystem:   "application",
+			Name:        "instances",
+			Help:        "Cloud Foundry Application Instances.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
 	)
 
 	applicationMemoryMbMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "application",
-			Name:      "memory_mb",
-			Help:      "Cloud Foundry Application Memory (Mb).",
+			Namespace:   namespace,
+			Subsystem:   "application",
+			Name:        "memory_mb",
+			Help:        "Cloud Foundry Application Memory (Mb).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
 	)
 
 	applicationDiskQuotaMbMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "application",
-			Name:      "disk_quota_mb",
-			Help:      "Cloud Foundry Application Disk Quota (Mb).",
+			Namespace:   namespace,
+			Subsystem:   "application",
+			Name:        "disk_quota_mb",
+			Help:        "Cloud Foundry Application Disk Quota (Mb).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
 	)
 
 	applicationsScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "applications_scrapes",
-			Name:      "total",
-			Help:      "Total number of scrapes for Cloud Foundry Applications.",
+			Namespace:   namespace,
+			Subsystem:   "applications_scrapes",
+			Name:        "total",
+			Help:        "Total number of scrapes for Cloud Foundry Applications.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	applicationsScrapeErrorsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "applications_scrape_errors",
-			Name:      "total",
-			Help:      "Total number of scrape errors of Cloud Foundry Applications.",
+			Namespace:   namespace,
+			Subsystem:   "applications_scrape_errors",
+			Name:        "total",
+			Help:        "Total number of scrape errors of Cloud Foundry Applications.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastApplicationsScrapeErrorMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_applications_scrape_error",
-			Help:      "Whether the last scrape of Applications metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_applications_scrape_error",
+			Help:        "Whether the last scrape of Applications metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastApplicationsScrapeTimestampMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_applications_scrape_timestamp",
-			Help:      "Number of seconds since 1970 since last scrape of Applications metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_applications_scrape_timestamp",
+			Help:        "Number of seconds since 1970 since last scrape of Applications metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastApplicationsScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_applications_scrape_duration_seconds",
-			Help:      "Duration of the last scrape of Applications metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_applications_scrape_duration_seconds",
+			Help:        "Duration of the last scrape of Applications metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	return &ApplicationsCollector{
 		namespace:                                   namespace,
+		environment:                                 environment,
 		deploymentName:                              deploymentName,
 		cfClient:                                    cfClient,
 		applicationInfoMetric:                       applicationInfoMetric,

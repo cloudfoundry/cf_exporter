@@ -10,6 +10,7 @@ import (
 
 type ServicesCollector struct {
 	namespace                               string
+	environment                             string
 	deploymentName                          string
 	cfClient                                *cfclient.Client
 	serviceInfoMetric                       *prometheus.GaugeVec
@@ -20,69 +21,81 @@ type ServicesCollector struct {
 	lastServicesScrapeDurationSecondsMetric *prometheus.GaugeVec
 }
 
-func NewServicesCollector(namespace string, deploymentName string, cfClient *cfclient.Client) *ServicesCollector {
+func NewServicesCollector(
+	namespace string,
+	environment string,
+	deploymentName string,
+	cfClient *cfclient.Client,
+) *ServicesCollector {
 	serviceInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "service",
-			Name:      "info",
-			Help:      "Labeled Cloud Foundry Service information with a constant '1' value.",
+			Namespace:   namespace,
+			Subsystem:   "service",
+			Name:        "info",
+			Help:        "Labeled Cloud Foundry Service information with a constant '1' value.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "service_id", "service_label"},
 	)
 
 	servicesScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "services_scrapes",
-			Name:      "total",
-			Help:      "Total number of scrapes for Cloud Foundry Services.",
+			Namespace:   namespace,
+			Subsystem:   "services_scrapes",
+			Name:        "total",
+			Help:        "Total number of scrapes for Cloud Foundry Services.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	servicesScrapeErrorsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "services_scrape_errors",
-			Name:      "total",
-			Help:      "Total number of scrape error of Cloud Foundry Services.",
+			Namespace:   namespace,
+			Subsystem:   "services_scrape_errors",
+			Name:        "total",
+			Help:        "Total number of scrape error of Cloud Foundry Services.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastServicesScrapeErrorMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_services_scrape_error",
-			Help:      "Whether the last scrape of Services metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_services_scrape_error",
+			Help:        "Whether the last scrape of Services metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastServicesScrapeTimestampMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_services_scrape_timestamp",
-			Help:      "Number of seconds since 1970 since last scrape of Services metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_services_scrape_timestamp",
+			Help:        "Number of seconds since 1970 since last scrape of Services metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastServicesScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_services_scrape_duration_seconds",
-			Help:      "Duration of the last scrape of Services metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_services_scrape_duration_seconds",
+			Help:        "Duration of the last scrape of Services metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	return &ServicesCollector{
 		namespace:                               namespace,
+		environment:                             environment,
 		deploymentName:                          deploymentName,
 		cfClient:                                cfClient,
 		serviceInfoMetric:                       serviceInfoMetric,

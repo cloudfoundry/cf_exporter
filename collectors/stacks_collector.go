@@ -10,6 +10,7 @@ import (
 
 type StacksCollector struct {
 	namespace                             string
+	environment                           string
 	deploymentName                        string
 	cfClient                              *cfclient.Client
 	stackInfoMetric                       *prometheus.GaugeVec
@@ -20,69 +21,81 @@ type StacksCollector struct {
 	lastStacksScrapeDurationSecondsMetric *prometheus.GaugeVec
 }
 
-func NewStacksCollector(namespace string, deploymentName string, cfClient *cfclient.Client) *StacksCollector {
+func NewStacksCollector(
+	namespace string,
+	environment string,
+	deploymentName string,
+	cfClient *cfclient.Client,
+) *StacksCollector {
 	stackInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "stack",
-			Name:      "info",
-			Help:      "Labeled Cloud Foundry Stack information with a constant '1' value.",
+			Namespace:   namespace,
+			Subsystem:   "stack",
+			Name:        "info",
+			Help:        "Labeled Cloud Foundry Stack information with a constant '1' value.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "stack_id", "stack_name"},
 	)
 
 	stacksScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "stacks_scrapes",
-			Name:      "total",
-			Help:      "Total number of scrapes for Cloud Foundry Stacks.",
+			Namespace:   namespace,
+			Subsystem:   "stacks_scrapes",
+			Name:        "total",
+			Help:        "Total number of scrapes for Cloud Foundry Stacks.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	stacksScrapeErrorsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "stacks_scrape_errors",
-			Name:      "total",
-			Help:      "Total number of scrape error of Cloud Foundry Stacks.",
+			Namespace:   namespace,
+			Subsystem:   "stacks_scrape_errors",
+			Name:        "total",
+			Help:        "Total number of scrape error of Cloud Foundry Stacks.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastStacksScrapeErrorMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_stacks_scrape_error",
-			Help:      "Whether the last scrape of Stacks metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_stacks_scrape_error",
+			Help:        "Whether the last scrape of Stacks metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastStacksScrapeTimestampMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_stacks_scrape_timestamp",
-			Help:      "Number of seconds since 1970 since last scrape of Stacks metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_stacks_scrape_timestamp",
+			Help:        "Number of seconds since 1970 since last scrape of Stacks metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastStacksScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_stacks_scrape_duration_seconds",
-			Help:      "Duration of the last scrape of Stacks metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_stacks_scrape_duration_seconds",
+			Help:        "Duration of the last scrape of Stacks metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	return &StacksCollector{
 		namespace:                             namespace,
+		environment:                           environment,
 		deploymentName:                        deploymentName,
 		cfClient:                              cfClient,
 		stackInfoMetric:                       stackInfoMetric,

@@ -10,6 +10,7 @@ import (
 
 type ServiceInstancesCollector struct {
 	namespace                                       string
+	environment                                     string
 	deploymentName                                  string
 	cfClient                                        *cfclient.Client
 	serviceInstanceInfoMetric                       *prometheus.GaugeVec
@@ -20,69 +21,81 @@ type ServiceInstancesCollector struct {
 	lastServiceInstancesScrapeDurationSecondsMetric *prometheus.GaugeVec
 }
 
-func NewServiceInstancesCollector(namespace string, deploymentName string, cfClient *cfclient.Client) *ServiceInstancesCollector {
+func NewServiceInstancesCollector(
+	namespace string,
+	environment string,
+	deploymentName string,
+	cfClient *cfclient.Client,
+) *ServiceInstancesCollector {
 	serviceInstanceInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "service_instance",
-			Name:      "info",
-			Help:      "Labeled Cloud Foundry Service Instance information with a constant '1' value.",
+			Namespace:   namespace,
+			Subsystem:   "service_instance",
+			Name:        "info",
+			Help:        "Labeled Cloud Foundry Service Instance information with a constant '1' value.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "service_instance_id", "service_instance_name", "service_plan_id", "space_id", "type"},
 	)
 
 	serviceInstancesScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "service_instances_scrapes",
-			Name:      "total",
-			Help:      "Total number of scrapes for Cloud Foundry Service Instances.",
+			Namespace:   namespace,
+			Subsystem:   "service_instances_scrapes",
+			Name:        "total",
+			Help:        "Total number of scrapes for Cloud Foundry Service Instances.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	serviceInstancesScrapeErrorsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "service_instances_scrape_errors",
-			Name:      "total",
-			Help:      "Total number of scrape error of Cloud Foundry Service Instances.",
+			Namespace:   namespace,
+			Subsystem:   "service_instances_scrape_errors",
+			Name:        "total",
+			Help:        "Total number of scrape error of Cloud Foundry Service Instances.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastServiceInstancesScrapeErrorMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_service_instances_scrape_error",
-			Help:      "Whether the last scrape of Service Instances metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_service_instances_scrape_error",
+			Help:        "Whether the last scrape of Service Instances metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastServiceInstancesScrapeTimestampMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_service_instances_scrape_timestamp",
-			Help:      "Number of seconds since 1970 since last scrape of Service Instances metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_service_instances_scrape_timestamp",
+			Help:        "Number of seconds since 1970 since last scrape of Service Instances metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastServiceInstancesScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_service_instances_scrape_duration_seconds",
-			Help:      "Duration of the last scrape of Service Instances metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_service_instances_scrape_duration_seconds",
+			Help:        "Duration of the last scrape of Service Instances metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	return &ServiceInstancesCollector{
 		namespace:                                       namespace,
+		environment:                                     environment,
 		deploymentName:                                  deploymentName,
 		cfClient:                                        cfClient,
 		serviceInstanceInfoMetric:                       serviceInstanceInfoMetric,

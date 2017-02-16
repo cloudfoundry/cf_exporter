@@ -73,6 +73,11 @@ var (
 		"Address to listen on for web interface and telemetry ($CF_EXPORTER_WEB_LISTEN_ADDRESS).",
 	)
 
+	metricsEnvironment = flag.String(
+		"metrics.environment", "",
+		"Environment label to be attached to metrics ($CF_EXPORTER_METRICS_ENVIRONMENT).",
+	)
+
 	metricsPath = flag.String(
 		"web.telemetry-path", "/metrics",
 		"Path under which to expose Prometheus metrics ($CF_EXPORTER_WEB_TELEMETRY_PATH).",
@@ -114,6 +119,7 @@ func overrideFlagsWithEnvVars() {
 	overrideWithEnvVar("CF_EXPORTER_METRICS_NAMESPACE", metricsNamespace)
 	overrideWithEnvBool("CF_EXPORTER_SKIP_SSL_VERIFY", skipSSLValidation)
 	overrideWithEnvVar("CF_EXPORTER_WEB_LISTEN_ADDRESS", listenAddress)
+	overrideWithEnvVar("CF_EXPORTER_METRICS_ENVIRONMENT", metricsEnvironment)
 	overrideWithEnvVar("CF_EXPORTER_WEB_TELEMETRY_PATH", metricsPath)
 	overrideWithEnvVar("CF_EXPORTER_WEB_AUTH_USERNAME", authUsername)
 	overrideWithEnvVar("CF_EXPORTER_WEB_AUTH_PASSWORD", authPassword)
@@ -209,47 +215,47 @@ func main() {
 	}
 
 	if collectorsFilter.Enabled(filters.ApplicationsCollector) {
-		applicationsCollector := collectors.NewApplicationsCollector(*metricsNamespace, *cfDeploymentName, cfClient)
+		applicationsCollector := collectors.NewApplicationsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(applicationsCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.ApplicationEventsCollector) {
-		applicationEventsCollector := collectors.NewApplicationEventsCollector(*metricsNamespace, *cfDeploymentName, cfClient)
+		applicationEventsCollector := collectors.NewApplicationEventsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(applicationEventsCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.OrganizationsCollector) {
-		organizationsCollector := collectors.NewOrganizationsCollector(*metricsNamespace, *cfDeploymentName, cfClient)
+		organizationsCollector := collectors.NewOrganizationsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(organizationsCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.RoutesCollector) {
-		routesCollector := collectors.NewRoutesCollector(*metricsNamespace, *cfDeploymentName, cfClient)
+		routesCollector := collectors.NewRoutesCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(routesCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.SecurityGroupsCollector) {
-		securityGroupsCollector := collectors.NewSecurityGroupsCollector(*metricsNamespace, *cfDeploymentName, cfClient)
+		securityGroupsCollector := collectors.NewSecurityGroupsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(securityGroupsCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.ServiceInstancesCollector) {
-		serviceInstancesCollector := collectors.NewServiceInstancesCollector(*metricsNamespace, *cfDeploymentName, cfClient)
+		serviceInstancesCollector := collectors.NewServiceInstancesCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(serviceInstancesCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.ServicesCollector) {
-		servicesCollector := collectors.NewServicesCollector(*metricsNamespace, *cfDeploymentName, cfClient)
+		servicesCollector := collectors.NewServicesCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(servicesCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.SpacesCollector) {
-		spacesCollector := collectors.NewSpacesCollector(*metricsNamespace, *cfDeploymentName, cfClient)
+		spacesCollector := collectors.NewSpacesCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(spacesCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.StacksCollector) {
-		stacksCollector := collectors.NewStacksCollector(*metricsNamespace, *cfDeploymentName, cfClient)
+		stacksCollector := collectors.NewStacksCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(stacksCollector)
 	}
 

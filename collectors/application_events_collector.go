@@ -11,6 +11,7 @@ import (
 
 type ApplicationEventsCollector struct {
 	namespace                                        string
+	environment                                      string
 	deploymentName                                   string
 	cfClient                                         *cfclient.Client
 	applicationEventsTotalMetric                     *prometheus.CounterVec
@@ -21,69 +22,81 @@ type ApplicationEventsCollector struct {
 	lastApplicationEventsScrapeDurationSecondsMetric *prometheus.GaugeVec
 }
 
-func NewApplicationEventsCollector(namespace string, deploymentName string, cfClient *cfclient.Client) *ApplicationEventsCollector {
+func NewApplicationEventsCollector(
+	namespace string,
+	environment string,
+	deploymentName string,
+	cfClient *cfclient.Client,
+) *ApplicationEventsCollector {
 	applicationEventsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "application_events",
-			Name:      "total",
-			Help:      "Total number of Cloud Foundry Application Events.",
+			Namespace:   namespace,
+			Subsystem:   "application_events",
+			Name:        "total",
+			Help:        "Total number of Cloud Foundry Application Events.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "application_id", "event_type"},
 	)
 
 	applicationEventsScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "application_events_scrapes",
-			Name:      "total",
-			Help:      "Total number of scrapes for Cloud Foundry Application Events.",
+			Namespace:   namespace,
+			Subsystem:   "application_events_scrapes",
+			Name:        "total",
+			Help:        "Total number of scrapes for Cloud Foundry Application Events.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	applicationEventsScrapeErrorsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "application_events_scrape_errors",
-			Name:      "total",
-			Help:      "Total number of scrape errors of Cloud Foundry Application Events.",
+			Namespace:   namespace,
+			Subsystem:   "application_events_scrape_errors",
+			Name:        "total",
+			Help:        "Total number of scrape errors of Cloud Foundry Application Events.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastApplicationEventsScrapeErrorMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_application_events_scrape_error",
-			Help:      "Whether the last scrape of Application Events metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_application_events_scrape_error",
+			Help:        "Whether the last scrape of Application Events metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastApplicationEventsScrapeTimestampMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_application_events_scrape_timestamp",
-			Help:      "Number of seconds since 1970 since last scrape of Application Events metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_application_events_scrape_timestamp",
+			Help:        "Number of seconds since 1970 since last scrape of Application Events metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastApplicationEventsScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_application_events_scrape_duration_seconds",
-			Help:      "Duration of the last scrape of Application Events metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_application_events_scrape_duration_seconds",
+			Help:        "Duration of the last scrape of Application Events metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	return &ApplicationEventsCollector{
 		namespace:                                        namespace,
+		environment:                                      environment,
 		deploymentName:                                   deploymentName,
 		cfClient:                                         cfClient,
 		applicationEventsTotalMetric:                     applicationEventsTotalMetric,

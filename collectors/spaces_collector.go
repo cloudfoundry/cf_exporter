@@ -10,6 +10,7 @@ import (
 
 type SpacesCollector struct {
 	namespace                               string
+	environment                             string
 	deploymentName                          string
 	cfClient                                *cfclient.Client
 	spaceInfoMetric                         *prometheus.GaugeVec
@@ -29,159 +30,180 @@ type SpacesCollector struct {
 	lastSpacesScrapeDurationSecondsMetric   *prometheus.GaugeVec
 }
 
-func NewSpacesCollector(namespace string, deploymentName string, cfClient *cfclient.Client) *SpacesCollector {
+func NewSpacesCollector(
+	namespace string,
+	environment string,
+	deploymentName string,
+	cfClient *cfclient.Client,
+) *SpacesCollector {
 	spaceInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "space",
-			Name:      "info",
-			Help:      "Labeled Cloud Foundry Space information with a constant '1' value.",
+			Namespace:   namespace,
+			Subsystem:   "space",
+			Name:        "info",
+			Help:        "Labeled Cloud Foundry Space information with a constant '1' value.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceNonBasicServicesAllowedMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "space",
-			Name:      "non_basic_services_allowed",
-			Help:      "A Cloud Foundry Space can provision instances of paid service plans? (1 for true, 0 for false).",
+			Namespace:   namespace,
+			Subsystem:   "space",
+			Name:        "non_basic_services_allowed",
+			Help:        "A Cloud Foundry Space can provision instances of paid service plans? (1 for true, 0 for false).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceInstanceMemoryMbLimitMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "space",
-			Name:      "instance_memory_mb_limit",
-			Help:      "Maximum amount of memory (Mb) an application instance can have in a Cloud Foundry Space.",
+			Namespace:   namespace,
+			Subsystem:   "space",
+			Name:        "instance_memory_mb_limit",
+			Help:        "Maximum amount of memory (Mb) an application instance can have in a Cloud Foundry Space.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalAppInstancesQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "space",
-			Name:      "total_app_instances_quota",
-			Help:      "Total number of application instances that may be created in a Cloud Foundry Space.",
+			Namespace:   namespace,
+			Subsystem:   "space",
+			Name:        "total_app_instances_quota",
+			Help:        "Total number of application instances that may be created in a Cloud Foundry Space.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalAppTasksQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "space",
-			Name:      "total_app_tasks_quota",
-			Help:      "Total number of application tasks that may be created in a Cloud Foundry Space.",
+			Namespace:   namespace,
+			Subsystem:   "space",
+			Name:        "total_app_tasks_quota",
+			Help:        "Total number of application tasks that may be created in a Cloud Foundry Space.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalMemoryMbQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "space",
-			Name:      "total_memory_mb_quota",
-			Help:      "Total amount of memory (Mb) a Cloud Foundry Space can have.",
+			Namespace:   namespace,
+			Subsystem:   "space",
+			Name:        "total_memory_mb_quota",
+			Help:        "Total amount of memory (Mb) a Cloud Foundry Space can have.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalReservedRoutePortsQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "space",
-			Name:      "total_reserved_route_ports_quota",
-			Help:      "Total number of routes that may be created with reserved ports in a Cloud Foundry Space.",
+			Namespace:   namespace,
+			Subsystem:   "space",
+			Name:        "total_reserved_route_ports_quota",
+			Help:        "Total number of routes that may be created with reserved ports in a Cloud Foundry Space.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalRoutesQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "space",
-			Name:      "total_routes_quota",
-			Help:      "Total number of routes that may be created in a Cloud Foundry Space.",
+			Namespace:   namespace,
+			Subsystem:   "space",
+			Name:        "total_routes_quota",
+			Help:        "Total number of routes that may be created in a Cloud Foundry Space.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalServiceKeysQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "space",
-			Name:      "total_service_keys_quota",
-			Help:      "Total number of service keys that may be created in a Cloud Foundry Space.",
+			Namespace:   namespace,
+			Subsystem:   "space",
+			Name:        "total_service_keys_quota",
+			Help:        "Total number of service keys that may be created in a Cloud Foundry Space.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spaceTotalServicesQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "space",
-			Name:      "total_services_quota",
-			Help:      "Total number of service instances that may be created in a Cloud Foundry Space.",
+			Namespace:   namespace,
+			Subsystem:   "space",
+			Name:        "total_services_quota",
+			Help:        "Total number of service instances that may be created in a Cloud Foundry Space.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "space_id", "space_name", "organization_id"},
 	)
 
 	spacesScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "spaces_scrapes",
-			Name:      "total",
-			Help:      "Total number of scrapes for Cloud Foundry Spaces.",
+			Namespace:   namespace,
+			Subsystem:   "spaces_scrapes",
+			Name:        "total",
+			Help:        "Total number of scrapes for Cloud Foundry Spaces.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	spacesScrapeErrorsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "spaces_scrape_errors",
-			Name:      "total",
-			Help:      "Total number of scrapes errors of Cloud Foundry Spaces.",
+			Namespace:   namespace,
+			Subsystem:   "spaces_scrape_errors",
+			Name:        "total",
+			Help:        "Total number of scrapes errors of Cloud Foundry Spaces.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastSpacesScrapeErrorMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_spaces_scrape_error",
-			Help:      "Whether the last scrape of Spaces metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_spaces_scrape_error",
+			Help:        "Whether the last scrape of Spaces metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastSpacesScrapeTimestampMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_spaces_scrape_timestamp",
-			Help:      "Number of seconds since 1970 since last scrape of Spaces metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_spaces_scrape_timestamp",
+			Help:        "Number of seconds since 1970 since last scrape of Spaces metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastSpacesScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_spaces_scrape_duration_seconds",
-			Help:      "Duration of the last scrape of Spaces metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_spaces_scrape_duration_seconds",
+			Help:        "Duration of the last scrape of Spaces metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	return &SpacesCollector{
 		namespace:                               namespace,
+		environment:                             environment,
 		deploymentName:                          deploymentName,
 		cfClient:                                cfClient,
 		spaceInfoMetric:                         spaceInfoMetric,

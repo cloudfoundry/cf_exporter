@@ -10,6 +10,7 @@ import (
 
 type OrganizationsCollector struct {
 	namespace                                      string
+	environment                                    string
 	deploymentName                                 string
 	cfClient                                       *cfclient.Client
 	organizationInfoMetric                         *prometheus.GaugeVec
@@ -30,169 +31,191 @@ type OrganizationsCollector struct {
 	lastOrganizationsScrapeDurationSecondsMetric   *prometheus.GaugeVec
 }
 
-func NewOrganizationsCollector(namespace string, deploymentName string, cfClient *cfclient.Client) *OrganizationsCollector {
+func NewOrganizationsCollector(
+	namespace string,
+	environment string,
+	deploymentName string,
+	cfClient *cfclient.Client,
+) *OrganizationsCollector {
 	organizationInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organization",
-			Name:      "info",
-			Help:      "Labeled Cloud Foundry Organization information with a constant '1' value.",
+			Namespace:   namespace,
+			Subsystem:   "organization",
+			Name:        "info",
+			Help:        "Labeled Cloud Foundry Organization information with a constant '1' value.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationNonBasicServicesAllowedMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organization",
-			Name:      "non_basic_services_allowed",
-			Help:      "A Cloud Foundry Organization can provision instances of paid service plans? (1 for true, 0 for false).",
+			Namespace:   namespace,
+			Subsystem:   "organization",
+			Name:        "non_basic_services_allowed",
+			Help:        "A Cloud Foundry Organization can provision instances of paid service plans? (1 for true, 0 for false).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationInstanceMemoryMbLimitMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organization",
-			Name:      "instance_memory_mb_limit",
-			Help:      "Maximum amount of memory (Mb) an application instance can have in a Cloud Foundry Organization.",
+			Namespace:   namespace,
+			Subsystem:   "organization",
+			Name:        "instance_memory_mb_limit",
+			Help:        "Maximum amount of memory (Mb) an application instance can have in a Cloud Foundry Organization.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalAppInstancesQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organization",
-			Name:      "total_app_instances_quota",
-			Help:      "Total number of application instances that may be created in a Cloud Foundry Organization.",
+			Namespace:   namespace,
+			Subsystem:   "organization",
+			Name:        "total_app_instances_quota",
+			Help:        "Total number of application instances that may be created in a Cloud Foundry Organization.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalAppTasksQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organization",
-			Name:      "total_app_tasks_quota",
-			Help:      "Total number of application tasks that may be created in a Cloud Foundry Organization.",
+			Namespace:   namespace,
+			Subsystem:   "organization",
+			Name:        "total_app_tasks_quota",
+			Help:        "Total number of application tasks that may be created in a Cloud Foundry Organization.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalMemoryMbQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organization",
-			Name:      "total_memory_mb_quota",
-			Help:      "Total amount of memory (Mb) a Cloud Foundry Organization can have.",
+			Namespace:   namespace,
+			Subsystem:   "organization",
+			Name:        "total_memory_mb_quota",
+			Help:        "Total amount of memory (Mb) a Cloud Foundry Organization can have.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalPrivateDomainsQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organization",
-			Name:      "total_private_domains_quota",
-			Help:      "Total number of private domains that may be created in a Cloud Foundry Organization.",
+			Namespace:   namespace,
+			Subsystem:   "organization",
+			Name:        "total_private_domains_quota",
+			Help:        "Total number of private domains that may be created in a Cloud Foundry Organization.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalReservedRoutePortsQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organization",
-			Name:      "total_reserved_route_ports_quota",
-			Help:      "Total number of routes that may be created with reserved ports in a Cloud Foundry Organization.",
+			Namespace:   namespace,
+			Subsystem:   "organization",
+			Name:        "total_reserved_route_ports_quota",
+			Help:        "Total number of routes that may be created with reserved ports in a Cloud Foundry Organization.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalRoutesQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organization",
-			Name:      "total_routes_quota",
-			Help:      "Total number of routes that may be created in a Cloud Foundry Organization.",
+			Namespace:   namespace,
+			Subsystem:   "organization",
+			Name:        "total_routes_quota",
+			Help:        "Total number of routes that may be created in a Cloud Foundry Organization.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalServiceKeysQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organization",
-			Name:      "total_service_keys_quota",
-			Help:      "Total number of service keys that may be created in a Cloud Foundry Organization.",
+			Namespace:   namespace,
+			Subsystem:   "organization",
+			Name:        "total_service_keys_quota",
+			Help:        "Total number of service keys that may be created in a Cloud Foundry Organization.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationTotalServicesQuotaMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "organization",
-			Name:      "total_services_quota",
-			Help:      "Total number of service instances that may be created in a Cloud Foundry Organization.",
+			Namespace:   namespace,
+			Subsystem:   "organization",
+			Name:        "total_services_quota",
+			Help:        "Total number of service instances that may be created in a Cloud Foundry Organization.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "organization_id", "organization_name"},
 	)
 
 	organizationsScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "organizations_scrapes",
-			Name:      "total",
-			Help:      "Total number of scrapes for Cloud Foundry Organizations.",
+			Namespace:   namespace,
+			Subsystem:   "organizations_scrapes",
+			Name:        "total",
+			Help:        "Total number of scrapes for Cloud Foundry Organizations.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	organizationsScrapeErrorsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "organizations_scrape_errors",
-			Name:      "total",
-			Help:      "Total number of scrape errors of Cloud Foundry Organizations.",
+			Namespace:   namespace,
+			Subsystem:   "organizations_scrape_errors",
+			Name:        "total",
+			Help:        "Total number of scrape errors of Cloud Foundry Organizations.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastOrganizationsScrapeErrorMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_organizations_scrape_error",
-			Help:      "Whether the last scrape of Organizations metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_organizations_scrape_error",
+			Help:        "Whether the last scrape of Organizations metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastOrganizationsScrapeTimestampMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_organizations_scrape_timestamp",
-			Help:      "Number of seconds since 1970 since last scrape of Organizations metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_organizations_scrape_timestamp",
+			Help:        "Number of seconds since 1970 since last scrape of Organizations metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastOrganizationsScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_organizations_scrape_duration_seconds",
-			Help:      "Duration of the last scrape of Organizations metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_organizations_scrape_duration_seconds",
+			Help:        "Duration of the last scrape of Organizations metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	return &OrganizationsCollector{
 		namespace:                                      namespace,
+		environment:                                    environment,
 		deploymentName:                                 deploymentName,
 		cfClient:                                       cfClient,
 		organizationInfoMetric:                         organizationInfoMetric,

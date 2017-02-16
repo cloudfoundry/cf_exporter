@@ -10,6 +10,7 @@ import (
 
 type RoutesCollector struct {
 	namespace                             string
+	environment                           string
 	deploymentName                        string
 	cfClient                              *cfclient.Client
 	routeInfoMetric                       *prometheus.GaugeVec
@@ -20,69 +21,81 @@ type RoutesCollector struct {
 	lastRoutesScrapeDurationSecondsMetric *prometheus.GaugeVec
 }
 
-func NewRoutesCollector(namespace string, deploymentName string, cfClient *cfclient.Client) *RoutesCollector {
+func NewRoutesCollector(
+	namespace string,
+	environment string,
+	deploymentName string,
+	cfClient *cfclient.Client,
+) *RoutesCollector {
 	routeInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "route",
-			Name:      "info",
-			Help:      "Labeled Cloud Foundry Route information with a constant '1' value.",
+			Namespace:   namespace,
+			Subsystem:   "route",
+			Name:        "info",
+			Help:        "Labeled Cloud Foundry Route information with a constant '1' value.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment", "route_id", "route_host", "route_path", "domain_id", "space_id", "service_instance_id"},
 	)
 
 	routesScrapesTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "routes_scrapes",
-			Name:      "total",
-			Help:      "Total number of scrapes for Cloud Foundry Routes.",
+			Namespace:   namespace,
+			Subsystem:   "routes_scrapes",
+			Name:        "total",
+			Help:        "Total number of scrapes for Cloud Foundry Routes.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	routesScrapeErrorsTotalMetric := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: "routes_scrape_errors",
-			Name:      "total",
-			Help:      "Total number of scrape error of Cloud Foundry Routes.",
+			Namespace:   namespace,
+			Subsystem:   "routes_scrape_errors",
+			Name:        "total",
+			Help:        "Total number of scrape error of Cloud Foundry Routes.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastRoutesScrapeErrorMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_routes_scrape_error",
-			Help:      "Whether the last scrape of Routes metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_routes_scrape_error",
+			Help:        "Whether the last scrape of Routes metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastRoutesScrapeTimestampMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_routes_scrape_timestamp",
-			Help:      "Number of seconds since 1970 since last scrape of Routes metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_routes_scrape_timestamp",
+			Help:        "Number of seconds since 1970 since last scrape of Routes metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	lastRoutesScrapeDurationSecondsMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: namespace,
-			Subsystem: "",
-			Name:      "last_routes_scrape_duration_seconds",
-			Help:      "Duration of the last scrape of Routes metrics from Cloud Foundry.",
+			Namespace:   namespace,
+			Subsystem:   "",
+			Name:        "last_routes_scrape_duration_seconds",
+			Help:        "Duration of the last scrape of Routes metrics from Cloud Foundry.",
+			ConstLabels: prometheus.Labels{"environment": environment},
 		},
 		[]string{"deployment"},
 	)
 
 	return &RoutesCollector{
 		namespace:                             namespace,
+		environment:                           environment,
 		deploymentName:                        deploymentName,
 		cfClient:                              cfClient,
 		routeInfoMetric:                       routeInfoMetric,
