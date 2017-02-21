@@ -313,15 +313,15 @@ func (c SpacesCollector) reportSpacesMetrics(ch chan<- prometheus.Metric) error 
 	return nil
 }
 
-func (c SpacesCollector) gatherSpaceQuotas() (map[string]*cfclient.SpaceQuota, error) {
+func (c SpacesCollector) gatherSpaceQuotas() (map[string]cfclient.SpaceQuota, error) {
 	quotas, err := c.cfClient.ListSpaceQuotas()
 	if err != nil {
 		return nil, err
 	}
 
-	spaceQuotas := make(map[string]*cfclient.SpaceQuota, len(quotas))
+	spaceQuotas := make(map[string]cfclient.SpaceQuota, len(quotas))
 	for _, quota := range quotas {
-		spaceQuotas[quota.Guid] = &quota
+		spaceQuotas[quota.Guid] = quota
 	}
 
 	return spaceQuotas, nil
@@ -331,7 +331,7 @@ func (c SpacesCollector) reportSpaceQuotasMetrics(
 	spaceGuid string,
 	spaceName string,
 	organizationGuid string,
-	spaceQuota *cfclient.SpaceQuota,
+	spaceQuota cfclient.SpaceQuota,
 ) {
 	nonBasicServicesAllowed := 0
 	if spaceQuota.NonBasicServicesAllowed {
