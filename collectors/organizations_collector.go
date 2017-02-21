@@ -328,21 +328,21 @@ func (c OrganizationsCollector) reportOrganizationsMetrics(ch chan<- prometheus.
 	return nil
 }
 
-func (c OrganizationsCollector) gatherOrganizationQuotas() (map[string]*cfclient.OrgQuota, error) {
+func (c OrganizationsCollector) gatherOrganizationQuotas() (map[string]cfclient.OrgQuota, error) {
 	quotas, err := c.cfClient.ListOrgQuotas()
 	if err != nil {
 		return nil, err
 	}
 
-	orgQuotas := make(map[string]*cfclient.OrgQuota, len(quotas))
+	orgQuotas := make(map[string]cfclient.OrgQuota, len(quotas))
 	for _, quota := range quotas {
-		orgQuotas[quota.Guid] = &quota
+		orgQuotas[quota.Guid] = quota
 	}
 
 	return orgQuotas, nil
 }
 
-func (c OrganizationsCollector) reportOrganizationQuotasMetrics(orgGuid string, orgName string, orgQuota *cfclient.OrgQuota) {
+func (c OrganizationsCollector) reportOrganizationQuotasMetrics(orgGuid string, orgName string, orgQuota cfclient.OrgQuota) {
 	nonBasicServicesAllowed := 0
 	if orgQuota.NonBasicServicesAllowed {
 		nonBasicServicesAllowed = 1
