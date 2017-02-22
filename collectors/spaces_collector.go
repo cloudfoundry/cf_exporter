@@ -12,7 +12,6 @@ type SpacesCollector struct {
 	namespace                               string
 	environment                             string
 	deployment                              string
-	quota                                   string
 	cfClient                                *cfclient.Client
 	spaceInfoMetric                         *prometheus.GaugeVec
 	spaceNonBasicServicesAllowedMetric      *prometheus.GaugeVec

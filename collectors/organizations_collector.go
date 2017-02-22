@@ -12,7 +12,6 @@ type OrganizationsCollector struct {
 	namespace                                      string
 	environment                                    string
 	deployment                                     string
-	quota                                          string
 	cfClient                                       *cfclient.Client
 	organizationInfoMetric                         *prometheus.GaugeVec
 	organizationNonBasicServicesAllowedMetric      *prometheus.GaugeVec
