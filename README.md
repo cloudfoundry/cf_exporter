@@ -100,7 +100,7 @@ The exporter returns the following `Organizations` metrics:
 
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
-| *metrics.namespace*_organization_info | Labeled Cloud Foundry Organization information with a constant `1` value | `environment`, `deployment`, `organization_id`, `organization_name` |
+| *metrics.namespace*_organization_info | Labeled Cloud Foundry Organization information with a constant `1` value | `environment`, `deployment`, `organization_id`, `organization_name`, `quota` |
 | *metrics.namespace*_organization_non_basic_services_allowed | A Cloud Foundry Organization can provision instances of paid service plans? (`1` for `true`, `0` for `false`) | `environment`, `deployment`, `organization_id`, `organization_name` |
 | *metrics.namespace*_organization_instance_memory_mb_limit | Maximum amount of memory (Mb) an application instance can have in a Cloud Foundry Organization | `environment`, `deployment`, `organization_id`, `organization_name` |
 | *metrics.namespace*_organization_total_app_instances_quota | Total number of application instances that may be created in a Cloud Foundry Organization | `environment`, `deployment`, `organization_id`, `organization_name` |
@@ -166,7 +166,7 @@ The exporter returns the following `Spaces` metrics:
 
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
-| *metrics.namespace*_space_info | Labeled Cloud Foundry Space information with a constant `1` value | `environment`, `deployment`, `space_id`, `space_name`, `organization_id` |
+| *metrics.namespace*_space_info | Labeled Cloud Foundry Space information with a constant `1` value | `environment`, `deployment`, `space_id`, `space_name`, `organization_id`, `quota` |
 | *metrics.namespace*_space_non_basic_services_allowed | A Cloud Foundry Space can provision instances of paid service plans? (`1` for `true`, `0` for `false`) | `environment`, `deployment`, `space_id`, `space_name`, `organization_id` |
 | *metrics.namespace*_space_instance_memory_mb_limit | Maximum amount of memory (Mb) an application instance can have in a Cloud Foundry Space | `environment`, `deployment`, `space_id`, `space_name`, `organization_id` |
 | *metrics.namespace*_space_total_app_instances_quota | Total number of application instances that may be created in a Cloud Foundry Space | `environment`, `deployment`, `space_id`, `space_name`, `organization_id` |
