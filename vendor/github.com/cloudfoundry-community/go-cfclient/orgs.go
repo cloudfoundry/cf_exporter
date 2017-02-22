@@ -1,6 +1,7 @@
 package cfclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -42,6 +43,12 @@ type OrgSummarySpaces struct {
 	AppCount     int    `json:"app_count"`
 	MemDevTotal  int    `json:"mem_dev_total"`
 	MemProdTotal int    `json:"mem_prod_total"`
+}
+
+type OrgRequest struct {
+	Name                string `json:"name"`
+	Status              string `json:"status,omitempty"`
+	QuotaDefinitionGuid string `json:"quota_definition_guid,omitempty"`
 }
 
 func (c *Client) ListOrgsByQuery(query url.Values) ([]Org, error) {
@@ -143,6 +150,7 @@ func (c *Client) OrgSpaces(guid string) ([]Space, error) {
 	}
 	for _, space := range spaceResp.Resources {
 		space.Entity.Guid = space.Meta.Guid
+		space.Entity.c = c
 		spaces = append(spaces, space.Entity)
 	}
 
@@ -196,6 +204,209 @@ func (o *Org) Quota() (*OrgQuota, error) {
 	return orgQuota, nil
 }
 
+func (o *Org) AssociateManager(userGUID string) (Org, error) {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers/%s", o.Guid, userGUID)
+	r := o.c.NewRequest("PUT", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Org{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return o.c.handleOrgResp(resp)
+}
+
+func (o *Org) AssociateManagerByUsername(name string) (Org, error) {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers", o.Guid)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	if err != nil {
+		return Org{}, err
+	}
+	r := o.c.NewRequestWithBody("PUT", requestUrl, buf)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Org{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return o.c.handleOrgResp(resp)
+}
+
+func (o *Org) AssociateUser(userGUID string) (Org, error) {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/users/%s", o.Guid, userGUID)
+	r := o.c.NewRequest("PUT", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Org{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return o.c.handleOrgResp(resp)
+}
+
+func (o *Org) AssociateAuditor(userGUID string) (Org, error) {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/auditors/%s", o.Guid, userGUID)
+	r := o.c.NewRequest("PUT", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Org{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return o.c.handleOrgResp(resp)
+}
+
+func (o *Org) AssociateUserByUsername(name string) (Org, error) {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/users", o.Guid)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	if err != nil {
+		return Org{}, err
+	}
+	r := o.c.NewRequestWithBody("PUT", requestUrl, buf)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Org{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return o.c.handleOrgResp(resp)
+}
+
+func (o *Org) AssociateAuditorByUsername(name string) (Org, error) {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/auditors", o.Guid)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	if err != nil {
+		return Org{}, err
+	}
+	r := o.c.NewRequestWithBody("PUT", requestUrl, buf)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Org{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return o.c.handleOrgResp(resp)
+}
+
+func (o *Org) RemoveManager(userGUID string) error {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers/%s", o.Guid, userGUID)
+	r := o.c.NewRequest("DELETE", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (o *Org) RemoveManagerByUsername(name string) error {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/managers", o.Guid)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	if err != nil {
+		return err
+	}
+	r := o.c.NewRequestWithBody("DELETE", requestUrl, buf)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (o *Org) RemoveUser(userGUID string) error {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/users/%s", o.Guid, userGUID)
+	r := o.c.NewRequest("DELETE", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (o *Org) RemoveAuditor(userGUID string) error {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/auditors/%s", o.Guid, userGUID)
+	r := o.c.NewRequest("DELETE", requestUrl)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (o *Org) RemoveUserByUsername(name string) error {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/users", o.Guid)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	if err != nil {
+		return err
+	}
+	r := o.c.NewRequestWithBody("DELETE", requestUrl, buf)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (o *Org) RemoveAuditorByUsername(name string) error {
+	requestUrl := fmt.Sprintf("/v2/organizations/%s/auditors", o.Guid)
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(map[string]string{"username": name})
+	if err != nil {
+		return err
+	}
+	r := o.c.NewRequestWithBody("DELETE", requestUrl, buf)
+	resp, err := o.c.DoRequest(r)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (c *Client) CreateOrg(req OrgRequest) (Org, error) {
+	buf := bytes.NewBuffer(nil)
+	err := json.NewEncoder(buf).Encode(req)
+	if err != nil {
+		return Org{}, err
+	}
+	r := c.NewRequestWithBody("POST", "/v2/organizations", buf)
+	resp, err := c.DoRequest(r)
+	if err != nil {
+		return Org{}, err
+	}
+	if resp.StatusCode != http.StatusCreated {
+		return Org{}, fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
+	}
+	return c.handleOrgResp(resp)
+}
+
 func (c *Client) DeleteOrg(guid string) error {
 	resp, err := c.DoRequest(c.NewRequest("DELETE", fmt.Sprintf("/v2/organizations/%s", guid)))
 	if err != nil {
@@ -205,4 +416,21 @@ func (c *Client) DeleteOrg(guid string) error {
 		return fmt.Errorf("CF API returned with status code %d", resp.StatusCode)
 	}
 	return nil
+}
+
+func (c *Client) handleOrgResp(resp *http.Response) (Org, error) {
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return Org{}, err
+	}
+	var orgResource OrgResource
+	err = json.Unmarshal(body, &orgResource)
+	if err != nil {
+		return Org{}, err
+	}
+	org := orgResource.Entity
+	org.Guid = orgResource.Meta.Guid
+	org.c = c
+	return org, nil
 }
