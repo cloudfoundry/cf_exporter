@@ -12,6 +12,7 @@ type OrganizationsCollector struct {
 	namespace                                      string
 	environment                                    string
 	deployment                                     string
+	quota                                          string
 	cfClient                                       *cfclient.Client
 	organizationInfoMetric                         *prometheus.GaugeVec
 	organizationNonBasicServicesAllowedMetric      *prometheus.GaugeVec
@@ -45,7 +46,7 @@ func NewOrganizationsCollector(
 			Help:        "Labeled Cloud Foundry Organization information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"organization_id", "organization_name"},
+		[]string{"organization_id", "organization_name", "quota"},
 	)
 
 	organizationNonBasicServicesAllowedMetric := prometheus.NewGaugeVec(
@@ -300,16 +301,21 @@ func (c OrganizationsCollector) reportOrganizationsMetrics(ch chan<- prometheus.
 	}
 
 	for _, organization := range organizations {
+		var organizationQuota cfclient.OrgQuota
+		var ok bool
+
+		if organization.QuotaDefinitionGuid != "" {
+			if organizationQuota, ok = organizationQuotas[organization.QuotaDefinitionGuid]; ok {
+				c.reportOrganizationQuotasMetrics(organization.Guid, organization.Name, organizationQuota)
+
+			}
+		}
 		c.organizationInfoMetric.WithLabelValues(
 			organization.Guid,
 			organization.Name,
+			organizationQuota.Name,
 		).Set(float64(1))
 
-		if organization.QuotaDefinitionGuid != "" {
-			if organizationQuota, ok := organizationQuotas[organization.QuotaDefinitionGuid]; ok {
-				c.reportOrganizationQuotasMetrics(organization.Guid, organization.Name, organizationQuota)
-			}
-		}
 	}
 
 	c.organizationInfoMetric.Collect(ch)

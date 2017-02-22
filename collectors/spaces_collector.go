@@ -12,6 +12,7 @@ type SpacesCollector struct {
 	namespace                               string
 	environment                             string
 	deployment                              string
+	quota                                   string
 	cfClient                                *cfclient.Client
 	spaceInfoMetric                         *prometheus.GaugeVec
 	spaceNonBasicServicesAllowedMetric      *prometheus.GaugeVec
@@ -44,7 +45,7 @@ func NewSpacesCollector(
 			Help:        "Labeled Cloud Foundry Space information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"space_id", "space_name", "organization_id"},
+		[]string{"space_id", "space_name", "organization_id", "quota"},
 	)
 
 	spaceNonBasicServicesAllowedMetric := prometheus.NewGaugeVec(
@@ -285,17 +286,21 @@ func (c SpacesCollector) reportSpacesMetrics(ch chan<- prometheus.Metric) error 
 	}
 
 	for _, space := range spaces {
+		var spaceQuota cfclient.SpaceQuota
+		var ok bool
+
+		if space.QuotaDefinitionGuid != "" {
+			if spaceQuota, ok = spaceQuotas[space.QuotaDefinitionGuid]; ok {
+				c.reportSpaceQuotasMetrics(space.Guid, space.Name, space.OrganizationGuid, spaceQuota)
+			}
+		}
+
 		c.spaceInfoMetric.WithLabelValues(
 			space.Guid,
 			space.Name,
 			space.OrganizationGuid,
+			spaceQuota.Name,
 		).Set(float64(1))
-
-		if space.QuotaDefinitionGuid != "" {
-			if spaceQuota, ok := spaceQuotas[space.QuotaDefinitionGuid]; ok {
-				c.reportSpaceQuotasMetrics(space.Guid, space.Name, space.OrganizationGuid, spaceQuota)
-			}
-		}
 	}
 
 	c.spaceInfoMetric.Collect(ch)
