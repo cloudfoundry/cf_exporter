@@ -182,21 +182,45 @@ func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Me
 	c.applicationMemoryMbMetric.Reset()
 	c.applicationDiskQuotaMbMetric.Reset()
 
-	applications, err := c.cfClient.ListApps()
+	organizations, err := c.gatherOrganizations()
+	if err != nil {
+		log.Errorf("Error while listing organization: %v", err)
+		return err
+	}
+
+	spaces, err := c.gatherSpaces()
+	if err != nil {
+		log.Errorf("Error while listing spaces: %v", err)
+		return err
+	}
+
+	applications, err := c.cfClient.ListAppsByQuery(nil)
 	if err != nil {
 		log.Errorf("Error while listing applications: %v", err)
 		return err
 	}
 
 	for _, application := range applications {
+		space, ok := spaces[application.SpaceGuid]
+		if !ok {
+			log.Errorf("Space `%s` for Application `%s` not found", application.SpaceGuid, application.Guid)
+			continue
+		}
+
+		organization, ok := organizations[space.OrganizationGuid]
+		if !ok {
+			log.Errorf("Organization `%s` for Space `%s` not found", space.OrganizationGuid, application.SpaceGuid)
+			continue
+		}
+
 		c.applicationInfoMetric.WithLabelValues(
 			application.Guid,
 			application.Name,
 			application.Buildpack,
-			application.SpaceData.Entity.OrgData.Entity.Guid,
-			application.SpaceData.Entity.OrgData.Entity.Name,
-			application.SpaceData.Entity.Guid,
-			application.SpaceData.Entity.Name,
+			organization.Guid,
+			organization.Name,
+			space.Guid,
+			space.Name,
 			application.StackGuid,
 			application.State,
 		).Set(float64(1))
@@ -204,28 +228,28 @@ func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Me
 		c.applicationMemoryMbMetric.WithLabelValues(
 			application.Guid,
 			application.Name,
-			application.SpaceData.Entity.OrgData.Entity.Guid,
-			application.SpaceData.Entity.OrgData.Entity.Name,
-			application.SpaceData.Entity.Guid,
-			application.SpaceData.Entity.Name,
+			organization.Guid,
+			organization.Name,
+			space.Guid,
+			space.Name,
 		).Set(float64(application.Memory))
 
 		c.applicationInstancesMetric.WithLabelValues(
 			application.Guid,
 			application.Name,
-			application.SpaceData.Entity.OrgData.Entity.Guid,
-			application.SpaceData.Entity.OrgData.Entity.Name,
-			application.SpaceData.Entity.Guid,
-			application.SpaceData.Entity.Name,
+			organization.Guid,
+			organization.Name,
+			space.Guid,
+			space.Name,
 		).Set(float64(application.Instances))
 
 		c.applicationDiskQuotaMbMetric.WithLabelValues(
 			application.Guid,
 			application.Name,
-			application.SpaceData.Entity.OrgData.Entity.Guid,
-			application.SpaceData.Entity.OrgData.Entity.Name,
-			application.SpaceData.Entity.Guid,
-			application.SpaceData.Entity.Name,
+			organization.Guid,
+			organization.Name,
+			space.Guid,
+			space.Name,
 		).Set(float64(application.DiskQuota))
 	}
 
@@ -235,4 +259,32 @@ func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Me
 	c.applicationDiskQuotaMbMetric.Collect(ch)
 
 	return nil
+}
+
+func (c ApplicationsCollector) gatherOrganizations() (map[string]cfclient.Org, error) {
+	orgsResp, err := c.cfClient.ListOrgs()
+	if err != nil {
+		return nil, err
+	}
+
+	organizations := make(map[string]cfclient.Org, len(orgsResp))
+	for _, organization := range orgsResp {
+		organizations[organization.Guid] = organization
+	}
+
+	return organizations, nil
+}
+
+func (c ApplicationsCollector) gatherSpaces() (map[string]cfclient.Space, error) {
+	spacesResp, err := c.cfClient.ListSpaces()
+	if err != nil {
+		return nil, err
+	}
+
+	spaces := make(map[string]cfclient.Space, len(spacesResp))
+	for _, space := range spacesResp {
+		spaces[space.Guid] = space
+	}
+
+	return spaces, nil
 }

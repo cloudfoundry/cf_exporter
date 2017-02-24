@@ -274,13 +274,60 @@ var _ = Describe("ApplicationsCollectors", func() {
 
 	Describe("Collect", func() {
 		var (
-			statusCode   int
-			appsResponse cfclient.AppResponse
-			metrics      chan prometheus.Metric
+			statusCode     int
+			orgsResponse   cfclient.OrgResponse
+			spacesResponse cfclient.SpaceResponse
+			appsResponse   cfclient.AppResponse
+			metrics        chan prometheus.Metric
 		)
 
 		BeforeEach(func() {
 			statusCode = http.StatusOK
+
+			orgsResponse = cfclient.OrgResponse{
+				Resources: []cfclient.OrgResource{
+					cfclient.OrgResource{
+						Meta: cfclient.Meta{
+							Guid: organizationId1,
+						},
+						Entity: cfclient.Org{
+							Name: organizationName1,
+						},
+					},
+					cfclient.OrgResource{
+						Meta: cfclient.Meta{
+							Guid: organizationId2,
+						},
+						Entity: cfclient.Org{
+							Name: organizationName2,
+						},
+					},
+				},
+			}
+
+			spacesResponse = cfclient.SpaceResponse{
+				Resources: []cfclient.SpaceResource{
+					cfclient.SpaceResource{
+						Meta: cfclient.Meta{
+							Guid: spaceId1,
+						},
+						Entity: cfclient.Space{
+							Name:             spaceName1,
+							OrganizationGuid: organizationId1,
+						},
+					},
+					cfclient.SpaceResource{
+						Meta: cfclient.Meta{
+							Guid: spaceId2,
+						},
+						Entity: cfclient.Space{
+							Name:             spaceName2,
+							OrganizationGuid: organizationId2,
+						},
+					},
+				},
+			}
+
 			appsResponse = cfclient.AppResponse{
 				Resources: []cfclient.AppResource{
 					cfclient.AppResource{
@@ -292,25 +339,10 @@ var _ = Describe("ApplicationsCollectors", func() {
 							Memory:    memoryMb1,
 							Instances: instances1,
 							DiskQuota: diskQuotaMb1,
+							SpaceGuid: spaceId1,
 							StackGuid: stackId1,
 							State:     state1,
 							Buildpack: buildpack1,
-							SpaceData: cfclient.SpaceResource{
-								Meta: cfclient.Meta{
-									Guid: spaceId1,
-								},
-								Entity: cfclient.Space{
-									Name: spaceName1,
-									OrgData: cfclient.OrgResource{
-										Meta: cfclient.Meta{
-											Guid: organizationId1,
-										},
-										Entity: cfclient.Org{
-											Name: organizationName1,
-										},
-									},
-								},
-							},
 						},
 					},
 					cfclient.AppResource{
@@ -322,25 +354,10 @@ var _ = Describe("ApplicationsCollectors", func() {
 							Memory:    memoryMb2,
 							Instances: instances2,
 							DiskQuota: diskQuotaMb2,
+							SpaceGuid: spaceId2,
 							StackGuid: stackId2,
 							State:     state2,
 							Buildpack: buildpack2,
-							SpaceData: cfclient.SpaceResource{
-								Meta: cfclient.Meta{
-									Guid: spaceId2,
-								},
-								Entity: cfclient.Space{
-									Name: spaceName2,
-									OrgData: cfclient.OrgResource{
-										Meta: cfclient.Meta{
-											Guid: organizationId2,
-										},
-										Entity: cfclient.Org{
-											Name: organizationName2,
-										},
-									},
-								},
-							},
 						},
 					},
 				},
@@ -351,7 +368,15 @@ var _ = Describe("ApplicationsCollectors", func() {
 		JustBeforeEach(func() {
 			server.AppendHandlers(
 				ghttp.CombineHandlers(
-					ghttp.VerifyRequest("GET", "/v2/apps", "inline-relations-depth=2"),
+					ghttp.VerifyRequest("GET", "/v2/organizations"),
+					ghttp.RespondWithJSONEncodedPtr(&statusCode, &orgsResponse),
+				),
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/v2/spaces"),
+					ghttp.RespondWithJSONEncodedPtr(&statusCode, &spacesResponse),
+				),
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/v2/apps"),
 					ghttp.RespondWithJSONEncodedPtr(&statusCode, &appsResponse),
 				),
 			)

@@ -32,10 +32,6 @@ The Cloud Foundry Prometheus Exporter gets information from the [Cloud Foundry A
 
 There are several collectors that require quite some resources on the `cloud_controller` and may result in a very poor CF API performance. To prevent this, consider setting a reasonable `scrape_interval` when using this exporter.
 
-* `Applications` collector: the query to get all applications includes an `inline-relations-depth=2` API call, which basically dumps the `ccdb` and transforms it into `json` response.
-
-* `ApplicationEvents` collector: the query fetches all events for ALL applications, and this may require sending some long queries.
-
 ### How can I get detailed application metrics like CPU & Memory?
 
 The goal of this exporter is just to provide administrative information about your Cloud Foundry environment. If you want to get detailed runtime application metrics, then you will need to use a different exporter, specifically, the [Cloud Foundry Firehose Prometheus Exporter][firehose_exporter], who will get `Container Metrics` from the [Cloud Foundry Firehose][firehose].
