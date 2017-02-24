@@ -45,7 +45,7 @@ func NewOrganizationsCollector(
 			Help:        "Labeled Cloud Foundry Organization information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"organization_id", "organization_name", "quota"},
+		[]string{"organization_id", "organization_name", "quota_name"},
 	)
 
 	organizationNonBasicServicesAllowedMetric := prometheus.NewGaugeVec(

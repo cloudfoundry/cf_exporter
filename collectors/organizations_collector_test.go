@@ -103,7 +103,7 @@ var _ = Describe("OrganizationsCollectors", func() {
 				Help:        "Labeled Cloud Foundry Organization information with a constant '1' value.",
 				ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 			},
-			[]string{"organization_id", "organization_name", "quota"},
+			[]string{"organization_id", "organization_name", "quota_name"},
 		)
 		organizationInfoMetric.WithLabelValues(organizationId1, organizationName1, quotaDefinitionName1).Set(float64(1))
 		organizationInfoMetric.WithLabelValues(organizationId2, organizationName2, quotaDefinitionName2).Set(float64(1))

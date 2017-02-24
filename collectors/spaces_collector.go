@@ -44,7 +44,7 @@ func NewSpacesCollector(
 			Help:        "Labeled Cloud Foundry Space information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"space_id", "space_name", "organization_id", "quota"},
+		[]string{"space_id", "space_name", "organization_id", "quota_name"},
 	)
 
 	spaceNonBasicServicesAllowedMetric := prometheus.NewGaugeVec(
