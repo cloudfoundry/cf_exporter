@@ -46,6 +46,22 @@ This exporter can be deployed using the [Prometheus BOSH Release][prometheus-bos
 
 ## Usage
 
+### UAA Client
+
+In order to connect to the [Cloud Foundry API][cf_api] a `client-id` and `client-secret` must be provided. The `client-id` must have the `cloud_controller.admin` authority.
+
+For example, to create a new `client-id` and `client-secret` with the right permissions:
+
+```bash
+uaac target https://<YOUR UAA URL> --skip-ssl-validation
+uaac token client get <YOUR ADMIN CLIENT ID> -s <YOUR ADMIN CLIENT SECRET>
+uaac client add prometheus-cf \
+  --name prometheus-cf \
+  --secret prometheus-cf-client-secret \
+  --authorized_grant_types client_credentials,refresh_token \
+  --authorities cloud_controller.admin
+```
+
 ### Flags
 
 | Flag / Environment Variable | Required | Default | Description |
@@ -67,7 +83,7 @@ This exporter can be deployed using the [Prometheus BOSH Release][prometheus-bos
 | `web.tls.cert_file`<br />`CF_EXPORTER_WEB_TLS_CERTFILE` | No | | Path to a file that contains the TLS certificate (PEM format). If the certificate is signed by a certificate authority, the file should be the concatenation of the server's certificate, any intermediates, and the CA's certificate |
 | `web.tls.key_file`<br />`CF_EXPORTER_WEB_TLS_KEYFILE` | No | | Path to a file that contains the TLS private key (PEM format) |
 
-*[1]* Either `cf.username` and `cf.password` or `cf.client-id` and `cf.client-secret` must be provided, depending on the desired authentication method.
+*[1]* Either `cf.username` and `cf.password` or `cf.client-id` and `cf.client-secret` must be provided, but it is recommended to use the `cf.client-id` and `cf.client-secret` authentication method.
 
 ### Metrics
 
@@ -207,6 +223,7 @@ Apache License 2.0, see [LICENSE][license].
 
 [binaries]: https://github.com/cloudfoundry-community/cf_exporter/releases
 [cccf_exporter]: https://github.com/mkuratczyk/cfcc_exporter
+[cf_api]: https://apidocs.cloudfoundry.org/
 [cloudfoundry]: https://www.cloudfoundry.org/
 [contributing]: https://github.com/cloudfoundry-community/cf_exporter/blob/master/CONTRIBUTING.md
 [faq]: https://github.com/cloudfoundry-community/cf_exporter/blob/master/FAQ.md
