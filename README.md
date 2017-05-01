@@ -83,7 +83,7 @@ uaac client add prometheus-cf \
 | `web.tls.cert_file`<br />`CF_EXPORTER_WEB_TLS_CERTFILE` | No | | Path to a file that contains the TLS certificate (PEM format). If the certificate is signed by a certificate authority, the file should be the concatenation of the server's certificate, any intermediates, and the CA's certificate |
 | `web.tls.key_file`<br />`CF_EXPORTER_WEB_TLS_KEYFILE` | No | | Path to a file that contains the TLS private key (PEM format) |
 
-*[1]* Either `cf.username` and `cf.password` or `cf.client-id` and `cf.client-secret` must be provided, but it is recommended to use the `cf.client-id` and `cf.client-secret` authentication method.
+*[1]* Either `cf.username` and `cf.password` or `cf.client-id` and `cf.client-secret` must be provided. When using `cf.username` and `cf.password`, tokens are not refreshed, so after a period of time the exporter will be unable to communicate with the CF API, so use this method only when testing the exporter. For production, it is recommended to use the `cf.client-id` and `cf.client-secret` authentication method.
 
 ### Metrics
 
