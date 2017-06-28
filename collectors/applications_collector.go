@@ -213,10 +213,15 @@ func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Me
 			continue
 		}
 
+		buildpack := application.DetectedBuildpack
+		if buildpack == "" {
+			buildpack = application.Buildpack
+		}
+
 		c.applicationInfoMetric.WithLabelValues(
 			application.Guid,
 			application.Name,
-			application.Buildpack,
+			buildpack,
 			organization.Guid,
 			organization.Name,
 			space.Guid,
