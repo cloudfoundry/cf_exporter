@@ -17,7 +17,7 @@
 		},
 		{
 			"ImportPath": "github.com/cloudfoundry-community/go-cfclient",
-			"Rev": "d1bc612014d15f5bb89e0a1b0e192aca8a6d82de"
+			"Rev": "0ae88fbc016f188b09b39a130537f653ea23be70"
 		},
 		{
 			"ImportPath": "github.com/golang/protobuf/proto",
@@ -246,6 +246,11 @@
 			"ImportPath": "github.com/onsi/ginkgo/reporters/stenographer/support/go-isatty",
 			"Comment": "v1.2.0-90-gbb93381",
 			"Rev": "bb93381d543b0e5725244abe752214a110791d01"
+		},
+		{
+			"ImportPath": "github.com/pkg/errors",
+			"Comment": "v0.8.0-5-gc605e28",
+			"Rev": "c605e284fe17294bda444b34710735b29d1a9d90"
 		}
 	]
 }
