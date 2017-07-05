@@ -580,9 +580,8 @@ var _ = Describe("ApplicationEventsCollectors", func() {
 			BeforeEach(func() {
 				statusCode = http.StatusInternalServerError
 
-				//TODO: go-cfclient does not yet check for the http status code
-				//applicationEventsScrapeErrorsTotalMetric.Inc()
-				//lastApplicationEventsScrapeErrorMetric.Set(1)
+				applicationEventsScrapeErrorsTotalMetric.Inc()
+				lastApplicationEventsScrapeErrorMetric.Set(1)
 			})
 
 			It("returns an application_events_scrape_errors_total metric", func() {

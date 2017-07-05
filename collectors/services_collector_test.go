@@ -241,9 +241,8 @@ var _ = Describe("ServicesCollectors", func() {
 			BeforeEach(func() {
 				statusCode = http.StatusInternalServerError
 
-				//TODO: go-cfclient does not yet check for the http status code
-				//servicesScrapeErrorsTotalMetric.Inc()
-				//lastServicesScrapeErrorMetric.Set(1)
+				servicesScrapeErrorsTotalMetric.Inc()
+				lastServicesScrapeErrorMetric.Set(1)
 			})
 
 			It("returns a services_scrape_errors_total metric", func() {

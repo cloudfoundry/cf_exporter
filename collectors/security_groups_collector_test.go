@@ -241,9 +241,8 @@ var _ = Describe("SecurityGroupsCollectors", func() {
 			BeforeEach(func() {
 				statusCode = http.StatusInternalServerError
 
-				//TODO: go-cfclient does not yet check for the http status code
-				//securityGroupsScrapeErrorsTotalMetric.Inc()
-				//lastSecurityGroupsScrapeErrorMetric.Set(1)
+				securityGroupsScrapeErrorsTotalMetric.Inc()
+				lastSecurityGroupsScrapeErrorMetric.Set(1)
 			})
 
 			It("returns a security_groups_scrape_errors_total metric", func() {

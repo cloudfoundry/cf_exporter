@@ -764,9 +764,8 @@ var _ = Describe("SpacesCollectors", func() {
 			BeforeEach(func() {
 				statusCode = http.StatusInternalServerError
 
-				//TODO: go-cfclient does not yet check for the http status code
-				//spacesScrapeErrorsTotalMetric.Inc()
-				//lastSpacesScrapeErrorMetric.Set(1)
+				spacesScrapeErrorsTotalMetric.Inc()
+				lastSpacesScrapeErrorMetric.Set(1)
 			})
 
 			It("returns a spaces_scrape_errors_total metric", func() {
