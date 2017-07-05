@@ -1,6 +1,7 @@
 package collectors_test
 
 import (
+	"flag"
 	"net/http"
 
 	. "github.com/onsi/ginkgo"
@@ -13,6 +14,10 @@ import (
 	. "github.com/cloudfoundry-community/cf_exporter/collectors"
 	. "github.com/cloudfoundry-community/cf_exporter/utils/test_matchers"
 )
+
+func init() {
+	flag.Set("log.level", "fatal")
+}
 
 var _ = Describe("SpacesCollectors", func() {
 	var (
