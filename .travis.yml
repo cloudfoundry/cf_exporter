@@ -1,5 +1,38 @@
+sudo: required
+
 language: go
 
 go_import_path: github.com/cloudfoundry-community/cf_exporter
 
-script: make test
+services:
+  - docker
+
+env:
+  matrix:
+    - DOCKER_IMAGE_NAME=cfcommunity/cf-exporter
+  global:
+    - secure: J2yJFX76+Ig/gr5SPHOJ2kPk7kNCXGgvR66zuS3jA54mx4GYFUGkTkptlamrwccQhjpL+u8YrwDH1ZTB2QNA+8aqKFo9/6JAzbCMXj55xGChVCAoMzwWukH3gh0Qk/f9EPB3cRG7LceACWkfT3mpcOMteuVxKLtd0RXx0ihmsv3etOOdWrP4ydJOc3HhRtU4JBrrsypuiJ0VtVUZ4GUivmsRIjBNU0plIsdLmx3vrYHCJs4+I//SasSdYbk6r4U2nnBdkToc4/gOYWn4upJoypF6ob8PW8pU9sykNRe7ZzyoAwld8OfE/mi3USUssGtD4oUEg9oh0LW7x2aCSfe7MR2ReyFn3eelriQtc0UK5OuKXJskn+oxkMRhvI3NqnEJd2P4qp3kfMZJbSDM1m9AclWpBDh2icqafPIl4B9cGBfH7yAGYz1EWBwEPKz7Z5nd1MwyGE2jOTWxwGonxyq81xOd43jIXGQUVg7A8i1USNcgWGyxuMB0Vi38pAjuhIqMi7SQYTwkWlyR4zJnwjWh0UW1kbCezqWk3ahpheYwcxi7RtKETqirlM84nUoFwD0w5aL/RISN4z5Of6bfSuhfXZmwMByn+n1+BBtwHxg2BgX5wTtLN1CLXoD/UJgnYWbwbaztiojhm0MjY+I0/u20OJGA4dSVzsPflHGEHZMF92k=
+    - secure: Abf7GRmETrb0M6FDnIdn14fr9PinBRyNsIotUTgEYx3ypNkIbX/ySSbQ3JCHmaHZDSvfbjIdxJM2vLN6Z0rnNNnwUl+qgXfqb4jP4qRQccDmFGStaCqXh2gofJ9E9ny8++ben64cRRbqZfoGfiJVfWXVPecQosOg8BqWIxHYTq1K7kktLiS3IqnKh8do+JZIwJO8U0Q10orctsx9s+N4OPbKJZLJPtI4Q8WbS/rKz32+62bQ835zdX4FjP8VmWDZqVE7hjXiqFNd+Ybrg9hS3RWaCEU1Am5ZBnH89k0Jjh7tc89IjTa7Z+TfPw0fxnA9LgLashjFS742Uj4Rv9vm0FKC2eGxVy6hTxhFxodxmYvEixuKmNepxeNuhR39IDPYrCG9PYUXDoxzbnzTfyLixtqcQe1IKcduSgFVKIP1706DiMpeNhP6dFqnt/uHXh1DyJXfg8Ylp9lm20BWuEFrh35gs4EU+0ymhM+s5zUSDzGDCQom4NpQ6KSxOtvwxJAyL5GDAA7dH/3lsBr3V8SuXbku3dTg/sFlfaoWyRkqcIGV3Tyy9zXBKDnegBxpSuFh8QpY4sC19D57tOdZslDyJF5JCdldak2407/qH4oNkDhuy5sm7sPH9FZuOobl/hcencSRwl7ls1euIWmF23J8yQfFs2WPIn8oxN5UI8pWHSc=
+    - secure: Rz30i25xNvJHPZ+jb19v3ogmD9Pfi2v4CNsKcnratBSb7TiGQ+1blkAwUuf2agSZ8Y+ECSgbDZm+RzedAFpTZ2r/lLwtj5onKaUOGBM+GicomwNuzoJ262VDQrefGGPx80Xr+FTt39nYyJY+xbg2haPAuoCeQTiI1vbxl/6n2RDkokeOgDN+SaSH2OwqkjbpetzboL0UnLXqKqXJbnw5AbtCu8cTkLdxu6eaDovnlw1qkNA3rRHjfKeMOWd616Rcx92MbaGFfmtM2MRdCc+ec7ZX5ZWzElV82EG1CcvNnNOFB6/o8M2MEUUehYtVdjZYsOhSwXb3Gs293BEixBIvJvuRyStjhAgOVzHCqeKU4Lcs3X/13qnm/kGgSFzb2lpK4VKRP3V3YhrhAQZSg1BycpjSdDe805I41QEi9I+xdw9kUoD15mZfeji7ERw9sz75Gqb3YoIDtGQ0twkBNW+erpGdhSCCOYqb8oos/Sb5Y7I5yhTNA/28IGXVV0VeEeC2ZjWHgpSJoO6IBx+R2kUUi85mLMDsEbkCaCbNZxb8oH5PawYGHnKS4Nstt33cu5+N5MIkxuhBcr0tX72zGMEvKnyJ3ADXa3ef0xy2YLu0rZbAaBHOROmVBLOcmhK/GH8hff1Fs1AU0H/PpF2ILZQ8UwgGb6otqsFpL9BxdHGKruk=
+
+jobs:
+  include:
+    - stage: tests
+      script: make test
+    - stage: docker image
+      script:
+        - make crossbuild
+        - ln -s .build/linux-amd64/cf_exporter cf_exporter
+        - |
+          if [ -n "$TRAVIS_TAG" ]; then
+            make docker DOCKER_IMAGE_NAME=$DOCKER_IMAGE_NAME DOCKER_IMAGE_TAG=$TRAVIS_TAG
+          else
+            make docker DOCKER_IMAGE_NAME=$DOCKER_IMAGE_NAME DOCKER_IMAGE_TAG=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+          fi
+        - |
+          if [[ "$TRAVIS_TAG" =~ ^v[0-9]+(\.[0-9]+){2}$ ]]; then
+            docker tag "$DOCKER_IMAGE_NAME:$TRAVIS_TAG" "$DOCKER_IMAGE_NAME:latest"
+          fi
+        - docker images
+        - docker login -e $DOCKER_EMAIL -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+        - docker push $DOCKER_IMAGE_NAME

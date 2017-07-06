@@ -25,6 +25,14 @@ $ go install github.com/cloudfoundry-community/cf_exporter
 $ cf_exporter <flags>
 ```
 
+### Docker
+
+To run the cf exporter as a Docker container, run:
+
+```bash
+docker run -p 9193:9193 cfcommunity/cf-exporter <flags>
+```
+
 ### Cloud Foundry
 
 The exporter can be deployed to an already existing [Cloud Foundry][cloudfoundry] environment:
