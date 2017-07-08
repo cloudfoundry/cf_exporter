@@ -24,7 +24,6 @@ var _ = Describe("CollectorsFilter", func() {
 			BeforeEach(func() {
 				filters = []string{
 					ApplicationsCollector,
-					ApplicationEventsCollector,
 					OrganizationsCollector,
 					RoutesCollector,
 					SecurityGroupsCollector,

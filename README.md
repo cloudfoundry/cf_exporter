@@ -30,7 +30,7 @@ $ cf_exporter <flags>
 To run the cf exporter as a Docker container, run:
 
 ```bash
-docker run -p 9193:9193 cfcommunity/cf-exporter <flags>
+$ docker run -p 9193:9193 cfcommunity/cf-exporter <flags>
 ```
 
 ### Cloud Foundry
@@ -80,7 +80,7 @@ uaac client add prometheus-cf \
 | `cf.client-id`<br />`CF_EXPORTER_CF_CLIENT_ID` | *[1]* | | Cloud Foundry Client ID (must have the `cloud_controller.admin` or `cloud_controller.admin_read_only` scope) |
 | `cf.client-secret`<br />`CF_EXPORTER_CF_CLIENT_SECRET` | *[1]* | | Cloud Foundry Client Secret |
 | `cf.deployment-name`<br />`CF_EXPORTER_CF_DEPLOYMENT_NAME` | No | | Cloud Foundry Deployment Name to be reported as a metric label |
-| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `ApplicationEvents`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceInstances`, `Services`, `Spaces`, `Stacks`) |
+| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceInstances`, `Services`, `Spaces`, `Stacks`) |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
 | `metrics.environment`<br />`CF_EXPORTER_METRICS_ENVIRONMENT` | No | | Environment label to be attached to metrics |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
@@ -108,17 +108,6 @@ The exporter returns the following `Applications` metrics:
 | *metrics.namespace*_last_applications_scrape_error | Whether the last scrape of Applications metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment` |
 | *metrics.namespace*_last_applications_scrape_timestamp | Number of seconds since 1970 since last scrape of Applications metrics from Cloud Foundry | `environment`, `deployment` |
 | *metrics.namespace*_last_applications_scrape_duration_seconds | Duration of the last scrape of Applications metrics from Cloud Foundry | `environment`, `deployment` |
-
-The exporter returns the following `Application Events` metrics:
-
-| Metric | Description | Labels |
-| ------ | ----------- | ------ |
-| *metrics.namespace*_application_events_total | Total number of Cloud Foundry Application Events | `environment`, `deployment`, `application_id`, `event_type` |
-| *metrics.namespace*_application_events_scrapes_total | Total number of scrapes for Cloud Foundry Application Events | `environment`, `deployment` |
-| *metrics.namespace*_application_events_scrape_errors_total | Total number of scrape errors of Cloud Foundry Application Events | `environment`, `deployment` |
-| *metrics.namespace*_last_application_events_scrape_error | Whether the last scrape of Application Events metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) |`environment`,  `deployment` |
-| *metrics.namespace*_last_application_events_scrape_timestamp | Number of seconds since 1970 since last scrape of Application Events metrics from Cloud Foundry | `environment`, `deployment` |
-| *metrics.namespace*_last_application_events_scrape_duration_seconds | Duration of the last scrape of Application Events metrics from Cloud Foundry | `environment`, `deployment` |
 
 The exporter returns the following `Organizations` metrics:
 
