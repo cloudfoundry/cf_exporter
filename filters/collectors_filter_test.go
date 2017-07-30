@@ -49,6 +49,16 @@ var _ = Describe("CollectorsFilter", func() {
 				Expect(err.Error()).To(Equal("Collector filter `Unknown` is not supported"))
 			})
 		})
+
+		Context("when a filter has leading and/or trailing whitespaces", func() {
+			BeforeEach(func() {
+				filters = []string{"   " + ApplicationsCollector + "  "}
+			})
+
+			It("returns an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
 	})
 
 	Describe("Enabled", func() {
