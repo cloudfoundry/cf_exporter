@@ -27,6 +27,7 @@ var _ = Describe("ApplicationsCollectors", func() {
 
 		applicationInfoMetric                       *prometheus.GaugeVec
 		applicationInstancesMetric                  *prometheus.GaugeVec
+		applicationInstancesRunningMetric           *prometheus.GaugeVec
 		applicationMemoryMbMetric                   *prometheus.GaugeVec
 		applicationDiskQuotaMbMetric                *prometheus.GaugeVec
 		applicationsScrapesTotalMetric              prometheus.Counter
@@ -49,6 +50,7 @@ var _ = Describe("ApplicationsCollectors", func() {
 		stackId1          = "fake_stack_id_1"
 		state1            = "fake_state_1"
 		instances1        = 11
+		runningInstances1 = 12
 		memoryMb1         = 21
 		diskQuotaMb1      = 31
 
@@ -62,6 +64,7 @@ var _ = Describe("ApplicationsCollectors", func() {
 		stackId2          = "fake_stack_id_2"
 		state2            = "fake_state_2"
 		instances2        = 12
+		runningInstances2 = 13
 		memoryMb2         = 22
 		diskQuotaMb2      = 32
 
@@ -102,13 +105,26 @@ var _ = Describe("ApplicationsCollectors", func() {
 				Namespace:   namespace,
 				Subsystem:   "application",
 				Name:        "instances",
-				Help:        "Cloud Foundry Application Instances.",
+				Help:        "Number of desired Cloud Foundry Application Instances.",
 				ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 			},
-			[]string{"application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
+			[]string{"application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name", "state"},
 		)
-		applicationInstancesMetric.WithLabelValues(applicationId1, applicationName1, organizationId1, organizationName1, spaceId1, spaceName1).Set(float64(instances1))
-		applicationInstancesMetric.WithLabelValues(applicationId2, applicationName2, organizationId2, organizationName2, spaceId2, spaceName2).Set(float64(instances2))
+		applicationInstancesMetric.WithLabelValues(applicationId1, applicationName1, organizationId1, organizationName1, spaceId1, spaceName1, state1).Set(float64(instances1))
+		applicationInstancesMetric.WithLabelValues(applicationId2, applicationName2, organizationId2, organizationName2, spaceId2, spaceName2, state2).Set(float64(instances2))
+
+		applicationInstancesRunningMetric = prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace:   namespace,
+				Subsystem:   "application",
+				Name:        "instances_running",
+				Help:        "Number of running Cloud Foundry Application Instances.",
+				ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
+			},
+			[]string{"application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name", "state"},
+		)
+		applicationInstancesRunningMetric.WithLabelValues(applicationId1, applicationName1, organizationId1, organizationName1, spaceId1, spaceName1, state1).Set(float64(runningInstances1))
+		applicationInstancesRunningMetric.WithLabelValues(applicationId2, applicationName2, organizationId2, organizationName2, spaceId2, spaceName2, state2).Set(float64(runningInstances2))
 
 		applicationMemoryMbMetric = prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
@@ -231,6 +247,19 @@ var _ = Describe("ApplicationsCollectors", func() {
 				organizationName1,
 				spaceId1,
 				spaceName1,
+				state1,
+			).Desc())))
+		})
+
+		It("returns a application_instances_running metric description", func() {
+			Eventually(descriptions).Should(Receive(Equal(applicationInstancesRunningMetric.WithLabelValues(
+				applicationId1,
+				applicationName1,
+				organizationId1,
+				organizationName1,
+				spaceId1,
+				spaceName1,
+				state1,
 			).Desc())))
 		})
 
@@ -279,11 +308,13 @@ var _ = Describe("ApplicationsCollectors", func() {
 
 	Describe("Collect", func() {
 		var (
-			statusCode     int
-			orgsResponse   cfclient.OrgResponse
-			spacesResponse cfclient.SpaceResponse
-			appsResponse   cfclient.AppResponse
-			metrics        chan prometheus.Metric
+			statusCode            int
+			orgsResponse          cfclient.OrgResponse
+			orgSpacesResponse1    cfclient.SpaceResponse
+			orgSpacesResponse2    cfclient.SpaceResponse
+			spaceSummaryResponse1 cfclient.SpaceSummary
+			spaceSummaryResponse2 cfclient.SpaceSummary
+			metrics               chan prometheus.Metric
 		)
 
 		BeforeEach(func() {
@@ -310,7 +341,7 @@ var _ = Describe("ApplicationsCollectors", func() {
 				},
 			}
 
-			spacesResponse = cfclient.SpaceResponse{
+			orgSpacesResponse1 = cfclient.SpaceResponse{
 				Resources: []cfclient.SpaceResource{
 					cfclient.SpaceResource{
 						Meta: cfclient.Meta{
@@ -321,6 +352,11 @@ var _ = Describe("ApplicationsCollectors", func() {
 							OrganizationGuid: organizationId1,
 						},
 					},
+				},
+			}
+
+			orgSpacesResponse2 = cfclient.SpaceResponse{
+				Resources: []cfclient.SpaceResource{
 					cfclient.SpaceResource{
 						Meta: cfclient.Meta{
 							Guid: spaceId2,
@@ -333,40 +369,44 @@ var _ = Describe("ApplicationsCollectors", func() {
 				},
 			}
 
-			appsResponse = cfclient.AppResponse{
-				Resources: []cfclient.AppResource{
-					cfclient.AppResource{
-						Meta: cfclient.Meta{
-							Guid: applicationId1,
-						},
-						Entity: cfclient.App{
-							Name:      applicationName1,
-							Memory:    memoryMb1,
-							Instances: instances1,
-							DiskQuota: diskQuotaMb1,
-							SpaceGuid: spaceId1,
-							StackGuid: stackId1,
-							State:     state1,
-							Buildpack: buildpack1,
-						},
-					},
-					cfclient.AppResource{
-						Meta: cfclient.Meta{
-							Guid: applicationId2,
-						},
-						Entity: cfclient.App{
-							Name:      applicationName2,
-							Memory:    memoryMb2,
-							Instances: instances2,
-							DiskQuota: diskQuotaMb2,
-							SpaceGuid: spaceId2,
-							StackGuid: stackId2,
-							State:     state2,
-							Buildpack: buildpack2,
-						},
+			spaceSummaryResponse1 = cfclient.SpaceSummary{
+				Guid: spaceId1,
+				Name: spaceName1,
+				Apps: []cfclient.AppSummary{
+					cfclient.AppSummary{
+						Guid:              applicationId1,
+						Name:              applicationName1,
+						RunningInstances:  runningInstances1,
+						Memory:            memoryMb1,
+						Instances:         instances1,
+						DiskQuota:         diskQuotaMb1,
+						StackGuid:         stackId1,
+						State:             state1,
+						Buildpack:         "",
+						DetectedBuildpack: buildpack1,
 					},
 				},
 			}
+
+			spaceSummaryResponse2 = cfclient.SpaceSummary{
+				Guid: spaceId2,
+				Name: spaceName2,
+				Apps: []cfclient.AppSummary{
+					cfclient.AppSummary{
+						Guid:              applicationId2,
+						Name:              applicationName2,
+						RunningInstances:  runningInstances2,
+						Memory:            memoryMb2,
+						Instances:         instances2,
+						DiskQuota:         diskQuotaMb2,
+						StackGuid:         stackId2,
+						State:             state2,
+						Buildpack:         buildpack2,
+						DetectedBuildpack: "",
+					},
+				},
+			}
+
 			metrics = make(chan prometheus.Metric)
 		})
 
@@ -377,12 +417,20 @@ var _ = Describe("ApplicationsCollectors", func() {
 					ghttp.RespondWithJSONEncodedPtr(&statusCode, &orgsResponse),
 				),
 				ghttp.CombineHandlers(
-					ghttp.VerifyRequest("GET", "/v2/spaces"),
-					ghttp.RespondWithJSONEncodedPtr(&statusCode, &spacesResponse),
+					ghttp.VerifyRequest("GET", "/v2/organizations/"+organizationId1+"/spaces"),
+					ghttp.RespondWithJSONEncodedPtr(&statusCode, &orgSpacesResponse1),
 				),
 				ghttp.CombineHandlers(
-					ghttp.VerifyRequest("GET", "/v2/apps"),
-					ghttp.RespondWithJSONEncodedPtr(&statusCode, &appsResponse),
+					ghttp.VerifyRequest("GET", "/v2/spaces/"+spaceId1+"/summary"),
+					ghttp.RespondWithJSONEncodedPtr(&statusCode, &spaceSummaryResponse1),
+				),
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/v2/organizations/"+organizationId2+"/spaces"),
+					ghttp.RespondWithJSONEncodedPtr(&statusCode, &orgSpacesResponse2),
+				),
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/v2/spaces/"+spaceId2+"/summary"),
+					ghttp.RespondWithJSONEncodedPtr(&statusCode, &spaceSummaryResponse2),
 				),
 			)
 
@@ -425,6 +473,7 @@ var _ = Describe("ApplicationsCollectors", func() {
 				organizationName1,
 				spaceId1,
 				spaceName1,
+				state1,
 			))))
 		})
 
@@ -436,6 +485,31 @@ var _ = Describe("ApplicationsCollectors", func() {
 				organizationName2,
 				spaceId2,
 				spaceName2,
+				state2,
+			))))
+		})
+
+		It("returns an application_instances_running metric for application 1", func() {
+			Eventually(metrics).Should(Receive(PrometheusMetric(applicationInstancesRunningMetric.WithLabelValues(
+				applicationId1,
+				applicationName1,
+				organizationId1,
+				organizationName1,
+				spaceId1,
+				spaceName1,
+				state1,
+			))))
+		})
+
+		It("returns an application_instances_running metric for application 2", func() {
+			Eventually(metrics).Should(Receive(PrometheusMetric(applicationInstancesRunningMetric.WithLabelValues(
+				applicationId2,
+				applicationName2,
+				organizationId2,
+				organizationName2,
+				spaceId2,
+				spaceName2,
+				state2,
 			))))
 		})
 

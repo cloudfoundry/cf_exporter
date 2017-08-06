@@ -100,7 +100,8 @@ The exporter returns the following `Applications` metrics:
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
 | *metrics.namespace*_application_info | Labeled Cloud Foundry Application information with a constant `1` value | `environment`, `deployment`, `application_id`, `application_name`, `buildpack`, `organization_id`, `organization_name`, `space_id`, `space_name`, `stack_id`, `state` |
-| *metrics.namespace*_application_instances | Cloud Foundry Application Instances | `environment`, `deployment`, `application_id`, `application_name`, `organization_id`, `organization_name`, `space_id`, `space_name` |
+| *metrics.namespace*_application_instances | Number of desired Cloud Foundry Application Instances | `environment`, `deployment`, `application_id`, `application_name`, `organization_id`, `organization_name`, `space_id`, `space_name`, `state` |
+| *metrics.namespace*_application_instances_running | Number of running Cloud Foundry Application Instances | `environment`, `deployment`, `application_id`, `application_name`, `organization_id`, `organization_name`, `space_id`, `space_name`, `state` |
 | *metrics.namespace*_application_memory_mb | Cloud Foundry Application Memory (Mb) | `environment`, `deployment`, `application_id`, `application_name`, `organization_id`, `organization_name`, `space_id`, `space_name` |
 | *metrics.namespace*_application_disk_quota_mb | Cloud Foundry Application Disk Quota (Mb) | `environment`, `deployment`, `application_id`, `application_name`, `organization_id`, `organization_name`, `space_id`, `space_name` |
 | *metrics.namespace*_applications_scrapes_total | Total number of scrapes for Cloud Foundry Applications | `environment`, `deployment` |
