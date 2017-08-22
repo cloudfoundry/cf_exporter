@@ -29,6 +29,7 @@ var _ = Describe("CollectorsFilter", func() {
 					SecurityGroupsCollector,
 					ServiceBindingsCollector,
 					ServiceInstancesCollector,
+					ServicePlansCollector,
 					ServicesCollector,
 					SpacesCollector,
 					StacksCollector,
