@@ -80,7 +80,7 @@ uaac client add prometheus-cf \
 | `cf.client-id`<br />`CF_EXPORTER_CF_CLIENT_ID` | *[1]* | | Cloud Foundry Client ID (must have the `cloud_controller.admin` or `cloud_controller.admin_read_only` scope) |
 | `cf.client-secret`<br />`CF_EXPORTER_CF_CLIENT_SECRET` | *[1]* | | Cloud Foundry Client Secret |
 | `cf.deployment-name`<br />`CF_EXPORTER_CF_DEPLOYMENT_NAME` | No | | Cloud Foundry Deployment Name to be reported as a metric label |
-| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceInstances`, `Services`, `Spaces`, `Stacks`) |
+| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceBindings`, `ServiceInstances`, `Services`, `Spaces`, `Stacks`) |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
 | `metrics.environment`<br />`CF_EXPORTER_METRICS_ENVIRONMENT` | No | | Environment label to be attached to metrics |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
@@ -164,6 +164,17 @@ The exporter returns the following `Services` metrics:
 | *metrics.namespace*_last_services_scrape_error | Whether the last scrape of Services metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment` |
 | *metrics.namespace*_last_services_scrape_timestamp | Number of seconds since 1970 since last scrape of Services metrics from Cloud Foundry | `environment`, `deployment` |
 | *metrics.namespace*_last_services_scrape_duration_seconds | Duration of the last scrape of Services metrics from Cloud Foundry | `environment`, `deployment` |
+
+The exporter returns the following `Service Bindings` metrics:
+
+| Metric | Description | Labels |
+| ------ | ----------- | ------ |
+| *metrics.namespace*_service_binding_info | Labeled Cloud Foundry Service Binding information with a constant `1` value | `environment`, `deployment`, `sservice_binding_id`, `application_id`, `service_instance_id` |
+| *metrics.namespace*_service_bindings_scrapes_total | Total number of scrapes for Cloud Foundry Service Bindings | `environment`, `deployment` |
+| *metrics.namespace*_service_bindings_scrape_errors_total | Total number of scrape errors of Cloud Foundry Service Bindings | `environment`, `deployment` |
+| *metrics.namespace*_last_service_bindings_scrape_error | Whether the last scrape of Service Bindings metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment` |
+| *metrics.namespace*_last_service_bindings_scrape_timestamp | Number of seconds since 1970 since last scrape of Service Bindings metrics from Cloud Foundry | `environment`, `deployment` |
+| *metrics.namespace*_last_service_bindings_scrape_duration_seconds | Duration of the last scrape of Service Bindings metrics from Cloud Foundry | `environment`, `deployment` |
 
 The exporter returns the following `Service Instances` metrics:
 

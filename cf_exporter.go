@@ -50,7 +50,7 @@ var (
 
 	filterCollectors = flag.String(
 		"filter.collectors", "",
-		"Comma separated collectors to filter (Applications,Organizations,Routes,SecurityGroups,ServiceInstances,Services,Spaces,Stacks) ($CF_EXPORTER_FILTER_COLLECTORS).",
+		"Comma separated collectors to filter (Applications,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,Services,Spaces,Stacks) ($CF_EXPORTER_FILTER_COLLECTORS).",
 	)
 
 	metricsNamespace = flag.String(
@@ -232,6 +232,11 @@ func main() {
 	if collectorsFilter.Enabled(filters.SecurityGroupsCollector) {
 		securityGroupsCollector := collectors.NewSecurityGroupsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(securityGroupsCollector)
+	}
+
+	if collectorsFilter.Enabled(filters.ServiceBindingsCollector) {
+		serviceBindingsCollector := collectors.NewServiceBindingsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
+		prometheus.MustRegister(serviceBindingsCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.ServiceInstancesCollector) {
