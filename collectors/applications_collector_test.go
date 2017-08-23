@@ -416,20 +416,24 @@ var _ = Describe("ApplicationsCollectors", func() {
 					ghttp.VerifyRequest("GET", "/v2/organizations"),
 					ghttp.RespondWithJSONEncodedPtr(&statusCode, &orgsResponse),
 				),
+			)
+			server.RouteToHandler("GET", "/v2/organizations/"+organizationId1+"/spaces",
 				ghttp.CombineHandlers(
-					ghttp.VerifyRequest("GET", "/v2/organizations/"+organizationId1+"/spaces"),
 					ghttp.RespondWithJSONEncodedPtr(&statusCode, &orgSpacesResponse1),
 				),
+			)
+			server.RouteToHandler("GET", "/v2/organizations/"+organizationId2+"/spaces",
 				ghttp.CombineHandlers(
-					ghttp.VerifyRequest("GET", "/v2/spaces/"+spaceId1+"/summary"),
-					ghttp.RespondWithJSONEncodedPtr(&statusCode, &spaceSummaryResponse1),
-				),
-				ghttp.CombineHandlers(
-					ghttp.VerifyRequest("GET", "/v2/organizations/"+organizationId2+"/spaces"),
 					ghttp.RespondWithJSONEncodedPtr(&statusCode, &orgSpacesResponse2),
 				),
+			)
+			server.RouteToHandler("GET", "/v2/spaces/"+spaceId1+"/summary",
 				ghttp.CombineHandlers(
-					ghttp.VerifyRequest("GET", "/v2/spaces/"+spaceId2+"/summary"),
+					ghttp.RespondWithJSONEncodedPtr(&statusCode, &spaceSummaryResponse1),
+				),
+			)
+			server.RouteToHandler("GET", "/v2/spaces/"+spaceId2+"/summary",
+				ghttp.CombineHandlers(
 					ghttp.RespondWithJSONEncodedPtr(&statusCode, &spaceSummaryResponse2),
 				),
 			)
