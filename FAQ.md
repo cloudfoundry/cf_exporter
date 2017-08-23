@@ -32,7 +32,8 @@ The Cloud Foundry Prometheus Exporter gets information from the [Cloud Foundry A
 
 ### What are the caveats when using this exporter?
 
-There are several collectors that require quite some resources on the `cloud_controller` and may result in a very poor CF API performance. To prevent this, consider setting a reasonable `scrape_interval` when using this exporter.
+There are several collectors that require quite some resources on the `cloud_controller` and may result in a very poor CF API performance. To prevent this, consider setting a reasonable `scrape_interval` when using this exporter or creating a [Read-Only Cloud Controller API server][read-only-cc].
+
 
 ### How can I get detailed application metrics like CPU & Memory?
 
@@ -70,3 +71,4 @@ We will be glad to address any questions not answered here. Please, just open a 
 [firehose]: https://docs.cloudfoundry.org/loggregator/architecture.html#firehose
 [firehose_exporter]: https://github.com/cloudfoundry-community/firehose_exporter
 [issues]: https://github.com/cloudfoundry-community/cf_exporter/issues
+[read-only-cc]: https://www.starkandwayne.com/blog/cloud-controller-reporting-api-server/
