@@ -67,8 +67,8 @@ No, this exporter only supports targetting a single [Cloud Foundry API][cf_api] 
 We will be glad to address any questions not answered here. Please, just open a [new issue][issues].
 
 [cf_api]: https://apidocs.cloudfoundry.org/
-[cf_exporter_metrics]: https://github.com/cloudfoundry-community/cf_exporter#metrics
+[cf_exporter_metrics]: https://github.com/bosh-prometheus/cf_exporter#metrics
 [firehose]: https://docs.cloudfoundry.org/loggregator/architecture.html#firehose
-[firehose_exporter]: https://github.com/cloudfoundry-community/firehose_exporter
-[issues]: https://github.com/cloudfoundry-community/cf_exporter/issues
+[firehose_exporter]: https://github.com/bosh-prometheus/firehose_exporter
+[issues]: https://github.com/bosh-prometheus/cf_exporter/issues
 [read-only-cc]: https://www.starkandwayne.com/blog/cloud-controller-reporting-api-server/

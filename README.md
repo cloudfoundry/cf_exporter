@@ -1,10 +1,10 @@
-# Cloud Foundry Prometheus Exporter [![Build Status](https://travis-ci.org/cloudfoundry-community/cf_exporter.png)](https://travis-ci.org/cloudfoundry-community/cf_exporter)
+# Cloud Foundry Prometheus Exporter [![Build Status](https://travis-ci.org/bosh-prometheus/cf_exporter.png)](https://travis-ci.org/bosh-prometheus/cf_exporter)
 
 A [Prometheus][prometheus] exporter for [Cloud Foundry][cloudfoundry] administrative information. Please refer to the [FAQ][faq] for general questions about this exporter.
 
 ## Architecture overview
 
-![](https://cdn.rawgit.com/cloudfoundry-community/cf_exporter/master/architecture/architecture.svg)
+![](https://cdn.rawgit.com/bosh-prometheus/cf_exporter/master/architecture/architecture.svg)
 
 ## Installation
 
@@ -21,7 +21,7 @@ $ ./cf_exporter <flags>
 Using the standard `go install` (you must have [Go][golang] already installed in your local machine):
 
 ```bash
-$ go install github.com/cloudfoundry-community/cf_exporter
+$ go install github.com/bosh-prometheus/cf_exporter
 $ cf_exporter <flags>
 ```
 
@@ -30,7 +30,7 @@ $ cf_exporter <flags>
 To run the cf exporter as a Docker container, run:
 
 ```bash
-$ docker run -p 9193:9193 cfcommunity/cf-exporter <flags>
+$ docker run -p 9193:9193 boshprometheus/cf-exporter <flags>
 ```
 
 ### Cloud Foundry
@@ -38,7 +38,7 @@ $ docker run -p 9193:9193 cfcommunity/cf-exporter <flags>
 The exporter can be deployed to an already existing [Cloud Foundry][cloudfoundry] environment:
 
 ```bash
-$ git clone https://github.com/cloudfoundry-community/cf_exporter.git
+$ git clone https://github.com/bosh-prometheus/cf_exporter.git
 $ cd cf_exporter
 ```
 
@@ -241,15 +241,15 @@ Refer to the [contributing guidelines][contributing].
 
 Apache License 2.0, see [LICENSE][license].
 
-[binaries]: https://github.com/cloudfoundry-community/cf_exporter/releases
+[binaries]: https://github.com/bosh-prometheus/cf_exporter/releases
 [cccf_exporter]: https://github.com/mkuratczyk/cfcc_exporter
 [cf_api]: https://apidocs.cloudfoundry.org/
 [cloudfoundry]: https://www.cloudfoundry.org/
-[contributing]: https://github.com/cloudfoundry-community/cf_exporter/blob/master/CONTRIBUTING.md
-[faq]: https://github.com/cloudfoundry-community/cf_exporter/blob/master/FAQ.md
+[contributing]: https://github.com/bosh-prometheus/cf_exporter/blob/master/CONTRIBUTING.md
+[faq]: https://github.com/bosh-prometheus/cf_exporter/blob/master/FAQ.md
 [golang]: https://golang.org/
-[license]: https://github.com/cloudfoundry-community/cf_exporter/blob/master/LICENSE
-[manifest]: https://github.com/cloudfoundry-community/cf_exporter/blob/master/manifest.yml
+[license]: https://github.com/bosh-prometheus/cf_exporter/blob/master/LICENSE
+[manifest]: https://github.com/bosh-prometheus/cf_exporter/blob/master/manifest.yml
 [mkuratczyk]: https://github.com/mkuratczyk
 [prometheus]: https://prometheus.io/
-[prometheus-boshrelease]: https://github.com/cloudfoundry-community/prometheus-boshrelease
+[prometheus-boshrelease]: https://github.com/bosh-prometheus/prometheus-boshrelease

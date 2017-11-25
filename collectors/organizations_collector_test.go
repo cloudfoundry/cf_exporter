@@ -11,8 +11,8 @@ import (
 	"github.com/cloudfoundry-community/go-cfclient"
 	"github.com/prometheus/client_golang/prometheus"
 
-	. "github.com/cloudfoundry-community/cf_exporter/collectors"
-	. "github.com/cloudfoundry-community/cf_exporter/utils/test_matchers"
+	. "github.com/bosh-prometheus/cf_exporter/collectors"
+	. "github.com/bosh-prometheus/cf_exporter/utils/test_matchers"
 )
 
 func init() {

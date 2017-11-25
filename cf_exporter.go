@@ -13,8 +13,8 @@ import (
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
 
-	"github.com/cloudfoundry-community/cf_exporter/collectors"
-	"github.com/cloudfoundry-community/cf_exporter/filters"
+	"github.com/bosh-prometheus/cf_exporter/collectors"
+	"github.com/bosh-prometheus/cf_exporter/filters"
 )
 
 var (
