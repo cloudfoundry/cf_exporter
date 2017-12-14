@@ -238,7 +238,6 @@ Refer to the [contributing guidelines][contributing].
 Apache License 2.0, see [LICENSE][license].
 
 [binaries]: https://github.com/bosh-prometheus/cf_exporter/releases
-[cccf_exporter]: https://github.com/mkuratczyk/cfcc_exporter
 [cf_api]: https://apidocs.cloudfoundry.org/
 [cloudfoundry]: https://www.cloudfoundry.org/
 [contributing]: https://github.com/bosh-prometheus/cf_exporter/blob/master/CONTRIBUTING.md
@@ -246,6 +245,5 @@ Apache License 2.0, see [LICENSE][license].
 [golang]: https://golang.org/
 [license]: https://github.com/bosh-prometheus/cf_exporter/blob/master/LICENSE
 [manifest]: https://github.com/bosh-prometheus/cf_exporter/blob/master/manifest.yml
-[mkuratczyk]: https://github.com/mkuratczyk
 [prometheus]: https://prometheus.io/
 [prometheus-boshrelease]: https://github.com/bosh-prometheus/prometheus-boshrelease
