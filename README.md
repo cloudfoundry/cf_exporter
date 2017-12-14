@@ -229,10 +229,6 @@ The exporter returns the following `Stacks` metrics:
 | *metrics.namespace*_last_stacks_scrape_timestamp | Number of seconds since 1970 since last scrape of Stacks metrics from Cloud Foundry | `environment`, `deployment` |
 | *metrics.namespace*_last_stacks_scrape_duration_seconds | Duration of the last scrape of Stacks metrics from Cloud Foundry | `environment`, `deployment` |
 
-## Acknowledgements
-
-Thanks to [Michal Kuratczyk][mkuratczyk] who has also been working on a [cccf_exporter][cccf_exporter].
-
 ## Contributing
 
 Refer to the [contributing guidelines][contributing].
