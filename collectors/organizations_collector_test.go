@@ -189,8 +189,8 @@ var _ = Describe("OrganizationsCollectors", func() {
 			},
 			[]string{"organization_id", "organization_name"},
 		)
-		organizationTotalPrivateDomainsQuotaMetric.WithLabelValues(organizationId1, organizationName1).Set(float64(MemoryLimit1))
-		organizationTotalPrivateDomainsQuotaMetric.WithLabelValues(organizationId2, organizationName2).Set(float64(MemoryLimit2))
+		organizationTotalPrivateDomainsQuotaMetric.WithLabelValues(organizationId1, organizationName1).Set(float64(TotalPrivateDomains1))
+		organizationTotalPrivateDomainsQuotaMetric.WithLabelValues(organizationId2, organizationName2).Set(float64(TotalPrivateDomains2))
 
 		organizationTotalReservedRoutePortsQuotaMetric = prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
