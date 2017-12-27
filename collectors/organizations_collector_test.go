@@ -1,7 +1,6 @@
 package collectors_test
 
 import (
-	"flag"
 	"net/http"
 
 	. "github.com/onsi/ginkgo"
@@ -10,13 +9,14 @@ import (
 
 	"github.com/cloudfoundry-community/go-cfclient"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 
 	. "github.com/bosh-prometheus/cf_exporter/collectors"
 	. "github.com/bosh-prometheus/cf_exporter/utils/test_matchers"
 )
 
 func init() {
-	flag.Set("log.level", "fatal")
+	log.Base().SetLevel("fatal")
 }
 
 var _ = Describe("OrganizationsCollectors", func() {
