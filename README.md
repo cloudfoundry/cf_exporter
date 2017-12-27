@@ -79,10 +79,10 @@ uaac client add prometheus-cf \
 | `cf.password`<br />`CF_EXPORTER_CF_PASSWORD` | *[1]* | | Cloud Foundry Password |
 | `cf.client-id`<br />`CF_EXPORTER_CF_CLIENT_ID` | *[1]* | | Cloud Foundry Client ID (must have the `cloud_controller.admin` or `cloud_controller.admin_read_only` scope) |
 | `cf.client-secret`<br />`CF_EXPORTER_CF_CLIENT_SECRET` | *[1]* | | Cloud Foundry Client Secret |
-| `cf.deployment-name`<br />`CF_EXPORTER_CF_DEPLOYMENT_NAME` | No | | Cloud Foundry Deployment Name to be reported as a metric label |
+| `cf.deployment-name`<br />`CF_EXPORTER_CF_DEPLOYMENT_NAME` | Yes | | Cloud Foundry Deployment Name to be reported as a metric label |
 | `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceBindings`, `ServiceInstances`, `ServicePlans`, `Services`, `Spaces`, `Stacks`) |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
-| `metrics.environment`<br />`CF_EXPORTER_METRICS_ENVIRONMENT` | No | | Environment label to be attached to metrics |
+| `metrics.environment`<br />`CF_EXPORTER_METRICS_ENVIRONMENT` | Yes | | Environment label to be attached to metrics |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
 | `web.listen-address`<br />`CF_EXPORTER_WEB_LISTEN_ADDRESS` | No | `:9193` | Address to listen on for web interface and telemetry |
 | `web.telemetry-path`<br />`CF_EXPORTER_WEB_TELEMETRY_PATH` | No | `/metrics` | Path under which to expose Prometheus metrics |
