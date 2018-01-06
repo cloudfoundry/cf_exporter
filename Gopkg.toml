@@ -44,3 +44,12 @@
 [[constraint]]
   branch = "master"
   name = "github.com/prometheus/common"
+
+# "golang.org/x/oauth2" needs to be overriden because
+# "github.com/cloudfoundry-community/go-cfclient" has
+# a "constraint" on this package. This needs to removed
+# once "go-cfclient" updates the constraint.
+# @see https://github.com/cloudfoundry-community/go-cfclient/issues/162
+[[override]]
+  name = "golang.org/x/oauth2"
+  revision = "d89af98d7c6bba047c5a2622f36bc14b8766df85"

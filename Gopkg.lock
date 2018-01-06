@@ -98,10 +98,9 @@
   revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
 
 [[projects]]
-  branch = "master"
   name = "golang.org/x/oauth2"
   packages = [".","clientcredentials","internal"]
-  revision = "0448841f0cbe9d174c6c1cedd177f583337b8e2c"
+  revision = "d89af98d7c6bba047c5a2622f36bc14b8766df85"
 
 [[projects]]
   branch = "master"
@@ -136,6 +135,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d10d5b81460a6b1039b975a659a8f08701c7bd9315fd72263df9f87714f2535e"
+  inputs-digest = "0e88600142a158a46f0023d2ddf6464756521ae7bde119b78427032dbab4f617"
   solver-name = "gps-cdcl"
   solver-version = 1
