@@ -3,6 +3,7 @@ applications:
   - name: cf-exporter
     buildpack: go_buildpack
     env:
+      GOPACKAGENAME: github.com/bosh-prometheus/cf_exporter
       CF_EXPORTER_CF_API_URL: "Your Cloud Foundry API URL"
       CF_EXPORTER_CF_USERNAME: "Your Cloud Foundry Username"
       CF_EXPORTER_CF_PASSWORD: "Your Cloud Foundry Password"
