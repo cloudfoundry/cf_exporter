@@ -1,6 +1,7 @@
 package cfclient
 
 import (
+	"net/url"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -10,7 +11,7 @@ func TestListOrgs(t *testing.T) {
 	Convey("List Orgs", t, func() {
 		mocks := []MockRoute{
 			{"GET", "/v2/organizations", listOrgsPayload, "", 200, "", nil},
-			{"GET", "/v2/orgsPage2", listOrgsPayloadPage2, "", 200, "", nil},
+			{"GET", "/v2/orgsPage2", listOrgsPayloadPage2, "", 200, "results-per-page=2", nil},
 		}
 		setupMultiple(mocks, t)
 		defer teardown()
@@ -22,6 +23,35 @@ func TestListOrgs(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		orgs, err := client.ListOrgs()
+		So(err, ShouldBeNil)
+
+		So(len(orgs), ShouldEqual, 4)
+		So(orgs[0].Guid, ShouldEqual, "a537761f-9d93-4b30-af17-3d73dbca181b")
+		So(orgs[0].Name, ShouldEqual, "demo")
+	})
+}
+
+func TestListOrgsByQuery(t *testing.T) {
+	Convey("List Orgs", t, func() {
+		mocks := []MockRoute{
+			{"GET", "/v2/organizations", listOrgsPayload, "", 200, "results-per-page=2", nil},
+			{"GET", "/v2/orgsPage2", listOrgsPayloadPage2, "", 200, "results-per-page=2", nil},
+		}
+		setupMultiple(mocks, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		var query = url.Values{
+			"results-per-page": []string{
+				"2",
+			},
+		}
+		orgs, err := client.ListOrgsByQuery(query)
 		So(err, ShouldBeNil)
 
 		So(len(orgs), ShouldEqual, 4)
@@ -69,6 +99,25 @@ func TestOrgSpaces(t *testing.T) {
 	})
 }
 
+func TestListOrgUsers(t *testing.T) {
+	Convey("Get Org Users for an org", t, func() {
+		setup(MockRoute{"GET", "/v2/organizations/foo/users", listOrgPeoplePayload, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		users, err := client.ListOrgUsers("foo")
+		So(err, ShouldBeNil)
+		So(len(users), ShouldEqual, 2)
+		So(users[0].Username, ShouldEqual, "user1")
+		So(users[1].Username, ShouldEqual, "user2")
+	})
+}
+
 func TestListOrgManagers(t *testing.T) {
 	Convey("Get Org Managers for an org", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations/foo/managers", listOrgPeoplePayload, "", 200, "", nil}, t)
@@ -87,6 +136,7 @@ func TestListOrgManagers(t *testing.T) {
 		So(managers[1].Username, ShouldEqual, "user2")
 	})
 }
+
 func TestListOrgAuditors(t *testing.T) {
 	Convey("Get Org Auditors for an org", t, func() {
 		setup(MockRoute{"GET", "/v2/organizations/foo/auditors", listOrgPeoplePayload, "", 200, "", nil}, t)

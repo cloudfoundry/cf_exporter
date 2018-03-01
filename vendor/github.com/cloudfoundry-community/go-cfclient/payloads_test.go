@@ -120,9 +120,9 @@ const totalEventsPayload = `{
 
 const listOrgsPayload = `{
 "total_results": 6,
-"total_pages": 1,
+"total_pages": 2,
 "prev_url": null,
-"next_url": "/v2/orgsPage2",
+"next_url": "/v2/orgsPage2?results-per-page=2",
 "resources": [
   {
      "metadata": {
@@ -177,7 +177,7 @@ const listOrgsPayload = `{
 
 const listOrgsPayloadPage2 = `{
 "total_results": 6,
-"total_pages": 1,
+"total_pages": 2,
 "prev_url": null,
 "next_url": null,
 "resources": [
@@ -2432,7 +2432,7 @@ const postDomainPayload = `{
   }
 }`
 
-const ListBuildpacksPayload = `{
+const listBuildpacksPayload = `{
   "total_results": 3,
   "total_pages": 1,
   "prev_url": null,
@@ -2486,7 +2486,7 @@ const ListBuildpacksPayload = `{
   ]
 }`
 
-const ListBuildpacksPayload2 = `{
+const listBuildpacksPayload2 = `{
   "total_results": 3,
   "total_pages": 1,
   "prev_url": "/v2/buildpacks",
@@ -2538,6 +2538,22 @@ const ListBuildpacksPayload2 = `{
       }
     }
   ]
+}`
+
+const buildpackPayload = `{
+  "metadata": {
+    "guid": "c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "url": "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "created_at": "2016-06-08T16:41:31Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "name_1",
+    "position": 1,
+    "enabled": true,
+    "locked": false,
+    "filename": "name-1616"
+  }
 }`
 
 const userByGUIDPayload = `{
@@ -3091,3 +3107,274 @@ const getServiceByGuidPayload = `
   }
 }
 `
+
+const buildpackUploadPayload = `{ "metadata":{ "guid": "my-job-guid" } }`
+
+const buildpackUpdatePayload = `
+{
+  "metadata": {
+    "guid": "c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "url": "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "created_at": "2016-06-08T16:41:31Z",
+    "updated_at": "2016-06-08T16:41:31Z"
+  },
+  "entity": {
+    "name": "renamed-buildpack",
+    "position": 2,
+    "enabled": true,
+    "locked": true,
+    "filename": "my-file"
+  }
+}`
+const buildpackCreatePayload = `
+{
+  "metadata": {
+    "guid": "c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "url": "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa",
+    "created_at": "2016-06-08T16:41:31Z",
+    "updated_at": "2016-06-08T16:41:31Z"
+  },
+  "entity": {
+    "name": "test-buildpack",
+    "position": 10,
+    "enabled": true,
+    "locked": false,
+    "filename": null
+  }
+}`
+
+const listAppUsageEventsPayload = `
+{
+  "total_results": 2,
+  "total_pages": 2,
+  "prev_url": null,
+  "next_url": "/v2/app_usage_eventsPage2?results-per-page=2&page=2",
+  "resources": [
+    {
+      "metadata": {
+        "guid": "b32241a5-5508-4d42-893c-360e42a300b6",
+        "url": "/v2/app_usage_events/b32241a5-5508-4d42-893c-360e42a300b6",
+        "created_at": "2016-06-08T16:41:33Z"
+      },
+      "entity": {
+        "state": "STARTED",
+        "previous_state": null,
+        "memory_in_mb_per_instance": 564,
+        "previous_memory_in_mb_per_instance": null,
+        "instance_count": 1,
+        "previous_instance_count": null,
+        "app_guid": "guid-d9fbb7f8-cba5-44a2-b720-c24f1fe5e1c4",
+        "app_name": "name-1663",
+        "space_guid": "guid-5e28f12f-9d80-473e-b826-537b148eb338",
+        "space_name": "name-1664",
+        "org_guid": "guid-036444f4-f2f5-4ea8-a353-e73330ca0f0a",
+        "buildpack_guid": "guid-df37754c-819b-4697-a523-4b457d3c83dd",
+        "buildpack_name": "name-1665",
+        "package_state": "STAGED",
+        "previous_package_state": null,
+        "parent_app_guid": null,
+        "parent_app_name": null,
+        "process_type": "web",
+        "task_name": null,
+        "task_guid": null
+      }
+    },
+    {
+      "metadata": {
+        "guid": "b32241a5-5508-4d42-893c-360e42a300a8",
+        "url": "/v2/app_usage_events/b32241a5-5508-4d42-893c-360e42a300a8",
+        "created_at": "2016-06-08T16:41:33Z"
+      },
+      "entity": {
+        "state": "STARTED",
+        "previous_state": null,
+        "memory_in_mb_per_instance": 564,
+        "previous_memory_in_mb_per_instance": null,
+        "instance_count": 1,
+        "previous_instance_count": null,
+        "app_guid": "guid-d9fbb7f8-cba5-44a2-b720-c24f1fe5e1c4",
+        "app_name": "name-1663",
+        "space_guid": "guid-5e28f12f-9d80-473e-b826-537b148eb338",
+        "space_name": "name-1664",
+        "org_guid": "guid-036444f4-f2f5-4ea8-a353-e73330ca0f0a",
+        "buildpack_guid": "guid-df37754c-819b-4697-a523-4b457d3c83dd",
+        "buildpack_name": "name-1665",
+        "package_state": "STARTED",
+        "previous_package_state": null,
+        "parent_app_guid": null,
+        "parent_app_name": null,
+        "process_type": "web",
+        "task_name": null,
+        "task_guid": null
+      }
+    }
+  ]
+}`
+
+const listAppUsageEventsPayloadPage2 = `
+{
+  "total_results": 2,
+  "total_pages": 2,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "b32241a5-5508-4d42-893c-360e42a300b6",
+        "url": "/v2/app_usage_events/b32241a5-5508-4d42-893c-360e42a300b6",
+        "created_at": "2016-06-08T16:41:33Z"
+      },
+      "entity": {
+        "state": "STOPPED",
+        "previous_state": null,
+        "memory_in_mb_per_instance": 564,
+        "previous_memory_in_mb_per_instance": null,
+        "instance_count": 1,
+        "previous_instance_count": null,
+        "app_guid": "guid-d9fbb7f8-cba5-44a2-b720-c24f1fe5e1c4",
+        "app_name": "name-1663",
+        "space_guid": "guid-5e28f12f-9d80-473e-b826-537b148eb338",
+        "space_name": "name-1664",
+        "org_guid": "guid-036444f4-f2f5-4ea8-a353-e73330ca0f0a",
+        "buildpack_guid": "guid-df37754c-819b-4697-a523-4b457d3c83dd",
+        "buildpack_name": "name-1665",
+        "package_state": "STAGED",
+        "previous_package_state": null,
+        "parent_app_guid": null,
+        "parent_app_name": null,
+        "process_type": "web",
+        "task_name": null,
+        "task_guid": null
+      }
+    },
+    {
+      "metadata": {
+        "guid": "b32241a5-5508-4d42-893c-360e42a300a8",
+        "url": "/v2/app_usage_events/b32241a5-5508-4d42-893c-360e42a300a8",
+        "created_at": "2016-06-08T16:41:33Z"
+      },
+      "entity": {
+        "state": "CRASHED",
+        "previous_state": null,
+        "memory_in_mb_per_instance": 564,
+        "previous_memory_in_mb_per_instance": null,
+        "instance_count": 1,
+        "previous_instance_count": null,
+        "app_guid": "guid-d9fbb7f8-cba5-44a2-b720-c24f1fe5e1c4",
+        "app_name": "name-1663",
+        "space_guid": "guid-5e28f12f-9d80-473e-b826-537b148eb338",
+        "space_name": "name-1664",
+        "org_guid": "guid-036444f4-f2f5-4ea8-a353-e73330ca0f0a",
+        "buildpack_guid": "guid-df37754c-819b-4697-a523-4b457d3c83dd",
+        "buildpack_name": "name-1665",
+        "package_state": "STARTED",
+        "previous_package_state": null,
+        "parent_app_guid": null,
+        "parent_app_name": null,
+        "process_type": "web",
+        "task_name": null,
+        "task_guid": null
+      }
+    }
+  ]
+}`
+
+const listServiceUsageEventsPayload = `
+{
+  "total_results": 2,
+  "total_pages": 2,
+  "prev_url": null,
+  "next_url": "/v2/service_usage_eventsPage2?results-per-page=2&page=2",
+  "resources": [
+    {
+      "metadata": {
+        "guid": "985c09c5-bf5a-44eb-a260-41c532dc0f1d",
+        "url": "/v2/service_usage_events/985c09c5-bf5a-44eb-a260-41c532dc0f1d",
+        "created_at": "2016-06-08T16:41:39Z"
+      },
+      "entity": {
+        "state": "CREATED",
+        "org_guid": "guid-396a8cb9-5524-4a2b-8e9e-2bfc70edb58d",
+        "space_guid": "guid-be1f6fe3-e63a-41a3-b196-3fc084022823",
+        "space_name": "name-1981",
+        "service_instance_guid": "guid-f93250f7-7ef5-4b02-8d33-353919ce8358",
+        "service_instance_name": "name-1982",
+        "service_instance_type": "type-5",
+        "service_plan_guid": "guid-e9d2d5a0-69a6-46ef-bac5-43f3ed177614",
+        "service_plan_name": "name-1983",
+        "service_guid": "guid-34916716-31d7-40c1-9afd-f312996c9654",
+        "service_label": "label-64"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "985c09c5-bf5a-44eb-a260-41c532dc0f2a",
+        "url": "/v2/service_usage_events/985c09c5-bf5a-44eb-a260-41c532dc0f1d",
+        "created_at": "2016-06-08T16:41:39Z"
+      },
+      "entity": {
+        "state": "DELETED",
+        "org_guid": "guid-396a8cb9-5524-4a2b-8e9e-2bfc70edb58d",
+        "space_guid": "guid-be1f6fe3-e63a-41a3-b196-3fc084022823",
+        "space_name": "name-1981",
+        "service_instance_guid": "guid-f93250f7-7ef5-4b02-8d33-353919ce8358",
+        "service_instance_name": "name-1983",
+        "service_instance_type": "type-5",
+        "service_plan_guid": "guid-e9d2d5a0-69a6-46ef-bac5-43f3ed177614",
+        "service_plan_name": "name-1984",
+        "service_guid": "guid-34916716-31d7-40c1-9afd-f312996c9655",
+        "service_label": "label-65"
+      }
+    }
+  ]
+}`
+
+const listServiceUsageEventsPayloadPage2 = `
+{
+  "total_results": 2,
+  "total_pages": 2,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "985c09c5-bf5a-44eb-a260-41c532dc0f3f",
+        "url": "/v2/service_usage_events/985c09c5-bf5a-44eb-a260-41c532dc0f1d",
+        "created_at": "2016-06-08T16:41:39Z"
+      },
+      "entity": {
+        "state": "CREATED",
+        "org_guid": "guid-396a8cb9-5524-4a2b-8e9e-2bfc70edb58d",
+        "space_guid": "guid-be1f6fe3-e63a-41a3-b196-3fc084022823",
+        "space_name": "name-1988",
+        "service_instance_guid": "guid-f93250f7-7ef5-4b02-8d33-353919ce8358",
+        "service_instance_name": "name-1988",
+        "service_instance_type": "type-5",
+        "service_plan_guid": "guid-e9d2d5a0-69a6-46ef-bac5-43f3ed177614",
+        "service_plan_name": "name-1988",
+        "service_guid": "guid-34916716-31d7-40c1-9afd-f312996c9654",
+        "service_label": "label-64"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "985c09c5-bf5a-44eb-a260-41c532dc0f6d",
+        "url": "/v2/service_usage_events/985c09c5-bf5a-44eb-a260-41c532dc0f1d",
+        "created_at": "2016-06-08T16:41:39Z"
+      },
+      "entity": {
+        "state": "UPDATED",
+        "org_guid": "guid-396a8cb9-5524-4a2b-8e9e-2bfc70edb58d",
+        "space_guid": "guid-be1f6fe3-e63a-41a3-b196-3fc084022823",
+        "space_name": "name-1985",
+        "service_instance_guid": "guid-f93250f7-7ef5-4b02-8d33-353919ce8358",
+        "service_instance_name": "name-1985",
+        "service_instance_type": "type-5",
+        "service_plan_guid": "guid-e9d2d5a0-69a6-46ef-bac5-43f3ed177614",
+        "service_plan_name": "name-1985",
+        "service_guid": "guid-34916716-31d7-40c1-9afd-f312996c9655",
+        "service_label": "label-65"
+      }
+    }
+  ]
+}`
