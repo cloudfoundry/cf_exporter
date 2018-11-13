@@ -34,6 +34,7 @@ var _ = Describe("CollectorsFilter", func() {
 					ServicesCollector,
 					SpacesCollector,
 					StacksCollector,
+					EventsCollector,
 				}
 			})
 

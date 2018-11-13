@@ -8,6 +8,7 @@ import (
 
 const (
 	ApplicationsCollector      = "Applications"
+	EventsCollector            = "Events"
 	IsolationSegmentsCollector = "IsolationSegments"
 	OrganizationsCollector     = "Organizations"
 	RoutesCollector            = "Routes"
@@ -32,6 +33,8 @@ func NewCollectorsFilter(filters []string, cfAPIv3Enabled bool) (*CollectorsFilt
 		switch strings.Trim(collectorName, " ") {
 		case ApplicationsCollector:
 			collectorsEnabled[ApplicationsCollector] = true
+		case EventsCollector:
+			collectorsEnabled[EventsCollector] = true
 		case IsolationSegmentsCollector:
 			if !cfAPIv3Enabled {
 				return &CollectorsFilter{}, errors.New("IsolationSegments Collector filter need CF API V3 enabled")
@@ -70,6 +73,8 @@ func (f *CollectorsFilter) Enabled(collectorName string) bool {
 			if f.CFAPIv3Enabled {
 				return true
 			}
+			return false
+		case EventsCollector:
 			return false
 		default:
 			return true
