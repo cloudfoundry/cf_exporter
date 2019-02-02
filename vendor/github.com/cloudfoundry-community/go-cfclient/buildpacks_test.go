@@ -30,6 +30,7 @@ func TestListBuildpacks(t *testing.T) {
 		So(buildpacks[0].CreatedAt, ShouldEqual, "2016-06-08T16:41:31Z")
 		So(buildpacks[0].UpdatedAt, ShouldEqual, "2016-06-08T16:41:26Z")
 		So(buildpacks[0].Name, ShouldEqual, "name_1")
+		So(buildpacks[0].Stack, ShouldEqual, "cflinuxfs2")
 	})
 }
 
@@ -51,6 +52,26 @@ func TestGetBuildpackByGuid(t *testing.T) {
 		So(buildpack.CreatedAt, ShouldEqual, "2016-06-08T16:41:31Z")
 		So(buildpack.UpdatedAt, ShouldEqual, "2016-06-08T16:41:26Z")
 		So(buildpack.Name, ShouldEqual, "name_1")
+		So(buildpack.Stack, ShouldEqual, "cflinuxfs2")
+	})
+	Convey("A buildpack with no stack", t, func() {
+		setup(MockRoute{"GET", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackPayloadBackwardsCompat, "", 200, "", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		buildpack, err := client.GetBuildpackByGuid("c92b6f5f-d2a4-413a-b515-647d059723aa")
+		So(err, ShouldBeNil)
+
+		So(buildpack.Guid, ShouldEqual, "c92b6f5f-d2a4-413a-b515-647d059723aa")
+		So(buildpack.CreatedAt, ShouldEqual, "2016-06-08T16:41:31Z")
+		So(buildpack.UpdatedAt, ShouldEqual, "2016-06-08T16:41:26Z")
+		So(buildpack.Name, ShouldEqual, "name_1")
+		So(buildpack.Stack, ShouldEqual, "")
 	})
 }
 
@@ -179,11 +200,51 @@ func TestUpdateBuildpack(t *testing.T) {
 		err = buildpack.Update(buildpackRequest)
 		So(err, ShouldNotBeNil)
 	})
+	Convey("It is possible to update a buildpack stack from null, to a value", t, func() {
+		expectedPayload := `{"stack":"cflinuxfs2"}`
+		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackUpdatePayload, "", 400, "", &expectedPayload}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		buildpack := Buildpack{
+			Guid: "c92b6f5f-d2a4-413a-b515-647d059723aa",
+			c:    client,
+		}
+		buildpackRequest := &BuildpackRequest{}
+		buildpackRequest.SetStack("cflinuxfs2")
+		err = buildpack.Update(buildpackRequest)
+		So(err, ShouldNotBeNil)
+	})
+	Convey("Updating without a stack specified doesn't change anything", t, func() {
+		expectedPayload := `{"name":"new-name"}`
+		setup(MockRoute{"PUT", "/v2/buildpacks/c92b6f5f-d2a4-413a-b515-647d059723aa", buildpackUpdatePayload, "", 400, "", &expectedPayload}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		buildpack := Buildpack{
+			Guid: "c92b6f5f-d2a4-413a-b515-647d059723aa",
+			c:    client,
+		}
+		buildpackRequest := &BuildpackRequest{}
+		buildpackRequest.SetName("new-name")
+		err = buildpack.Update(buildpackRequest)
+		So(err, ShouldNotBeNil)
+	})
 }
 
 func TestCreateBuildpack(t *testing.T) {
 	Convey("Creating a buildpack succeeds", t, func() {
-		expectedPayload := `{"name":"test-buildpack","enabled":true,"locked":true,"position":10}`
+		expectedPayload := `{"name":"test-buildpack","enabled":true,"locked":true,"position":10,"stack":"cflinuxfs2"}`
 		setup(MockRoute{"POST", "/v2/buildpacks", buildpackCreatePayload, "", 200, "", &expectedPayload}, t)
 		defer teardown()
 		c := &Config{
@@ -198,6 +259,7 @@ func TestCreateBuildpack(t *testing.T) {
 		buildpackRequest.Lock()
 		buildpackRequest.Enable()
 		buildpackRequest.SetPosition(10)
+		buildpackRequest.SetStack("cflinuxfs2")
 
 		bp, err := client.CreateBuildpack(buildpackRequest)
 		So(err, ShouldBeNil)
@@ -206,6 +268,7 @@ func TestCreateBuildpack(t *testing.T) {
 		So(bp.Enabled, ShouldBeTrue)
 		So(bp.Locked, ShouldBeFalse)
 		So(bp.Position, ShouldEqual, 10)
+		So(bp.Stack, ShouldEqual, "cflinuxfs2")
 	})
 	Convey("Creating a buildpack doesn't accidentally unlock, rename, disable, or reorder the buildpack", t, func() {
 		expectedPayload := `{"name":"test-buildpack"}`
@@ -278,5 +341,35 @@ func TestCreateBuildpack(t *testing.T) {
 		bp, err := client.CreateBuildpack(buildpackRequest)
 		So(err, ShouldNotBeNil)
 		So(bp, ShouldBeNil)
+	})
+}
+
+func TestDeleteBuildpack(t *testing.T) {
+	Convey("Delete buildpack synchronously", t, func() {
+		setup(MockRoute{"DELETE", "/v2/buildpacks/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 204, "async=false", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteBuildpack("b2a35f0c-d5ad-4a59-bea7-461711d96b0d", false)
+		So(err, ShouldBeNil)
+	})
+
+	Convey("Delete buildpack asynchronously", t, func() {
+		setup(MockRoute{"DELETE", "/v2/buildpacks/b2a35f0c-d5ad-4a59-bea7-461711d96b0d", "", "", 202, "async=true", nil}, t)
+		defer teardown()
+		c := &Config{
+			ApiAddress: server.URL,
+			Token:      "foobar",
+		}
+		client, err := NewClient(c)
+		So(err, ShouldBeNil)
+
+		err = client.DeleteBuildpack("b2a35f0c-d5ad-4a59-bea7-461711d96b0d", true)
+		So(err, ShouldBeNil)
 	})
 }
