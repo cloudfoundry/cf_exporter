@@ -22,9 +22,10 @@ const (
 
 type CollectorsFilter struct {
 	collectorsEnabled map[string]bool
+	CFAPIv3Enabled    bool
 }
 
-func NewCollectorsFilter(filters []string) (*CollectorsFilter, error) {
+func NewCollectorsFilter(filters []string, cfAPIv3Enabled bool) (*CollectorsFilter, error) {
 	collectorsEnabled := make(map[string]bool)
 
 	for _, collectorName := range filters {
@@ -32,6 +33,9 @@ func NewCollectorsFilter(filters []string) (*CollectorsFilter, error) {
 		case ApplicationsCollector:
 			collectorsEnabled[ApplicationsCollector] = true
 		case IsolationSegmentsCollector:
+			if !cfAPIv3Enabled {
+				return &CollectorsFilter{}, errors.New("IsolationSegments Collector filter need CF API V3 enabled")
+			}
 			collectorsEnabled[IsolationSegmentsCollector] = true
 		case OrganizationsCollector:
 			collectorsEnabled[OrganizationsCollector] = true
@@ -56,12 +60,20 @@ func NewCollectorsFilter(filters []string) (*CollectorsFilter, error) {
 		}
 	}
 
-	return &CollectorsFilter{collectorsEnabled: collectorsEnabled}, nil
+	return &CollectorsFilter{collectorsEnabled: collectorsEnabled, CFAPIv3Enabled: cfAPIv3Enabled}, nil
 }
 
 func (f *CollectorsFilter) Enabled(collectorName string) bool {
 	if len(f.collectorsEnabled) == 0 {
-		return true
+		switch strings.Trim(collectorName, " ") {
+		case IsolationSegmentsCollector:
+			if f.CFAPIv3Enabled {
+				return true
+			}
+			return false
+		default:
+			return true
+		}
 	}
 
 	if f.collectorsEnabled[collectorName] {

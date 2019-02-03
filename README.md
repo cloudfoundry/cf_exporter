@@ -80,7 +80,8 @@ uaac client add prometheus-cf \
 | `cf.client-id`<br />`CF_EXPORTER_CF_CLIENT_ID` | *[1]* | | Cloud Foundry Client ID (must have the `cloud_controller.admin` or `cloud_controller.admin_read_only` scope) |
 | `cf.client-secret`<br />`CF_EXPORTER_CF_CLIENT_SECRET` | *[1]* | | Cloud Foundry Client Secret |
 | `cf.deployment-name`<br />`CF_EXPORTER_CF_DEPLOYMENT_NAME` | Yes | | Cloud Foundry Deployment Name to be reported as a metric label |
-| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `IsolationSegments`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceBindings`, `ServiceInstances`, `ServicePlans`, `Services`, `Spaces`, `Stacks`) |
+| `cf.api-v3-enabled`<br />`CF_EXPORTER_CF_API_V3_ENABLED` | No | False | Enable [Cloud Foundry API V3][cf_api_v3] calls |
+| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `IsolationSegments`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceBindings`, `ServiceInstances`, `ServicePlans`, `Services`, `Spaces`, `Stacks`). `IsolationSegments` collector requires `cf.api-v3-enabled` enabled |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
 | `metrics.environment`<br />`CF_EXPORTER_METRICS_ENVIRONMENT` | Yes | | Environment label to be attached to metrics |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
@@ -110,7 +111,7 @@ The exporter returns the following `Applications` metrics:
 | *metrics.namespace*_last_applications_scrape_timestamp | Number of seconds since 1970 since last scrape of Applications metrics from Cloud Foundry | `environment`, `deployment` |
 | *metrics.namespace*_last_applications_scrape_duration_seconds | Duration of the last scrape of Applications metrics from Cloud Foundry | `environment`, `deployment` |
 
-The exporter returns the following `IsolationSegments` metrics:
+The exporter returns the following `IsolationSegments` metrics (requires `cf.api-v3-enabled` enabled):
 
 | Metric | Description | Labels |
 | ------ | ----------- | ------ |
@@ -250,6 +251,7 @@ Apache License 2.0, see [LICENSE][license].
 
 [binaries]: https://github.com/bosh-prometheus/cf_exporter/releases
 [cf_api]: https://apidocs.cloudfoundry.org/
+[cf_api_v3]: https://v3-apidocs.cloudfoundry.org/
 [cloudfoundry]: https://www.cloudfoundry.org/
 [contributing]: https://github.com/bosh-prometheus/cf_exporter/blob/master/CONTRIBUTING.md
 [faq]: https://github.com/bosh-prometheus/cf_exporter/blob/master/FAQ.md

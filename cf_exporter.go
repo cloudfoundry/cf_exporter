@@ -41,6 +41,10 @@ var (
 		"cf.deployment-name", "Cloud Foundry Deployment Name to be reported as a metric label ($CF_EXPORTER_CF_DEPLOYMENT_NAME)",
 	).Envar("CF_EXPORTER_CF_DEPLOYMENT_NAME").Required().String()
 
+	cfAPIV3Enabled = kingpin.Flag(
+		"cf.api-v3-enabled", "Enable Cloud Foundry API V3 calls ($CF_EXPORTER_CF_API_V3_ENABLED)",
+	).Envar("CF_EXPORTER_CF_API_V3_ENABLED").Default("false").Bool()
+
 	filterCollectors = kingpin.Flag(
 		"filter.collectors", "Comma separated collectors to filter (Applications,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks) ($CF_EXPORTER_FILTER_COLLECTORS)",
 	).Envar("CF_EXPORTER_FILTER_COLLECTORS").Default("").String()
@@ -146,7 +150,7 @@ func main() {
 	if *filterCollectors != "" {
 		collectorsFilters = strings.Split(*filterCollectors, ",")
 	}
-	collectorsFilter, err := filters.NewCollectorsFilter(collectorsFilters)
+	collectorsFilter, err := filters.NewCollectorsFilter(collectorsFilters, *cfAPIV3Enabled)
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
