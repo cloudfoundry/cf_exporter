@@ -6,11 +6,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	cfclient "github.com/cloudfoundry-community/go-cfclient"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
-	"gopkg.in/alecthomas/kingpin.v2"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/bosh-prometheus/cf_exporter/collectors"
 	"github.com/bosh-prometheus/cf_exporter/filters"
@@ -42,7 +42,7 @@ var (
 	).Envar("CF_EXPORTER_CF_DEPLOYMENT_NAME").Required().String()
 
 	filterCollectors = kingpin.Flag(
-		"filter.collectors", "Comma separated collectors to filter (Applications,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks) ($CF_EXPORTER_FILTER_COLLECTORS)",
+		"filter.collectors", "Comma separated collectors to filter (Applications,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks) ($CF_EXPORTER_FILTER_COLLECTORS)",
 	).Envar("CF_EXPORTER_FILTER_COLLECTORS").Default("").String()
 
 	metricsNamespace = kingpin.Flag(
@@ -155,6 +155,11 @@ func main() {
 	if collectorsFilter.Enabled(filters.ApplicationsCollector) {
 		applicationsCollector := collectors.NewApplicationsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(applicationsCollector)
+	}
+
+	if collectorsFilter.Enabled(filters.IsolationSegmentsCollector) {
+		isolationSegmentsCollector := collectors.NewIsolationSegmentsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
+		prometheus.MustRegister(isolationSegmentsCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.OrganizationsCollector) {

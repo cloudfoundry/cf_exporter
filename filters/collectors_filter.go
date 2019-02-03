@@ -7,16 +7,17 @@ import (
 )
 
 const (
-	ApplicationsCollector     = "Applications"
-	OrganizationsCollector    = "Organizations"
-	RoutesCollector           = "Routes"
-	SecurityGroupsCollector   = "SecurityGroups"
-	ServiceBindingsCollector  = "ServiceBindings"
-	ServiceInstancesCollector = "ServiceInstances"
-	ServicePlansCollector     = "ServicePlans"
-	ServicesCollector         = "Services"
-	SpacesCollector           = "Spaces"
-	StacksCollector           = "Stacks"
+	ApplicationsCollector      = "Applications"
+	IsolationSegmentsCollector = "IsolationSegments"
+	OrganizationsCollector     = "Organizations"
+	RoutesCollector            = "Routes"
+	SecurityGroupsCollector    = "SecurityGroups"
+	ServiceBindingsCollector   = "ServiceBindings"
+	ServiceInstancesCollector  = "ServiceInstances"
+	ServicePlansCollector      = "ServicePlans"
+	ServicesCollector          = "Services"
+	SpacesCollector            = "Spaces"
+	StacksCollector            = "Stacks"
 )
 
 type CollectorsFilter struct {
@@ -30,6 +31,8 @@ func NewCollectorsFilter(filters []string) (*CollectorsFilter, error) {
 		switch strings.Trim(collectorName, " ") {
 		case ApplicationsCollector:
 			collectorsEnabled[ApplicationsCollector] = true
+		case IsolationSegmentsCollector:
+			collectorsEnabled[IsolationSegmentsCollector] = true
 		case OrganizationsCollector:
 			collectorsEnabled[OrganizationsCollector] = true
 		case RoutesCollector:

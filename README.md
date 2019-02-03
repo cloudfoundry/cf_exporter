@@ -80,7 +80,7 @@ uaac client add prometheus-cf \
 | `cf.client-id`<br />`CF_EXPORTER_CF_CLIENT_ID` | *[1]* | | Cloud Foundry Client ID (must have the `cloud_controller.admin` or `cloud_controller.admin_read_only` scope) |
 | `cf.client-secret`<br />`CF_EXPORTER_CF_CLIENT_SECRET` | *[1]* | | Cloud Foundry Client Secret |
 | `cf.deployment-name`<br />`CF_EXPORTER_CF_DEPLOYMENT_NAME` | Yes | | Cloud Foundry Deployment Name to be reported as a metric label |
-| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceBindings`, `ServiceInstances`, `ServicePlans`, `Services`, `Spaces`, `Stacks`) |
+| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors will be enabled (`Applications`, `IsolationSegments`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceBindings`, `ServiceInstances`, `ServicePlans`, `Services`, `Spaces`, `Stacks`) |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
 | `metrics.environment`<br />`CF_EXPORTER_METRICS_ENVIRONMENT` | Yes | | Environment label to be attached to metrics |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
@@ -109,6 +109,17 @@ The exporter returns the following `Applications` metrics:
 | *metrics.namespace*_last_applications_scrape_error | Whether the last scrape of Applications metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment` |
 | *metrics.namespace*_last_applications_scrape_timestamp | Number of seconds since 1970 since last scrape of Applications metrics from Cloud Foundry | `environment`, `deployment` |
 | *metrics.namespace*_last_applications_scrape_duration_seconds | Duration of the last scrape of Applications metrics from Cloud Foundry | `environment`, `deployment` |
+
+The exporter returns the following `IsolationSegments` metrics:
+
+| Metric | Description | Labels |
+| ------ | ----------- | ------ |
+| *metrics.namespace*_isolation_segment_info | Labeled Cloud Foundry Isolation Segment information with a constant `1` value | `environment`, `deployment`, `isolation_segment_id`, `isolation_segment_name` |
+| *metrics.namespace*_isolation_segments_scrapes_total | Total number of scrapes for Cloud Foundry Isolation Segments | `environment`, `deployment` |
+| *metrics.namespace*_isolation_segments_scrape_errors_total | Total number of scrape errors of Cloud Foundry Isolation Segments | `environment`, `deployment` |
+| *metrics.namespace*_last_isolation_segments_scrape_error | Whether the last scrape of Isolation Segments metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment` |
+| *metrics.namespace*_last_isolation_segments_scrape_timestamp | Number of seconds since 1970 since last scrape of Isolation Segments metrics from Cloud Foundry | `environment`, `deployment` |
+| *metrics.namespace*_last_isolation_segments_scrape_duration_seconds | Duration of the last scrape of Isolation Segments metrics from Cloud Foundry | `environment`, `deployment` |
 
 The exporter returns the following `Organizations` metrics:
 
