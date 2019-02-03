@@ -1,12 +1,17 @@
 package collectors
 
 import (
-	"sync"
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	cfclient "github.com/cloudfoundry-community/go-cfclient"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"github.com/remeh/sizedwaitgroup"
+)
+
+const (
+	concurrentOrganizationsGoroutines = 10
+	concurrentSpacesGoroutines        = 10
 )
 
 type ApplicationsCollector struct {
@@ -204,11 +209,11 @@ func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Me
 		return err
 	}
 
-	var wg = &sync.WaitGroup{}
+	wg := sizedwaitgroup.New(concurrentOrganizationsGoroutines)
 	errChannel := make(chan error, len(organizations))
 
 	for _, organization := range organizations {
-		wg.Add(1)
+		wg.Add()
 		go func(organization cfclient.Org) {
 			defer wg.Done()
 
@@ -238,11 +243,11 @@ func (c ApplicationsCollector) getOrgSpaces(ch chan<- prometheus.Metric, organiz
 		return err
 	}
 
-	var wg = &sync.WaitGroup{}
+	wg := sizedwaitgroup.New(concurrentSpacesGoroutines)
 	errChannel := make(chan error, len(spaces))
 
 	for _, space := range spaces {
-		wg.Add(1)
+		wg.Add()
 		go func(space cfclient.Space) {
 			defer wg.Done()
 
