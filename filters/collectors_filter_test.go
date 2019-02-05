@@ -213,6 +213,10 @@ var _ = Describe("CollectorsFilter", func() {
 					Expect(collectorsFilter.Enabled(StacksCollector)).To(BeTrue())
 				})
 			})
+
+			It("returns false", func() {
+				Expect(collectorsFilter.Enabled(EventsCollector)).To(BeFalse())
+			})
 		})
 	})
 })
