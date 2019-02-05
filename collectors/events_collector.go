@@ -2,8 +2,8 @@ package collectors
 
 import (
 	"fmt"
-	"time"
 	"net/url"
+	"time"
 
 	"github.com/cloudfoundry-community/go-cfclient"
 	"github.com/prometheus/client_golang/prometheus"
@@ -11,19 +11,20 @@ import (
 )
 
 type EventsCollector struct {
-	namespace                                   string
-	environment                                 string
-	deployment                                  string
-	cfClient                                    *cfclient.Client
-	eventsInfoMetric                            *prometheus.GaugeVec
-	eventsScrapesTotalMetric                    prometheus.Counter
-	eventsScrapeErrorsTotalMetric               prometheus.Counter
-	lastEventsScrapeErrorMetric                 prometheus.Gauge
-	lastEventsScrapeTimestampMetric             prometheus.Gauge
-	lastEventsScrapeDurationSecondsMetric       prometheus.Gauge
+	namespace                             string
+	environment                           string
+	deployment                            string
+	cfClient                              *cfclient.Client
+	eventsQuery                           string
+	eventsInfoMetric                      *prometheus.GaugeVec
+	eventsScrapesTotalMetric              prometheus.Counter
+	eventsScrapeErrorsTotalMetric         prometheus.Counter
+	lastEventsScrapeErrorMetric           prometheus.Gauge
+	lastEventsScrapeTimestampMetric       prometheus.Gauge
+	lastEventsScrapeDurationSecondsMetric prometheus.Gauge
 
-        lastCheckFilter                             *string
-        timeLocation                                *time.Location
+	lastCheckFilter *string
+	timeLocation    *time.Location
 }
 
 func NewEventsCollector(
@@ -31,6 +32,7 @@ func NewEventsCollector(
 	environment string,
 	deployment string,
 	cfClient *cfclient.Client,
+	eventsQuery string,
 ) *EventsCollector {
 	eventsInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -93,22 +95,23 @@ func NewEventsCollector(
 		},
 	)
 
-        timeLocation, _ := time.LoadLocation("UTC")
+	timeLocation, _ := time.LoadLocation("UTC")
 	newTime := time.Now().In(timeLocation).Format("2006-01-02T15:04:05Z")
 
 	return &EventsCollector{
-		namespace:                                   namespace,
-		environment:                                 environment,
-		deployment:                                  deployment,
-		cfClient:                                    cfClient,
-		eventsInfoMetric:                            eventsInfoMetric,
-		eventsScrapesTotalMetric:                    eventsScrapesTotalMetric,
-		eventsScrapeErrorsTotalMetric:               eventsScrapeErrorsTotalMetric,
-		lastEventsScrapeErrorMetric:                 lastEventsScrapeErrorMetric,
-		lastEventsScrapeTimestampMetric:             lastEventsScrapeTimestampMetric,
-		lastEventsScrapeDurationSecondsMetric:       lastEventsScrapeDurationSecondsMetric,
-		lastCheckFilter:                             &newTime,
-                timeLocation:                                timeLocation,
+		namespace:                             namespace,
+		environment:                           environment,
+		eventsQuery:                           eventsQuery,
+		deployment:                            deployment,
+		cfClient:                              cfClient,
+		eventsInfoMetric:                      eventsInfoMetric,
+		eventsScrapesTotalMetric:              eventsScrapesTotalMetric,
+		eventsScrapeErrorsTotalMetric:         eventsScrapeErrorsTotalMetric,
+		lastEventsScrapeErrorMetric:           lastEventsScrapeErrorMetric,
+		lastEventsScrapeTimestampMetric:       lastEventsScrapeTimestampMetric,
+		lastEventsScrapeDurationSecondsMetric: lastEventsScrapeDurationSecondsMetric,
+		lastCheckFilter:                       &newTime,
+		timeLocation:                          timeLocation,
 	}
 }
 
@@ -145,15 +148,20 @@ func (c EventsCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (c EventsCollector) reportEventsMetrics(ch chan<- prometheus.Metric) error {
 	c.eventsInfoMetric.Reset()
+	query := ""
 
-        params := url.Values{}
-        params.Set("order-by", "timestamp")
-        params.Set("order-direction", "desc")
-        params.Set("results-per-page", "10")
-        params.Set("q", fmt.Sprintf("timestamp>%s", *c.lastCheckFilter))
+	if c.eventsQuery != "" {
+		query = fmt.Sprintf("%s;", c.eventsQuery)
+	}
+
+	params := url.Values{}
+	params.Set("order-by", "timestamp")
+	params.Set("order-direction", "desc")
+	params.Set("results-per-page", "10")
+	params.Set("q", fmt.Sprintf("%stimestamp>%s", query, *c.lastCheckFilter))
 
 	*c.lastCheckFilter = time.Now().In(c.timeLocation).Format("2006-01-02T15:04:05Z")
-        events, err := c.cfClient.ListEventsByQuery(params)
+	events, err := c.cfClient.ListEventsByQuery(params)
 	if err != nil {
 		log.Errorf("Error while getting events: %v", err)
 		return err

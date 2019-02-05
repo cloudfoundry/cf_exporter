@@ -25,40 +25,40 @@ var _ = Describe("EventsCollectors", func() {
 		server   *ghttp.Server
 		cfClient *cfclient.Client
 
-		eventsInfoMetric                            *prometheus.GaugeVec
-		eventsScrapesTotalMetric                    prometheus.Counter
-		eventsScrapeErrorsTotalMetric               prometheus.Counter
-		lastEventsScrapeErrorMetric                 prometheus.Gauge
-		lastEventsScrapeTimestampMetric             prometheus.Gauge
-		lastEventsScrapeDurationSecondsMetric       prometheus.Gauge
+		eventsInfoMetric                      *prometheus.GaugeVec
+		eventsScrapesTotalMetric              prometheus.Counter
+		eventsScrapeErrorsTotalMetric         prometheus.Counter
+		lastEventsScrapeErrorMetric           prometheus.Gauge
+		lastEventsScrapeTimestampMetric       prometheus.Gauge
+		lastEventsScrapeDurationSecondsMetric prometheus.Gauge
 
 		namespace   = "test_namespace"
 		environment = "test_environment"
 		deployment  = "test_deployment"
 
-		eventId1          = "fake_event_1"
-		type1             = "audit.route.delete-request"
-		actor1            = "fake_actor_1"
-		actorType1        = "user"
-		actorName1        = "fake_user_1"
-		actorUsername1    = "fake_username_1"
-		actee1            = "fake_actee_1"
-		acteeType1        = "route"
-		acteeName1        = "fake_actee_1"
-		spaceId1          = "fake_space_id_1"
-		organizationId1   = "fake_organization_id_1"
+		eventId1        = "fake_event_1"
+		type1           = "audit.route.delete-request"
+		actor1          = "fake_actor_1"
+		actorType1      = "user"
+		actorName1      = "fake_user_1"
+		actorUsername1  = "fake_username_1"
+		actee1          = "fake_actee_1"
+		acteeType1      = "route"
+		acteeName1      = "fake_actee_1"
+		spaceId1        = "fake_space_id_1"
+		organizationId1 = "fake_organization_id_1"
 
-		eventId2          = "fake_event_2"
-		type2             = "audit.app.update"
-		actor2            = "fake_actor_2"
-		actorType2        = "user"
-		actorName2        = "fake_user_2"
-		actorUsername2    = "fake_username_2"
-		actee2            = "fake_actee_2"
-		acteeType2        = "app"
-		acteeName2        = "fake_actee_2"
-		spaceId2          = "fake_space_id_2"
-		organizationId2   = "fake_organization_id_2"
+		eventId2        = "fake_event_2"
+		type2           = "audit.app.update"
+		actor2          = "fake_actor_2"
+		actorType2      = "user"
+		actorName2      = "fake_user_2"
+		actorUsername2  = "fake_username_2"
+		actee2          = "fake_actee_2"
+		acteeType2      = "app"
+		acteeName2      = "fake_actee_2"
+		spaceId2        = "fake_space_id_2"
+		organizationId2 = "fake_organization_id_2"
 
 		eventsCollector *EventsCollector
 	)
@@ -145,7 +145,7 @@ var _ = Describe("EventsCollectors", func() {
 	})
 
 	JustBeforeEach(func() {
-		eventsCollector = NewEventsCollector(namespace, environment, deployment, cfClient)
+		eventsCollector = NewEventsCollector(namespace, environment, deployment, cfClient, "")
 	})
 
 	AfterEach(func() {
@@ -203,56 +203,56 @@ var _ = Describe("EventsCollectors", func() {
 
 	Describe("Collect", func() {
 		var (
-			statusCode            int
-			eventsResponse        cfclient.EventsResponse
-			metrics               chan prometheus.Metric
+			statusCode     int
+			eventsResponse cfclient.EventsResponse
+			metrics        chan prometheus.Metric
 		)
 
 		BeforeEach(func() {
 			statusCode = http.StatusOK
 
 			eventsResponse = cfclient.EventsResponse{
-                                Resources: []cfclient.EventResource{
-                                        cfclient.EventResource{
-                                                Meta: cfclient.Meta{
-                                                        Guid: eventId1,
-                                                },
-                                                Entity: cfclient.Event{
-							GUID:              eventId1,
-                                                        Type:              type1,
-							CreatedAt:         "foo",
-							Actor:             actor1,
-							ActorType:         actorType1,
-							ActorName:         actorName1,
-							ActorUsername:     actorUsername1,
-							Actee:             actee1,
-							ActeeType:         acteeType1,
-							ActeeName:         acteeName1,
-							SpaceGUID:         spaceId1,
-							OrganizationGUID:  organizationId1,
-                                                },
-                                        },
-                                        cfclient.EventResource{
-                                                Meta: cfclient.Meta{
-                                                        Guid: eventId2,
-                                                },
-                                                Entity: cfclient.Event{
-							GUID:              eventId2,
-                                                        Type:              type2,
-							CreatedAt:         "foo",
-							Actor:             actor2,
-							ActorType:         actorType2,
-							ActorName:         actorName2,
-							ActorUsername:     actorUsername2,
-							Actee:             actee2,
-							ActeeType:         acteeType2,
-							ActeeName:         acteeName2,
-							SpaceGUID:         spaceId2,
-							OrganizationGUID:  organizationId2,
-                                                },
-                                        },
-                                },
-                        }
+				Resources: []cfclient.EventResource{
+					cfclient.EventResource{
+						Meta: cfclient.Meta{
+							Guid: eventId1,
+						},
+						Entity: cfclient.Event{
+							GUID:             eventId1,
+							Type:             type1,
+							CreatedAt:        "foo",
+							Actor:            actor1,
+							ActorType:        actorType1,
+							ActorName:        actorName1,
+							ActorUsername:    actorUsername1,
+							Actee:            actee1,
+							ActeeType:        acteeType1,
+							ActeeName:        acteeName1,
+							SpaceGUID:        spaceId1,
+							OrganizationGUID: organizationId1,
+						},
+					},
+					cfclient.EventResource{
+						Meta: cfclient.Meta{
+							Guid: eventId2,
+						},
+						Entity: cfclient.Event{
+							GUID:             eventId2,
+							Type:             type2,
+							CreatedAt:        "foo",
+							Actor:            actor2,
+							ActorType:        actorType2,
+							ActorName:        actorName2,
+							ActorUsername:    actorUsername2,
+							Actee:            actee2,
+							ActeeType:        acteeType2,
+							ActeeName:        acteeName2,
+							SpaceGUID:        spaceId2,
+							OrganizationGUID: organizationId2,
+						},
+					},
+				},
+			}
 
 			metrics = make(chan prometheus.Metric)
 		})

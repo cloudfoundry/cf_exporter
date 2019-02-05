@@ -49,6 +49,10 @@ var (
 		"filter.collectors", "Comma separated collectors to filter (Applications,Events,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks). If not set, all collectors except Events is enabled ($CF_EXPORTER_FILTER_COLLECTORS)",
 	).Envar("CF_EXPORTER_FILTER_COLLECTORS").Default("").String()
 
+	eventsQuery = kingpin.Flag(
+		"events.query", "When the Events filter is enabled and this value is set, this query is sent to the CloudController to limit the number of results returned. Syntax is exactly as documented for CloudController API ($CF_EXPORTER_EVENTS_QUERY)",
+	).Envar("CF_EXPORTER_EVENTS_QUERY").Default("").String()
+
 	metricsNamespace = kingpin.Flag(
 		"metrics.namespace", "Metrics Namespace ($CF_EXPORTER_METRICS_NAMESPACE)",
 	).Envar("CF_EXPORTER_METRICS_NAMESPACE").Default("cf").String()
@@ -212,7 +216,7 @@ func main() {
 	}
 
 	if collectorsFilter.Enabled(filters.EventsCollector) {
-		eventsCollector := collectors.NewEventsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
+		eventsCollector := collectors.NewEventsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient, *eventsQuery)
 		prometheus.MustRegister(eventsCollector)
 	}
 
