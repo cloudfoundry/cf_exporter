@@ -3,7 +3,7 @@ package collectors
 import (
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	cfclient "github.com/cloudfoundry-community/go-cfclient"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 )
@@ -35,7 +35,7 @@ func NewServiceInstancesCollector(
 			Help:        "Labeled Cloud Foundry Service Instance information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"service_instance_id", "service_instance_name", "service_plan_id", "space_id", "type"},
+		[]string{"service_instance_id", "service_instance_name", "service_plan_id", "space_id", "type", "last_operation_type", "last_operation_state"},
 	)
 
 	serviceInstancesScrapesTotalMetric := prometheus.NewCounter(
@@ -150,6 +150,8 @@ func (c ServiceInstancesCollector) reportServiceInstancesMetrics(ch chan<- prome
 			serviceInstance.ServicePlanGuid,
 			serviceInstance.SpaceGuid,
 			serviceInstance.Type,
+			serviceInstance.LastOperation.Type,
+			serviceInstance.LastOperation.State,
 		).Set(float64(1))
 	}
 

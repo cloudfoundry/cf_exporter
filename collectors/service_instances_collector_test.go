@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	cfclient "github.com/cloudfoundry-community/go-cfclient"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 
@@ -32,19 +32,23 @@ var _ = Describe("ServiceIntancesCollectors", func() {
 		lastServiceInstancesScrapeTimestampMetric       prometheus.Gauge
 		lastServiceInstancesScrapeDurationSecondsMetric prometheus.Gauge
 
-		namespace                     = "test_namespace"
-		environment                   = "test_environment"
-		deployment                    = "test_deployment"
-		serviceInstanceId1            = "fake_service_instance_id_1"
-		serviceInstanceName1          = "fake_service_instance_name_1"
-		serviceInstanceServicePlanId1 = "fake_service_instance_service_plan_id_1"
-		serviceInstanceSpaceId1       = "fake_service_instance_space_id_1"
-		serviceInstanceType1          = "fake_service_instance_type_1"
-		serviceInstanceId2            = "fake_service_instance_id_2"
-		serviceInstanceName2          = "fake_service_instance_name_2"
-		serviceInstanceServicePlanId2 = "fake_service_instance_service_plan_id_2"
-		serviceInstanceSpaceId2       = "fake_service_instance_space_id_2"
-		serviceInstanceType2          = "fake_service_instance_type_2"
+		namespace                          = "test_namespace"
+		environment                        = "test_environment"
+		deployment                         = "test_deployment"
+		serviceInstanceId1                 = "fake_service_instance_id_1"
+		serviceInstanceName1               = "fake_service_instance_name_1"
+		serviceInstanceServicePlanId1      = "fake_service_instance_service_plan_id_1"
+		serviceInstanceSpaceId1            = "fake_service_instance_space_id_1"
+		serviceInstanceType1               = "fake_service_instance_type_1"
+		serviceInstanceLastOperationType1  = "fake_service_instance_last_operation_type_1"
+		serviceInstanceLastOperationState1 = "fake_service_instance_last_operation_state_1"
+		serviceInstanceId2                 = "fake_service_instance_id_2"
+		serviceInstanceName2               = "fake_service_instance_name_2"
+		serviceInstanceServicePlanId2      = "fake_service_instance_service_plan_id_2"
+		serviceInstanceSpaceId2            = "fake_service_instance_space_id_2"
+		serviceInstanceType2               = "fake_service_instance_type_2"
+		serviceInstanceLastOperationType2  = "fake_service_instance_last_operation_type_2"
+		serviceInstanceLastOperationState2 = "fake_service_instance_last_operation_state_2"
 
 		serviceInstancesCollector *ServiceInstancesCollector
 	)
@@ -73,7 +77,7 @@ var _ = Describe("ServiceIntancesCollectors", func() {
 				Help:        "Labeled Cloud Foundry Service Instance information with a constant '1' value.",
 				ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 			},
-			[]string{"service_instance_id", "service_instance_name", "service_plan_id", "space_id", "type"},
+			[]string{"service_instance_id", "service_instance_name", "service_plan_id", "space_id", "type", "last_operation_type", "last_operation_state"},
 		)
 		serviceInstanceInfoMetric.WithLabelValues(
 			serviceInstanceId1,
@@ -81,6 +85,8 @@ var _ = Describe("ServiceIntancesCollectors", func() {
 			serviceInstanceServicePlanId1,
 			serviceInstanceSpaceId1,
 			serviceInstanceType1,
+			serviceInstanceLastOperationType1,
+			serviceInstanceLastOperationState1,
 		).Set(1)
 		serviceInstanceInfoMetric.WithLabelValues(
 			serviceInstanceId2,
@@ -88,6 +94,8 @@ var _ = Describe("ServiceIntancesCollectors", func() {
 			serviceInstanceServicePlanId2,
 			serviceInstanceSpaceId2,
 			serviceInstanceType2,
+			serviceInstanceLastOperationType2,
+			serviceInstanceLastOperationState2,
 		).Set(1)
 
 		serviceInstancesScrapesTotalMetric = prometheus.NewCounter(
@@ -170,6 +178,8 @@ var _ = Describe("ServiceIntancesCollectors", func() {
 				serviceInstanceServicePlanId1,
 				serviceInstanceSpaceId1,
 				serviceInstanceType1,
+				serviceInstanceLastOperationType1,
+				serviceInstanceLastOperationState1,
 			).Desc())))
 		})
 
@@ -214,6 +224,10 @@ var _ = Describe("ServiceIntancesCollectors", func() {
 							ServicePlanGuid: serviceInstanceServicePlanId1,
 							SpaceGuid:       serviceInstanceSpaceId1,
 							Type:            serviceInstanceType1,
+							LastOperation: cfclient.LastOperation{
+								Type:  serviceInstanceLastOperationType1,
+								State: serviceInstanceLastOperationState1,
+							},
 						},
 					},
 					cfclient.ServiceInstanceResource{
@@ -225,6 +239,10 @@ var _ = Describe("ServiceIntancesCollectors", func() {
 							ServicePlanGuid: serviceInstanceServicePlanId2,
 							SpaceGuid:       serviceInstanceSpaceId2,
 							Type:            serviceInstanceType2,
+							LastOperation: cfclient.LastOperation{
+								Type:  serviceInstanceLastOperationType2,
+								State: serviceInstanceLastOperationState2,
+							},
 						},
 					},
 				},
@@ -250,6 +268,8 @@ var _ = Describe("ServiceIntancesCollectors", func() {
 				serviceInstanceServicePlanId1,
 				serviceInstanceSpaceId1,
 				serviceInstanceType1,
+				serviceInstanceLastOperationType1,
+				serviceInstanceLastOperationState1,
 			))))
 		})
 
@@ -260,6 +280,8 @@ var _ = Describe("ServiceIntancesCollectors", func() {
 				serviceInstanceServicePlanId2,
 				serviceInstanceSpaceId2,
 				serviceInstanceType2,
+				serviceInstanceLastOperationType2,
+				serviceInstanceLastOperationState2,
 			))))
 		})
 
