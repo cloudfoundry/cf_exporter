@@ -433,7 +433,7 @@ var _ = Describe("OrganizationsCollectors", func() {
 							Guid: quotaDefinitionId1,
 						},
 						Entity: cfclient.OrgQuota{
-							Name: quotaDefinitionName1,
+							Name:                    quotaDefinitionName1,
 							NonBasicServicesAllowed: false,
 							TotalServices:           TotalServices1,
 							TotalRoutes:             TotalRoutes1,
@@ -451,7 +451,7 @@ var _ = Describe("OrganizationsCollectors", func() {
 							Guid: quotaDefinitionId2,
 						},
 						Entity: cfclient.OrgQuota{
-							Name: quotaDefinitionName2,
+							Name:                    quotaDefinitionName2,
 							NonBasicServicesAllowed: true,
 							TotalServices:           TotalServices2,
 							TotalRoutes:             TotalRoutes2,
