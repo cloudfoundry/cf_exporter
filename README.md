@@ -81,7 +81,8 @@ uaac client add prometheus-cf \
 | `cf.client-secret`<br />`CF_EXPORTER_CF_CLIENT_SECRET` | *[1]* | | Cloud Foundry Client Secret |
 | `cf.deployment-name`<br />`CF_EXPORTER_CF_DEPLOYMENT_NAME` | Yes | | Cloud Foundry Deployment Name to be reported as a metric label |
 | `cf.api-v3-enabled`<br />`CF_EXPORTER_CF_API_V3_ENABLED` | No | False | Enable [Cloud Foundry API V3][cf_api_v3] calls |
-| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors except Events will be enabled (`Applications`, `Events`, `IsolationSegments`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceBindings`, `ServiceInstances`, `ServicePlans`, `Services`, `Spaces`, `Stacks`). `IsolationSegments` collector requires `cf.api-v3-enabled` enabled |
+| `events.query`<br />`CF_EXPORTER_EVENTS_QUERY` | No | | When the `Events` filter is enabled and this value is set, this query is sent to the CloudController to limit the number of results returned. Syntax is exactly as documented at the [Cloud Foundry API][cf_api] |
+| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors except `Events` will be enabled (`Applications`, `Events`, `IsolationSegments`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceBindings`, `ServiceInstances`, `ServicePlans`, `Services`, `Spaces`, `Stacks`). `IsolationSegments` collector requires `cf.api-v3-enabled` enabled |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
 | `metrics.environment`<br />`CF_EXPORTER_METRICS_ENVIRONMENT` | Yes | | Environment label to be attached to metrics |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
@@ -110,6 +111,18 @@ The exporter returns the following `Applications` metrics:
 | *metrics.namespace*_last_applications_scrape_error | Whether the last scrape of Applications metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment` |
 | *metrics.namespace*_last_applications_scrape_timestamp | Number of seconds since 1970 since last scrape of Applications metrics from Cloud Foundry | `environment`, `deployment` |
 | *metrics.namespace*_last_applications_scrape_duration_seconds | Duration of the last scrape of Applications metrics from Cloud Foundry | `environment`, `deployment` |
+
+
+The exporter returns the following `Events` metrics:
+
+| Metric | Description | Labels |
+| ------ | ----------- | ------ |
+| *metrics.namespace*_events_info | Labeled Cloud Foundry Events information with a constant `1` value | `environment`, `deployment`, `type`, `actor`, `actor_type`, `actor_name`, `actor_username`, `actee`, `actee_type`, `actee_name`, `space_id`, `organization_id` |
+| *metrics.namespace*_events_scrapes_total | Total number of scrapes for Cloud Foundry Events | `environment`, `deployment` |
+| *metrics.namespace*_events_scrape_errors_total | Total number of scrape errors of Cloud Foundry Events | `environment`, `deployment` |
+| *metrics.namespace*_last_events_scrape_error | Whether the last scrape of Events metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment` |
+| *metrics.namespace*_last_events_scrape_timestamp | Number of seconds since 1970 since last scrape of Events metrics from Cloud Foundry | `environment`, `deployment` |
+| *metrics.namespace*_last_events_scrape_duration_seconds | Duration of the last scrape of Events metrics from Cloud Foundry | `environment`, `deployment` |
 
 The exporter returns the following `IsolationSegments` metrics (requires `cf.api-v3-enabled` enabled):
 
@@ -153,7 +166,6 @@ The exporter returns the following `Routes` metrics:
 | *metrics.namespace*_last_routes_scrape_error | Whether the last scrape of Routes metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment` |
 | *metrics.namespace*_last_routes_scrape_timestamp | Number of seconds since 1970 since last scrape of Routes metrics from Cloud Foundry | `environment`, `deployment` |
 | *metrics.namespace*_last_routes_scrape_duration_seconds | Duration of the last scrape of Routes metrics from Cloud Foundry | `environment`, `deployment` |
-
 
 The exporter returns the following `Security Groups` metrics:
 
@@ -240,18 +252,6 @@ The exporter returns the following `Stacks` metrics:
 | *metrics.namespace*_last_stacks_scrape_error | Whether the last scrape of Stacks metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment` |
 | *metrics.namespace*_last_stacks_scrape_timestamp | Number of seconds since 1970 since last scrape of Stacks metrics from Cloud Foundry | `environment`, `deployment` |
 | *metrics.namespace*_last_stacks_scrape_duration_seconds | Duration of the last scrape of Stacks metrics from Cloud Foundry | `environment`, `deployment` |
-
-The exporter returns the following `Events` metrics:
-
-| Metric | Description | Labels |
-| ------ | ----------- | ------ |
-| *metrics.namespace*_events_info | Labeled Cloud Foundry Events information with a constant `1` value | `environment`, `deployment`, `type`, `actor`, `actor_type`, `actor_name`, `actor_username`, `actee`, `actee_type`, `actee_name`, `space_id`, `organization_id` |
-| *metrics.namespace*_events_scrapes_total | Total number of scrapes for Cloud Foundry Events | `environment`, `deployment` |
-| *metrics.namespace*_events_scrape_errors_total | Total number of scrape errors of Cloud Foundry Events | `environment`, `deployment` |
-| *metrics.namespace*_last_events_scrape_error | Whether the last scrape of Events metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment` |
-| *metrics.namespace*_last_events_scrape_timestamp | Number of seconds since 1970 since last scrape of Events metrics from Cloud Foundry | `environment`, `deployment` |
-| *metrics.namespace*_last_events_scrape_duration_seconds | Duration of the last scrape of Events metrics from Cloud Foundry | `environment`, `deployment` |
-
 
 ## Contributing
 

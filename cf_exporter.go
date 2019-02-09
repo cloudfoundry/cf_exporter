@@ -45,13 +45,13 @@ var (
 		"cf.api-v3-enabled", "Enable Cloud Foundry API V3 calls ($CF_EXPORTER_CF_API_V3_ENABLED)",
 	).Envar("CF_EXPORTER_CF_API_V3_ENABLED").Default("false").Bool()
 
+	eventsQuery = kingpin.Flag(
+		"events.query", "When the Events filter is enabled and this value is set, this query is sent to the CloudController to limit the number of results returned. Syntax is exactly as documented at the Cloud Foundry API ($CF_EXPORTER_EVENTS_QUERY)",
+	).Envar("CF_EXPORTER_EVENTS_QUERY").Default("").String()
+
 	filterCollectors = kingpin.Flag(
 		"filter.collectors", "Comma separated collectors to filter (Applications,Events,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks). If not set, all collectors except Events is enabled ($CF_EXPORTER_FILTER_COLLECTORS)",
 	).Envar("CF_EXPORTER_FILTER_COLLECTORS").Default("").String()
-
-	eventsQuery = kingpin.Flag(
-		"events.query", "When the Events filter is enabled and this value is set, this query is sent to the CloudController to limit the number of results returned. Syntax is exactly as documented for CloudController API ($CF_EXPORTER_EVENTS_QUERY)",
-	).Envar("CF_EXPORTER_EVENTS_QUERY").Default("").String()
 
 	metricsNamespace = kingpin.Flag(
 		"metrics.namespace", "Metrics Namespace ($CF_EXPORTER_METRICS_NAMESPACE)",
