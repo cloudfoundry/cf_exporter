@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	cfclient "github.com/cloudfoundry-community/go-cfclient"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 
@@ -84,7 +84,7 @@ var _ = Describe("EventsCollectors", func() {
 				Namespace:   namespace,
 				Subsystem:   "events",
 				Name:        "info",
-				Help:        "Events information with a constant '1' value.",
+				Help:        "Labeled Cloud Foundry Events information with a constant '1' value.",
 				ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 			},
 			[]string{"type", "actor", "actor_type", "actor_name", "actor_username", "actee", "actee_type", "actee_name", "space_id", "organization_id"},
