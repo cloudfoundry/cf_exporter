@@ -209,11 +209,11 @@ func NewOrganizationsCollector(
 	)
 
 	return &OrganizationsCollector{
-		namespace:              namespace,
-		environment:            environment,
-		deployment:             deployment,
-		cfClient:               cfClient,
-		organizationInfoMetric: organizationInfoMetric,
+		namespace:                                      namespace,
+		environment:                                    environment,
+		deployment:                                     deployment,
+		cfClient:                                       cfClient,
+		organizationInfoMetric:                         organizationInfoMetric,
 		organizationNonBasicServicesAllowedMetric:      organizationNonBasicServicesAllowedMetric,
 		organizationInstanceMemoryMbLimitMetric:        organizationInstanceMemoryMbLimitMetric,
 		organizationTotalAppInstancesQuotaMetric:       organizationTotalAppInstancesQuotaMetric,

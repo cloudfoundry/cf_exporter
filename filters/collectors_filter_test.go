@@ -34,6 +34,7 @@ var _ = Describe("CollectorsFilter", func() {
 					ServicesCollector,
 					SpacesCollector,
 					StacksCollector,
+					EventsCollector,
 				}
 			})
 
@@ -211,6 +212,10 @@ var _ = Describe("CollectorsFilter", func() {
 				It("Stacks Collector should be enabled", func() {
 					Expect(collectorsFilter.Enabled(StacksCollector)).To(BeTrue())
 				})
+			})
+
+			It("returns false", func() {
+				Expect(collectorsFilter.Enabled(EventsCollector)).To(BeFalse())
 			})
 		})
 	})
