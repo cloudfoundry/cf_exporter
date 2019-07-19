@@ -272,9 +272,9 @@ func (c ApplicationsCollector) getSpaceSummary(ch chan<- prometheus.Metric, orga
 	}
 
 	for _, application := range spaceSummary.Apps {
-		buildpack := application.DetectedBuildpack
+		buildpack := application.Buildpack
 		if buildpack == "" {
-			buildpack = application.Buildpack
+			buildpack = application.DetectedBuildpack
 		}
 
 		c.applicationInfoMetric.WithLabelValues(
