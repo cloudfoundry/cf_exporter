@@ -45,7 +45,7 @@ func NewApplicationsCollector(
 			Help:        "Labeled Cloud Foundry Application information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"application_id", "application_name", "buildpack", "organization_id", "organization_name", "space_id", "space_name", "stack_id", "state"},
+		[]string{"application_id", "application_name", "detected_buildpack", "buildpack", "organization_id", "organization_name", "space_id", "space_name", "stack_id", "state"},
 	)
 
 	applicationInstancesMetric := prometheus.NewGaugeVec(
@@ -272,6 +272,11 @@ func (c ApplicationsCollector) getSpaceSummary(ch chan<- prometheus.Metric, orga
 	}
 
 	for _, application := range spaceSummary.Apps {
+		detected_buildpack := application.DetectedBuildpack
+		if detected_buildpack == "" {
+			detected_buildpack = application.Buildpack
+		}
+		
 		buildpack := application.Buildpack
 		if buildpack == "" {
 			buildpack = application.DetectedBuildpack
@@ -280,6 +285,7 @@ func (c ApplicationsCollector) getSpaceSummary(ch chan<- prometheus.Metric, orga
 		c.applicationInfoMetric.WithLabelValues(
 			application.Guid,
 			application.Name,
+			detected_buildpack,
 			buildpack,
 			organization.Guid,
 			organization.Name,
