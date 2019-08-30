@@ -20,31 +20,15 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
-
 [[constraint]]
   branch = "master"
   name = "github.com/cloudfoundry-community/go-cfclient"
 
-[[constraint]]
-  name = "github.com/onsi/ginkgo"
-  version = "1.4.0"
-
-[[constraint]]
-  name = "github.com/onsi/gomega"
-  version = "1.4.3"
-
-[[constraint]]
-  name = "github.com/prometheus/client_golang"
-  version = "0.8.0"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/prometheus/client_model"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/prometheus/common"
-
+# https://github.com/golang/dep/issues/1799
+[[override]]
+  name = "gopkg.in/fsnotify.v1"
+  source = "https://github.com/fsnotify/fsnotify.git"
+  
 # "golang.org/x/oauth2" needs to be overriden because
 # "github.com/cloudfoundry-community/go-cfclient" has
 # a "constraint" on this package. This needs to removed
