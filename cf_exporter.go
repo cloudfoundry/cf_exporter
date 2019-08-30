@@ -8,6 +8,7 @@ import (
 
 	cfclient "github.com/cloudfoundry-community/go-cfclient"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
@@ -113,11 +114,11 @@ func (h *basicAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func prometheusHandler() http.Handler {
-	handler := prometheus.Handler()
+	handler := promhttp.Handler()
 
 	if *authUsername != "" && *authPassword != "" {
 		handler = &basicAuthHandler{
-			handler:  prometheus.Handler().ServeHTTP,
+			handler:  promhttp.Handler().ServeHTTP,
 			username: *authUsername,
 			password: *authPassword,
 		}
