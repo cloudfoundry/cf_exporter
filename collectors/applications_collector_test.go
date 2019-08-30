@@ -42,6 +42,7 @@ var _ = Describe("ApplicationsCollectors", func() {
 
 		applicationId1    = "fake_application_id_1"
 		applicationName1  = "fake_application_name_1"
+		detectedbuildpack1= "fake_detected_buildpack_1"
 		buildpack1        = "fake_buildpack_1"
 		organizationId1   = "fake_organization_id_1"
 		organizationName1 = "fake_organization_name_1"
@@ -56,6 +57,7 @@ var _ = Describe("ApplicationsCollectors", func() {
 
 		applicationId2    = "fake_application_id_2"
 		applicationName2  = "fake_application_name_2"
+		detectedbuildpack2= "fake_detected_buildpack_2"
 		buildpack2        = "fake_buildpack_2"
 		organizationId2   = "fake_organization_id_2"
 		organizationName2 = "fake_organization_name_2"
@@ -95,10 +97,10 @@ var _ = Describe("ApplicationsCollectors", func() {
 				Help:        "Labeled Cloud Foundry Application information with a constant '1' value.",
 				ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 			},
-			[]string{"application_id", "application_name", "buildpack", "organization_id", "organization_name", "space_id", "space_name", "stack_id", "state"},
+			[]string{"application_id", "application_name", "detected_buildpack", "buildpack", "organization_id", "organization_name", "space_id", "space_name", "stack_id", "state"},
 		)
-		applicationInfoMetric.WithLabelValues(applicationId1, applicationName1, buildpack1, organizationId1, organizationName1, spaceId1, spaceName1, stackId1, state1).Set(1)
-		applicationInfoMetric.WithLabelValues(applicationId2, applicationName2, buildpack2, organizationId2, organizationName2, spaceId2, spaceName2, stackId2, state2).Set(1)
+		applicationInfoMetric.WithLabelValues(applicationId1, applicationName1, detectedbuildpack1, buildpack1, organizationId1, organizationName1, spaceId1, spaceName1, stackId1, state1).Set(1)
+		applicationInfoMetric.WithLabelValues(applicationId2, applicationName2, detectedbuildpack2, buildpack2, organizationId2, organizationName2, spaceId2, spaceName2, stackId2, state2).Set(1)
 
 		applicationInstancesMetric = prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
@@ -229,6 +231,7 @@ var _ = Describe("ApplicationsCollectors", func() {
 			Eventually(descriptions).Should(Receive(Equal(applicationInfoMetric.WithLabelValues(
 				applicationId1,
 				applicationName1,
+				detectedbuildpack1,
 				buildpack1,
 				organizationId1,
 				organizationName1,
@@ -382,8 +385,8 @@ var _ = Describe("ApplicationsCollectors", func() {
 						DiskQuota:         diskQuotaMb1,
 						StackGuid:         stackId1,
 						State:             state1,
-						Buildpack:         "",
-						DetectedBuildpack: buildpack1,
+						Buildpack:         buildpack1,
+						DetectedBuildpack: detectedbuildpack1,
 					},
 				},
 			}
@@ -402,7 +405,7 @@ var _ = Describe("ApplicationsCollectors", func() {
 						StackGuid:         stackId2,
 						State:             state2,
 						Buildpack:         buildpack2,
-						DetectedBuildpack: "",
+						DetectedBuildpack: detectedbuildpack2,
 					},
 				},
 			}
@@ -445,6 +448,7 @@ var _ = Describe("ApplicationsCollectors", func() {
 			Eventually(metrics).Should(Receive(PrometheusMetric(applicationInfoMetric.WithLabelValues(
 				applicationId1,
 				applicationName1,
+				detectedbuildpack1,
 				buildpack1,
 				organizationId1,
 				organizationName1,
@@ -459,6 +463,7 @@ var _ = Describe("ApplicationsCollectors", func() {
 			Eventually(metrics).Should(Receive(PrometheusMetric(applicationInfoMetric.WithLabelValues(
 				applicationId2,
 				applicationName2,
+				detectedbuildpack2,
 				buildpack2,
 				organizationId2,
 				organizationName2,
