@@ -276,7 +276,7 @@ func (c ApplicationsCollector) getSpaceSummary(ch chan<- prometheus.Metric, orga
 		if detected_buildpack == "" {
 			detected_buildpack = application.Buildpack
 		}
-		
+
 		buildpack := application.Buildpack
 		if buildpack == "" {
 			buildpack = application.DetectedBuildpack
