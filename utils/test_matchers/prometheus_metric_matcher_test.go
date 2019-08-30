@@ -185,7 +185,8 @@ var _ = Describe("PrometheusMetric", func() {
 			)
 			actualMetric.WithLabelValues(metricLabelValue).Observe(float64(1))
 
-			Expect(expectedMetric.WithLabelValues(metricLabelValue)).To(PrometheusMetric(actualMetric.MetricVec.WithLabelValues(metricLabelValue)))
+			Expect(expectedMetric.WithLabelValues(metricLabelValue)).To(PrometheusMetric(actualMetric.WithLabelValues(metricLabelValue).(prometheus.Histogram)))
+			actualMetric.GetMetricWithLabelValues()
 		})
 	})
 
@@ -241,7 +242,7 @@ var _ = Describe("PrometheusMetric", func() {
 			)
 			actualMetric.WithLabelValues(metricLabelValue).Observe(float64(1))
 
-			Expect(expectedMetric.WithLabelValues(metricLabelValue)).To(PrometheusMetric(actualMetric.MetricVec.WithLabelValues(metricLabelValue)))
+			Expect(expectedMetric.WithLabelValues(metricLabelValue)).To(PrometheusMetric(actualMetric.WithLabelValues(metricLabelValue).(prometheus.Summary)))
 		})
 	})
 })
