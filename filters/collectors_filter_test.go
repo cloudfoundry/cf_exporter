@@ -25,6 +25,7 @@ var _ = Describe("CollectorsFilter", func() {
 			BeforeEach(func() {
 				filters = []string{
 					ApplicationsCollector,
+					BuildpacksCollector,
 					OrganizationsCollector,
 					RoutesCollector,
 					SecurityGroupsCollector,
@@ -123,6 +124,10 @@ var _ = Describe("CollectorsFilter", func() {
 					Expect(collectorsFilter.Enabled(ApplicationsCollector)).To(BeTrue())
 				})
 
+				It("Buildpacks Collector should be enabled", func() {
+					Expect(collectorsFilter.Enabled(BuildpacksCollector)).To(BeTrue())
+				})
+
 				It("Isolation Segments Collector should be enabled", func() {
 					Expect(collectorsFilter.Enabled(IsolationSegmentsCollector)).To(BeTrue())
 				})
@@ -171,6 +176,10 @@ var _ = Describe("CollectorsFilter", func() {
 
 				It("Applications Collector should be enabled", func() {
 					Expect(collectorsFilter.Enabled(ApplicationsCollector)).To(BeTrue())
+				})
+
+				It("Buildpacks Collector should be enabled", func() {
+					Expect(collectorsFilter.Enabled(BuildpacksCollector)).To(BeTrue())
 				})
 
 				It("Isolation Segments Collector should be disabled", func() {

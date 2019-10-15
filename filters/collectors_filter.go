@@ -8,6 +8,7 @@ import (
 
 const (
 	ApplicationsCollector      = "Applications"
+	BuildpacksCollector        = "Buildpacks"
 	EventsCollector            = "Events"
 	IsolationSegmentsCollector = "IsolationSegments"
 	OrganizationsCollector     = "Organizations"
@@ -33,6 +34,8 @@ func NewCollectorsFilter(filters []string, cfAPIv3Enabled bool) (*CollectorsFilt
 		switch strings.Trim(collectorName, " ") {
 		case ApplicationsCollector:
 			collectorsEnabled[ApplicationsCollector] = true
+		case BuildpacksCollector:
+			collectorsEnabled[BuildpacksCollector] = true
 		case EventsCollector:
 			collectorsEnabled[EventsCollector] = true
 		case IsolationSegmentsCollector:

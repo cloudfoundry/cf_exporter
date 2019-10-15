@@ -51,7 +51,7 @@ var (
 	).Envar("CF_EXPORTER_EVENTS_QUERY").Default("").String()
 
 	filterCollectors = kingpin.Flag(
-		"filter.collectors", "Comma separated collectors to filter (Applications,Events,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks). If not set, all collectors except Events is enabled ($CF_EXPORTER_FILTER_COLLECTORS)",
+		"filter.collectors", "Comma separated collectors to filter (Applications,Buildpacks,Events,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks). If not set, all collectors except Events is enabled ($CF_EXPORTER_FILTER_COLLECTORS)",
 	).Envar("CF_EXPORTER_FILTER_COLLECTORS").Default("").String()
 
 	metricsNamespace = kingpin.Flag(
@@ -164,6 +164,11 @@ func main() {
 	if collectorsFilter.Enabled(filters.ApplicationsCollector) {
 		applicationsCollector := collectors.NewApplicationsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
 		prometheus.MustRegister(applicationsCollector)
+	}
+
+	if collectorsFilter.Enabled(filters.BuildpacksCollector) {
+		buildpacksCollector := collectors.NewBuildpacksCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
+		prometheus.MustRegister(buildpacksCollector)
 	}
 
 	if collectorsFilter.Enabled(filters.IsolationSegmentsCollector) {

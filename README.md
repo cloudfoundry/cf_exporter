@@ -82,7 +82,7 @@ uaac client add prometheus-cf \
 | `cf.deployment-name`<br />`CF_EXPORTER_CF_DEPLOYMENT_NAME` | Yes | | Cloud Foundry Deployment Name to be reported as a metric label |
 | `cf.api-v3-enabled`<br />`CF_EXPORTER_CF_API_V3_ENABLED` | No | False | Enable [Cloud Foundry API V3][cf_api_v3] calls |
 | `events.query`<br />`CF_EXPORTER_EVENTS_QUERY` | No | | When the `Events` filter is enabled and this value is set, this query is sent to the CloudController to limit the number of results returned. Syntax is exactly as documented at the [Cloud Foundry API][cf_api] |
-| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors except `Events` will be enabled (`Applications`, `Events`, `IsolationSegments`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceBindings`, `ServiceInstances`, `ServicePlans`, `Services`, `Spaces`, `Stacks`). `IsolationSegments` collector requires `cf.api-v3-enabled` enabled |
+| `filter.collectors`<br />`CF_EXPORTER_FILTER_COLLECTORS` | No | | Comma separated collectors to filter. If not set, all collectors except `Events` will be enabled (`Applications`, `Buildpacks`,`Events`, `IsolationSegments`, `Organizations`, `Routes`, `SecurityGroups`, `ServiceBindings`, `ServiceInstances`, `ServicePlans`, `Services`, `Spaces`, `Stacks`). `IsolationSegments` collector requires `cf.api-v3-enabled` enabled |
 | `metrics.namespace`<br />`CF_EXPORTER_METRICS_NAMESPACE` | No | `cf` | Metrics Namespace |
 | `metrics.environment`<br />`CF_EXPORTER_METRICS_ENVIRONMENT` | Yes | | Environment label to be attached to metrics |
 | `skip-ssl-verify`<br />`CF_EXPORTER_SKIP_SSL_VERIFY` | No | `false` | Disable SSL Verify |
@@ -112,6 +112,16 @@ The exporter returns the following `Applications` metrics:
 | *metrics.namespace*_last_applications_scrape_timestamp | Number of seconds since 1970 since last scrape of Applications metrics from Cloud Foundry | `environment`, `deployment` |
 | *metrics.namespace*_last_applications_scrape_duration_seconds | Duration of the last scrape of Applications metrics from Cloud Foundry | `environment`, `deployment` |
 
+The exporter returns the following `Buildpacks` metrics:
+
+| Metric | Description | Labels |
+| ------ | ----------- | ------ |
+| *metrics.namespace*_buildpack_info | Labeled Cloud Foundry Buildpacks information with a constant `1` value | `environment`, `deployment`, `buildpack_id`, `buildpack_name`, `buildpack_stack`, `buildpack_filename` |
+| *metrics.namespace*_buildpacks_scrapes_total | Total number of scrapes for Cloud Foundry Buildpacks | `environment`, `deployment` |
+| *metrics.namespace*_buildpacks_scrape_errors_total | Total number of scrape errors of Cloud Foundry Buildpacks | `environment`, `deployment` |
+| *metrics.namespace*_last_buildpacks_scrape_error | Whether the last scrape of Buildpacks metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment` |
+| *metrics.namespace*_last_buildpacks_scrape_timestamp | Number of seconds since 1970 since last scrape of Buildpacks metrics from Cloud Foundry | `environment`, `deployment` |
+| *metrics.namespace*_last_buildpacks_scrape_duration_seconds | Duration of the last scrape of Buildpacks metrics from Cloud Foundry | `environment`, `deployment` |
 
 The exporter returns the following `Events` metrics:
 
