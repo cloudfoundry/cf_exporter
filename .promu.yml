@@ -1,6 +1,7 @@
 verbose: false
 go:
   cgo: false
+  version: 1.15
 repository:
   path: github.com/bosh-prometheus/cf_exporter
 build:
@@ -17,7 +18,6 @@ tarball:
     - NOTICE
 crossbuild:
   platforms:
-    - darwin/386
     - darwin/amd64
     - linux/386
     - linux/amd64
