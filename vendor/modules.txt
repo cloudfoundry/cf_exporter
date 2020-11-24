@@ -9,7 +9,7 @@ github.com/alecthomas/template/parse
 github.com/alecthomas/units
 # github.com/beorn7/perks v1.0.1
 github.com/beorn7/perks/quantile
-# github.com/cloudfoundry-community/go-cfclient v0.0.0-20190808214049-35bcce23fc5f
+# github.com/cloudfoundry-community/go-cfclient v0.0.0-20201123235753-4f46d6348a05 
 github.com/cloudfoundry-community/go-cfclient
 # github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/proto
