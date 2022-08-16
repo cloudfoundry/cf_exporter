@@ -1,18 +1,18 @@
 package collectors
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type OrganizationsCollector struct {
 	namespace                                      string
 	environment                                    string
 	deployment                                     string
-	cfClient                                       *cfclient.Client
 	organizationInfoMetric                         *prometheus.GaugeVec
 	organizationNonBasicServicesAllowedMetric      *prometheus.GaugeVec
 	organizationInstanceMemoryMbLimitMetric        *prometheus.GaugeVec
@@ -35,7 +35,6 @@ func NewOrganizationsCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	cfClient *cfclient.Client,
 ) *OrganizationsCollector {
 	organizationInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -212,7 +211,6 @@ func NewOrganizationsCollector(
 		namespace:              namespace,
 		environment:            environment,
 		deployment:             deployment,
-		cfClient:               cfClient,
 		organizationInfoMetric: organizationInfoMetric,
 		organizationNonBasicServicesAllowedMetric:      organizationNonBasicServicesAllowedMetric,
 		organizationInstanceMemoryMbLimitMetric:        organizationInstanceMemoryMbLimitMetric,
@@ -232,26 +230,29 @@ func NewOrganizationsCollector(
 	}
 }
 
-func (c OrganizationsCollector) Collect(ch chan<- prometheus.Metric) {
-	var begun = time.Now()
-
+func (c OrganizationsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if err := c.reportOrganizationsMetrics(ch); err != nil {
+	err := objs.Error
+	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.organizationsScrapeErrorsTotalMetric.Inc()
+	} else {
+		err = c.reportOrganizationsMetrics(objs, ch)
+		if err != nil {
+			log.Error(err)
+			errorMetric = float64(1)
+			c.organizationsScrapeErrorsTotalMetric.Inc()
+		}
 	}
-	c.organizationsScrapeErrorsTotalMetric.Collect(ch)
 
+	c.organizationsScrapeErrorsTotalMetric.Collect(ch)
 	c.organizationsScrapesTotalMetric.Inc()
 	c.organizationsScrapesTotalMetric.Collect(ch)
-
 	c.lastOrganizationsScrapeErrorMetric.Set(errorMetric)
 	c.lastOrganizationsScrapeErrorMetric.Collect(ch)
-
 	c.lastOrganizationsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastOrganizationsScrapeTimestampMetric.Collect(ch)
-
-	c.lastOrganizationsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastOrganizationsScrapeDurationSecondsMetric.Set(objs.Took)
 	c.lastOrganizationsScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -274,7 +275,7 @@ func (c OrganizationsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastOrganizationsScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c OrganizationsCollector) reportOrganizationsMetrics(ch chan<- prometheus.Metric) error {
+func (c OrganizationsCollector) reportOrganizationsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
 	c.organizationInfoMetric.Reset()
 	c.organizationNonBasicServicesAllowedMetric.Reset()
 	c.organizationInstanceMemoryMbLimitMetric.Reset()
@@ -287,38 +288,63 @@ func (c OrganizationsCollector) reportOrganizationsMetrics(ch chan<- prometheus.
 	c.organizationTotalServiceKeysQuotaMetric.Reset()
 	c.organizationTotalServicesQuotaMetric.Reset()
 
-	organizationQuotas, err := c.gatherOrganizationQuotas()
-	if err != nil {
-		log.Errorf("Error while listing organization quotas: %v", err)
-		return err
-	}
-
-	organizations, err := c.cfClient.ListOrgs()
-	if err != nil {
-		log.Errorf("Error while listing organizations: %v", err)
-		return err
-	}
-
-	for _, organization := range organizations {
-		var organizationQuota cfclient.OrgQuota
-		var ok bool
-
-		if organization.QuotaDefinitionGuid != "" {
-			if organizationQuota, ok = organizationQuotas[organization.QuotaDefinitionGuid]; ok {
-				c.reportOrganizationQuotasMetrics(organization.Guid, organization.Name, organizationQuota)
-
+	for _, cOrg := range objs.Orgs {
+		quotaName := ""
+		if cOrg.QuotaGUID != "" {
+			quota, ok := objs.OrgQuotas[cOrg.QuotaGUID]
+			if !ok {
+				return fmt.Errorf("could not find org quota with guid '%s'", cOrg.QuotaGUID)
 			}
+			quotaName = quota.Name
+			c.organizationNonBasicServicesAllowedMetric.WithLabelValues(
+				cOrg.GUID,
+				cOrg.Name,
+			).Set(BoolToFloat(quota.Services.PaidServicePlans))
+			c.organizationInstanceMemoryMbLimitMetric.WithLabelValues(
+				cOrg.GUID,
+				cOrg.Name,
+			).Set(NullIntToFloat(quota.Apps.InstanceMemory))
+			c.organizationTotalAppInstancesQuotaMetric.WithLabelValues(
+				cOrg.GUID,
+				cOrg.Name,
+			).Set(NullIntToFloat(quota.Apps.TotalAppInstances))
+			c.organizationTotalAppTasksQuotaMetric.WithLabelValues(
+				cOrg.GUID,
+				cOrg.Name,
+			).Set(NullIntToFloat(quota.Apps.PerAppTasks))
+			c.organizationTotalMemoryMbQuotaMetric.WithLabelValues(
+				cOrg.GUID,
+				cOrg.Name,
+			).Set(NullIntToFloat(quota.Apps.TotalMemory))
+			c.organizationTotalPrivateDomainsQuotaMetric.WithLabelValues(
+				cOrg.GUID,
+				cOrg.Name,
+			).Set(NullIntToFloat(quota.Domains.TotalDomains))
+			c.organizationTotalReservedRoutePortsQuotaMetric.WithLabelValues(
+				cOrg.GUID,
+				cOrg.Name,
+			).Set(NullIntToFloat(quota.Routes.TotalReservedPorts))
+			c.organizationTotalRoutesQuotaMetric.WithLabelValues(
+				cOrg.GUID,
+				cOrg.Name,
+			).Set(NullIntToFloat(quota.Routes.TotalRoutes))
+			c.organizationTotalServiceKeysQuotaMetric.WithLabelValues(
+				cOrg.GUID,
+				cOrg.Name,
+			).Set(NullIntToFloat(quota.Services.TotalServiceKeys))
+			c.organizationTotalServicesQuotaMetric.WithLabelValues(
+				cOrg.GUID,
+				cOrg.Name,
+			).Set(NullIntToFloat(quota.Services.TotalServiceInstances))
 		}
 		c.organizationInfoMetric.WithLabelValues(
-			organization.Guid,
-			organization.Name,
-			organizationQuota.Name,
+			cOrg.GUID,
+			cOrg.Name,
+			quotaName,
 		).Set(float64(1))
-
 	}
 
 	c.organizationInfoMetric.Collect(ch)
-
 	c.organizationNonBasicServicesAllowedMetric.Collect(ch)
 	c.organizationInstanceMemoryMbLimitMetric.Collect(ch)
 	c.organizationTotalAppInstancesQuotaMetric.Collect(ch)
@@ -329,76 +355,5 @@ func (c OrganizationsCollector) reportOrganizationsMetrics(ch chan<- prometheus.
 	c.organizationTotalRoutesQuotaMetric.Collect(ch)
 	c.organizationTotalServiceKeysQuotaMetric.Collect(ch)
 	c.organizationTotalServicesQuotaMetric.Collect(ch)
-
 	return nil
-}
-
-func (c OrganizationsCollector) gatherOrganizationQuotas() (map[string]cfclient.OrgQuota, error) {
-	quotas, err := c.cfClient.ListOrgQuotas()
-	if err != nil {
-		return nil, err
-	}
-
-	orgQuotas := make(map[string]cfclient.OrgQuota, len(quotas))
-	for _, quota := range quotas {
-		orgQuotas[quota.Guid] = quota
-	}
-
-	return orgQuotas, nil
-}
-
-func (c OrganizationsCollector) reportOrganizationQuotasMetrics(orgGuid string, orgName string, orgQuota cfclient.OrgQuota) {
-	nonBasicServicesAllowed := 0
-	if orgQuota.NonBasicServicesAllowed {
-		nonBasicServicesAllowed = 1
-	}
-	c.organizationNonBasicServicesAllowedMetric.WithLabelValues(
-		orgGuid,
-		orgName,
-	).Set(float64(nonBasicServicesAllowed))
-
-	c.organizationInstanceMemoryMbLimitMetric.WithLabelValues(
-		orgGuid,
-		orgName,
-	).Set(float64(orgQuota.InstanceMemoryLimit))
-
-	c.organizationTotalAppInstancesQuotaMetric.WithLabelValues(
-		orgGuid,
-		orgName,
-	).Set(float64(orgQuota.AppInstanceLimit))
-
-	c.organizationTotalAppTasksQuotaMetric.WithLabelValues(
-		orgGuid,
-		orgName,
-	).Set(float64(orgQuota.AppTaskLimit))
-
-	c.organizationTotalMemoryMbQuotaMetric.WithLabelValues(
-		orgGuid,
-		orgName,
-	).Set(float64(orgQuota.MemoryLimit))
-
-	c.organizationTotalPrivateDomainsQuotaMetric.WithLabelValues(
-		orgGuid,
-		orgName,
-	).Set(float64(orgQuota.TotalPrivateDomains))
-
-	c.organizationTotalReservedRoutePortsQuotaMetric.WithLabelValues(
-		orgGuid,
-		orgName,
-	).Set(float64(orgQuota.TotalReservedRoutePorts))
-
-	c.organizationTotalRoutesQuotaMetric.WithLabelValues(
-		orgGuid,
-		orgName,
-	).Set(float64(orgQuota.TotalRoutes))
-
-	c.organizationTotalServiceKeysQuotaMetric.WithLabelValues(
-		orgGuid,
-		orgName,
-	).Set(float64(orgQuota.TotalServiceKeys))
-
-	c.organizationTotalServicesQuotaMetric.WithLabelValues(
-		orgGuid,
-		orgName,
-	).Set(float64(orgQuota.TotalServices))
 }

@@ -2,17 +2,14 @@ package collectors
 
 import (
 	"time"
-
-	cfclient "github.com/cloudfoundry-community/go-cfclient"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	"github.com/bosh-prometheus/cf_exporter/models"
 )
 
 type BuildpacksCollector struct {
 	namespace                                 string
 	environment                               string
 	deployment                                string
-	cfClient                                  *cfclient.Client
 	buildpackInfoMetric                       *prometheus.GaugeVec
 	buildpacksScrapesTotalMetric              prometheus.Counter
 	buildpacksScrapeErrorsTotalMetric         prometheus.Counter
@@ -25,7 +22,6 @@ func NewBuildpacksCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	cfClient *cfclient.Client,
 ) *BuildpacksCollector {
 	buildpackInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -92,7 +88,6 @@ func NewBuildpacksCollector(
 		namespace:                                 namespace,
 		environment:                               environment,
 		deployment:                                deployment,
-		cfClient:                                  cfClient,
 		buildpackInfoMetric:                       buildpackInfoMetric,
 		buildpacksScrapesTotalMetric:              buildpacksScrapesTotalMetric,
 		buildpacksScrapeErrorsTotalMetric:         buildpacksScrapeErrorsTotalMetric,
@@ -102,26 +97,23 @@ func NewBuildpacksCollector(
 	}
 }
 
-func (c BuildpacksCollector) Collect(ch chan<- prometheus.Metric) {
-	var begun = time.Now()
-
+func (c BuildpacksCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if err := c.reportBuildpacksMetrics(ch); err != nil {
+	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.buildpacksScrapeErrorsTotalMetric.Inc()
+	} else {
+		c.reportBuildpacksMetrics(objs, ch)
 	}
-	c.buildpacksScrapeErrorsTotalMetric.Collect(ch)
 
+	c.buildpacksScrapeErrorsTotalMetric.Collect(ch)
 	c.buildpacksScrapesTotalMetric.Inc()
 	c.buildpacksScrapesTotalMetric.Collect(ch)
-
 	c.lastBuildpacksScrapeErrorMetric.Set(errorMetric)
 	c.lastBuildpacksScrapeErrorMetric.Collect(ch)
-
 	c.lastBuildpacksScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastBuildpacksScrapeTimestampMetric.Collect(ch)
-
-	c.lastBuildpacksScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastBuildpacksScrapeDurationSecondsMetric.Set(objs.Took)
 	c.lastBuildpacksScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -134,18 +126,12 @@ func (c BuildpacksCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastBuildpacksScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c BuildpacksCollector) reportBuildpacksMetrics(ch chan<- prometheus.Metric) error {
+func (c BuildpacksCollector) reportBuildpacksMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	c.buildpackInfoMetric.Reset()
 
-	buildpacks, err := c.cfClient.ListBuildpacks()
-	if err != nil {
-		log.Errorf("Error while listing buildpacks: %v", err)
-		return err
-	}
-
-	for _, buildpack := range buildpacks {
+	for _, buildpack := range objs.Buildpacks {
 		c.buildpackInfoMetric.WithLabelValues(
-			buildpack.Guid,
+			buildpack.GUID,
 			buildpack.Name,
 			buildpack.Stack,
 			buildpack.Filename,
@@ -153,6 +139,4 @@ func (c BuildpacksCollector) reportBuildpacksMetrics(ch chan<- prometheus.Metric
 	}
 
 	c.buildpackInfoMetric.Collect(ch)
-
-	return nil
 }

@@ -3,16 +3,15 @@ package collectors
 import (
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type StacksCollector struct {
 	namespace                             string
 	environment                           string
 	deployment                            string
-	cfClient                              *cfclient.Client
 	stackInfoMetric                       *prometheus.GaugeVec
 	stacksScrapesTotalMetric              prometheus.Counter
 	stacksScrapeErrorsTotalMetric         prometheus.Counter
@@ -25,7 +24,6 @@ func NewStacksCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	cfClient *cfclient.Client,
 ) *StacksCollector {
 	stackInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -92,7 +90,6 @@ func NewStacksCollector(
 		namespace:                             namespace,
 		environment:                           environment,
 		deployment:                            deployment,
-		cfClient:                              cfClient,
 		stackInfoMetric:                       stackInfoMetric,
 		stacksScrapesTotalMetric:              stacksScrapesTotalMetric,
 		stacksScrapeErrorsTotalMetric:         stacksScrapeErrorsTotalMetric,
@@ -102,26 +99,29 @@ func NewStacksCollector(
 	}
 }
 
-func (c StacksCollector) Collect(ch chan<- prometheus.Metric) {
-	var begun = time.Now()
-
+func (c StacksCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if err := c.reportStacksMetrics(ch); err != nil {
+	err := objs.Error
+	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.stacksScrapeErrorsTotalMetric.Inc()
+	} else {
+		err = c.reportStacksMetrics(objs, ch)
+		if err != nil {
+			log.Error(err)
+			errorMetric = float64(1)
+			c.stacksScrapeErrorsTotalMetric.Inc()
+		}
 	}
-	c.stacksScrapeErrorsTotalMetric.Collect(ch)
 
+	c.stacksScrapeErrorsTotalMetric.Collect(ch)
 	c.stacksScrapesTotalMetric.Inc()
 	c.stacksScrapesTotalMetric.Collect(ch)
-
 	c.lastStacksScrapeErrorMetric.Set(errorMetric)
 	c.lastStacksScrapeErrorMetric.Collect(ch)
-
 	c.lastStacksScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastStacksScrapeTimestampMetric.Collect(ch)
-
-	c.lastStacksScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastStacksScrapeDurationSecondsMetric.Set(objs.Took)
 	c.lastStacksScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -134,23 +134,16 @@ func (c StacksCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastStacksScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c StacksCollector) reportStacksMetrics(ch chan<- prometheus.Metric) error {
+func (c StacksCollector) reportStacksMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
 	c.stackInfoMetric.Reset()
 
-	stacks, err := c.cfClient.ListStacks()
-	if err != nil {
-		log.Errorf("Error while listing stacks: %v", err)
-		return err
-	}
-
-	for _, stack := range stacks {
+	for _, cStack := range objs.Stacks {
 		c.stackInfoMetric.WithLabelValues(
-			stack.Guid,
-			stack.Name,
+			cStack.GUID,
+			cStack.Name,
 		).Set(float64(1))
 	}
 
 	c.stackInfoMetric.Collect(ch)
-
 	return nil
 }

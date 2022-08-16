@@ -1,4 +1,4 @@
-package filters_test
+package fetcher
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestFilters(t *testing.T) {
+func TestUpdater(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Filters Suite")
+	RunSpecs(t, "Updater Suite")
 }

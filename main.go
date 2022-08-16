@@ -1,20 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
 
-	cfclient "github.com/cloudfoundry-community/go-cfclient"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/log"
-	"github.com/prometheus/common/version"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
-
 	"github.com/bosh-prometheus/cf_exporter/collectors"
 	"github.com/bosh-prometheus/cf_exporter/filters"
+	"github.com/bosh-prometheus/cf_exporter/fetcher"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/common/version"
+	log "github.com/sirupsen/logrus"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -42,14 +40,6 @@ var (
 		"cf.deployment-name", "Cloud Foundry Deployment Name to be reported as a metric label ($CF_EXPORTER_CF_DEPLOYMENT_NAME)",
 	).Envar("CF_EXPORTER_CF_DEPLOYMENT_NAME").Required().String()
 
-	cfAPIV3Enabled = kingpin.Flag(
-		"cf.api-v3-enabled", "Enable Cloud Foundry API V3 calls ($CF_EXPORTER_CF_API_V3_ENABLED)",
-	).Envar("CF_EXPORTER_CF_API_V3_ENABLED").Default("false").Bool()
-
-	eventsQuery = kingpin.Flag(
-		"events.query", "When the Events filter is enabled and this value is set, this query is sent to the CloudController to limit the number of results returned. Syntax is exactly as documented at the Cloud Foundry API ($CF_EXPORTER_EVENTS_QUERY)",
-	).Envar("CF_EXPORTER_EVENTS_QUERY").Default("").String()
-
 	filterCollectors = kingpin.Flag(
 		"filter.collectors", "Comma separated collectors to filter (Applications,Buildpacks,Events,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks). If not set, all collectors except Events is enabled ($CF_EXPORTER_FILTER_COLLECTORS)",
 	).Envar("CF_EXPORTER_FILTER_COLLECTORS").Default("").String()
@@ -58,7 +48,7 @@ var (
 		"metrics.namespace", "Metrics Namespace ($CF_EXPORTER_METRICS_NAMESPACE)",
 	).Envar("CF_EXPORTER_METRICS_NAMESPACE").Default("cf").String()
 
-	metricsEnvironment = kingpin.Flag(
+ 	metricsEnvironment = kingpin.Flag(
 		"metrics.environment", "Environment label to be attached to metrics ($CF_EXPORTER_METRICS_ENVIRONMENT)",
 	).Envar("CF_EXPORTER_METRICS_ENVIRONMENT").Required().String()
 
@@ -89,6 +79,22 @@ var (
 	tlsKeyFile = kingpin.Flag(
 		"web.tls.key_file", "Path to a file that contains the TLS private key (PEM format) ($CF_EXPORTER_WEB_TLS_KEYFILE)",
 	).Envar("CF_EXPORTER_WEB_TLS_KEYFILE").ExistingFile()
+
+	logLevel = kingpin.Flag(
+		"log.level", "Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal]",
+	).Default("error").String()
+
+	logOutput = kingpin.Flag(
+		"log.stream", "Set output stream for log. Valid outputs: [stderr, stdout]",
+	).Default("stdout").String()
+
+	logJson = kingpin.Flag(
+		"log.json", "Output logs with JSON format",
+	).Default("false").Bool()
+
+	workers = kingpin.Flag(
+		"collector.workers", "Number of requests threads for collector",
+	).Default("10").Int()
 )
 
 func init() {
@@ -115,7 +121,6 @@ func (h *basicAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func prometheusHandler() http.Handler {
 	handler := promhttp.Handler()
-
 	if *authUsername != "" && *authPassword != "" {
 		handler = &basicAuthHandler{
 			handler:  promhttp.Handler().ServeHTTP,
@@ -123,12 +128,10 @@ func prometheusHandler() http.Handler {
 			password: *authPassword,
 		}
 	}
-
 	return handler
 }
 
 func main() {
-	log.AddFlags(kingpin.CommandLine)
 	kingpin.Version(version.Print("cf_exporter"))
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
@@ -136,95 +139,46 @@ func main() {
 	log.Infoln("Starting cf_exporter", version.Info())
 	log.Infoln("Build context", version.BuildContext())
 
-	cfConfig := &cfclient.Config{
-		ApiAddress:        *cfAPIUrl,
+	if *logJson {
+		log.SetFormatter(&log.JSONFormatter{})
+	}
+	if *logOutput == "stderr" {
+		log.SetOutput(os.Stderr)
+	}
+	lvl, err := log.ParseLevel(*logLevel)
+	if err != nil {
+		log.Warnf("invalid log.level=%s, defaulting to error", *logLevel)
+		lvl = log.ErrorLevel
+	}
+	log.SetLevel(lvl)
+
+	config := &fetcher.CFConfig{
+		URL:               *cfAPIUrl,
 		Username:          *cfUsername,
 		Password:          *cfPassword,
 		ClientID:          *cfClientID,
 		ClientSecret:      *cfClientSecret,
-		SkipSslValidation: *skipSSLValidation,
-		UserAgent:         fmt.Sprintf("cf_exporter/%s", version.Version),
-	}
-	cfClient, err := cfclient.NewClient(cfConfig)
-	if err != nil {
-		log.Errorf("Error creating Cloud Foundry client: %s", err.Error())
-		os.Exit(1)
+		SkipSSLValidation: *skipSSLValidation,
 	}
 
-	var collectorsFilters []string
-	if *filterCollectors != "" {
-		collectorsFilters = strings.Split(*filterCollectors, ",")
+	active := []string{}
+	if len(*filterCollectors) != 0 {
+		active = strings.Split(*filterCollectors, ",")
 	}
-	collectorsFilter, err := filters.NewCollectorsFilter(collectorsFilters, *cfAPIV3Enabled)
+	filter, err := filters.NewFilter(active...)
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
 	}
 
-	if collectorsFilter.Enabled(filters.ApplicationsCollector) {
-		applicationsCollector := collectors.NewApplicationsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(applicationsCollector)
-	}
+	up := fetcher.NewFetcher(*workers, config, filter)
 
-	if collectorsFilter.Enabled(filters.BuildpacksCollector) {
-		buildpacksCollector := collectors.NewBuildpacksCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(buildpacksCollector)
+	c, err := collectors.NewCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, up, filter)
+	if err != nil {
+		log.Error(err)
+		os.Exit(1)
 	}
-
-	if collectorsFilter.Enabled(filters.IsolationSegmentsCollector) {
-		isolationSegmentsCollector := collectors.NewIsolationSegmentsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(isolationSegmentsCollector)
-	}
-
-	if collectorsFilter.Enabled(filters.OrganizationsCollector) {
-		organizationsCollector := collectors.NewOrganizationsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(organizationsCollector)
-	}
-
-	if collectorsFilter.Enabled(filters.RoutesCollector) {
-		routesCollector := collectors.NewRoutesCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(routesCollector)
-	}
-
-	if collectorsFilter.Enabled(filters.SecurityGroupsCollector) {
-		securityGroupsCollector := collectors.NewSecurityGroupsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(securityGroupsCollector)
-	}
-
-	if collectorsFilter.Enabled(filters.ServiceBindingsCollector) {
-		serviceBindingsCollector := collectors.NewServiceBindingsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(serviceBindingsCollector)
-	}
-
-	if collectorsFilter.Enabled(filters.ServiceInstancesCollector) {
-		serviceInstancesCollector := collectors.NewServiceInstancesCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(serviceInstancesCollector)
-	}
-
-	if collectorsFilter.Enabled(filters.ServicePlansCollector) {
-		servicePlansCollector := collectors.NewServicePlansCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(servicePlansCollector)
-	}
-
-	if collectorsFilter.Enabled(filters.ServicesCollector) {
-		servicesCollector := collectors.NewServicesCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(servicesCollector)
-	}
-
-	if collectorsFilter.Enabled(filters.SpacesCollector) {
-		spacesCollector := collectors.NewSpacesCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(spacesCollector)
-	}
-
-	if collectorsFilter.Enabled(filters.StacksCollector) {
-		stacksCollector := collectors.NewStacksCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient)
-		prometheus.MustRegister(stacksCollector)
-	}
-
-	if collectorsFilter.Enabled(filters.EventsCollector) {
-		eventsCollector := collectors.NewEventsCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, cfClient, *eventsQuery)
-		prometheus.MustRegister(eventsCollector)
-	}
+	prometheus.MustRegister(c)
 
 	handler := prometheusHandler()
 	http.Handle(*metricsPath, handler)

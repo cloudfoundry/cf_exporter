@@ -2,17 +2,14 @@ package collectors
 
 import (
 	"time"
-
-	cfclient "github.com/cloudfoundry-community/go-cfclient"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	"github.com/bosh-prometheus/cf_exporter/models"
 )
 
 type IsolationSegmentsCollector struct {
 	namespace                                        string
 	environment                                      string
 	deployment                                       string
-	cfClient                                         *cfclient.Client
 	isolationSegmentInfoMetric                       *prometheus.GaugeVec
 	isolationSegmentsScrapesTotalMetric              prometheus.Counter
 	isolationSegmentsScrapeErrorsTotalMetric         prometheus.Counter
@@ -25,7 +22,6 @@ func NewIsolationSegmentsCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	cfClient *cfclient.Client,
 ) *IsolationSegmentsCollector {
 	isolationSegmentInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -92,7 +88,6 @@ func NewIsolationSegmentsCollector(
 		namespace:                                        namespace,
 		environment:                                      environment,
 		deployment:                                       deployment,
-		cfClient:                                         cfClient,
 		isolationSegmentInfoMetric:                       isolationSegmentInfoMetric,
 		isolationSegmentsScrapesTotalMetric:              isolationSegmentsScrapesTotalMetric,
 		isolationSegmentsScrapeErrorsTotalMetric:         isolationSegmentsScrapeErrorsTotalMetric,
@@ -102,26 +97,23 @@ func NewIsolationSegmentsCollector(
 	}
 }
 
-func (c IsolationSegmentsCollector) Collect(ch chan<- prometheus.Metric) {
-	var begun = time.Now()
-
+func (c IsolationSegmentsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if err := c.reportIsolationSegmentsMetrics(ch); err != nil {
+	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.isolationSegmentsScrapeErrorsTotalMetric.Inc()
+	} else {
+		c.reportIsolationSegmentsMetrics(objs, ch)
 	}
-	c.isolationSegmentsScrapeErrorsTotalMetric.Collect(ch)
 
+	c.isolationSegmentsScrapeErrorsTotalMetric.Collect(ch)
 	c.isolationSegmentsScrapesTotalMetric.Inc()
 	c.isolationSegmentsScrapesTotalMetric.Collect(ch)
-
 	c.lastIsolationSegmentsScrapeErrorMetric.Set(errorMetric)
 	c.lastIsolationSegmentsScrapeErrorMetric.Collect(ch)
-
 	c.lastIsolationSegmentsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastIsolationSegmentsScrapeTimestampMetric.Collect(ch)
-
-	c.lastIsolationSegmentsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastIsolationSegmentsScrapeDurationSecondsMetric.Set(objs.Took)
 	c.lastIsolationSegmentsScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -134,23 +126,14 @@ func (c IsolationSegmentsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastIsolationSegmentsScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c IsolationSegmentsCollector) reportIsolationSegmentsMetrics(ch chan<- prometheus.Metric) error {
+func (c IsolationSegmentsCollector) reportIsolationSegmentsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	c.isolationSegmentInfoMetric.Reset()
 
-	isolationSegments, err := c.cfClient.ListIsolationSegments()
-	if err != nil {
-		log.Errorf("Error while listing isolation segments: %v", err)
-		return err
-	}
-
-	for _, isolationSegment := range isolationSegments {
+	for _, s := range objs.Segments {
 		c.isolationSegmentInfoMetric.WithLabelValues(
-			isolationSegment.GUID,
-			isolationSegment.Name,
+			s.GUID,
+			s.Name,
 		).Set(float64(1))
 	}
-
 	c.isolationSegmentInfoMetric.Collect(ch)
-
-	return nil
 }

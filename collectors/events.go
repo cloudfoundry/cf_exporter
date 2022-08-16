@@ -1,29 +1,24 @@
 package collectors
 
 import (
-	"fmt"
-	"net/url"
 	"time"
 
-	cfclient "github.com/cloudfoundry-community/go-cfclient"
+	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type EventsCollector struct {
 	namespace                             string
 	environment                           string
 	deployment                            string
-	cfClient                              *cfclient.Client
-	eventsQuery                           string
 	eventsInfoMetric                      *prometheus.GaugeVec
 	eventsScrapesTotalMetric              prometheus.Counter
 	eventsScrapeErrorsTotalMetric         prometheus.Counter
 	lastEventsScrapeErrorMetric           prometheus.Gauge
 	lastEventsScrapeTimestampMetric       prometheus.Gauge
 	lastEventsScrapeDurationSecondsMetric prometheus.Gauge
-
-	lastCheckFilter *string
+	lastCheckFilter time.Time
 	timeLocation    *time.Location
 }
 
@@ -31,8 +26,6 @@ func NewEventsCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	cfClient *cfclient.Client,
-	eventsQuery string,
 ) *EventsCollector {
 	eventsInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -96,48 +89,50 @@ func NewEventsCollector(
 	)
 
 	timeLocation, _ := time.LoadLocation("UTC")
-	newTime := time.Now().In(timeLocation).Format("2006-01-02T15:04:05Z")
+	now := time.Now().In(timeLocation)
 
 	return &EventsCollector{
 		namespace:                             namespace,
 		environment:                           environment,
-		eventsQuery:                           eventsQuery,
 		deployment:                            deployment,
-		cfClient:                              cfClient,
 		eventsInfoMetric:                      eventsInfoMetric,
 		eventsScrapesTotalMetric:              eventsScrapesTotalMetric,
 		eventsScrapeErrorsTotalMetric:         eventsScrapeErrorsTotalMetric,
 		lastEventsScrapeErrorMetric:           lastEventsScrapeErrorMetric,
 		lastEventsScrapeTimestampMetric:       lastEventsScrapeTimestampMetric,
 		lastEventsScrapeDurationSecondsMetric: lastEventsScrapeDurationSecondsMetric,
-		lastCheckFilter:                       &newTime,
+		lastCheckFilter:                       now,
 		timeLocation:                          timeLocation,
 	}
 }
 
-func (c EventsCollector) Collect(ch chan<- prometheus.Metric) {
-	var begun = time.Now()
+func (c *EventsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if err := c.reportEventsMetrics(ch); err != nil {
+	err := objs.Error
+	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.eventsScrapeErrorsTotalMetric.Inc()
+	} else {
+		err = c.reportEventsMetrics(objs, ch)
+		if err != nil {
+			log.Error(err)
+			errorMetric = float64(1)
+			c.eventsScrapeErrorsTotalMetric.Inc()
+		}
 	}
-	c.eventsScrapeErrorsTotalMetric.Collect(ch)
 
+	c.eventsScrapeErrorsTotalMetric.Collect(ch)
 	c.eventsScrapesTotalMetric.Inc()
 	c.eventsScrapesTotalMetric.Collect(ch)
-
 	c.lastEventsScrapeErrorMetric.Set(errorMetric)
 	c.lastEventsScrapeErrorMetric.Collect(ch)
-
 	c.lastEventsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastEventsScrapeTimestampMetric.Collect(ch)
-
-	c.lastEventsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastEventsScrapeDurationSecondsMetric.Set(objs.Took)
 	c.lastEventsScrapeDurationSecondsMetric.Collect(ch)
 }
 
-func (c EventsCollector) Describe(ch chan<- *prometheus.Desc) {
+func (c *EventsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.eventsInfoMetric.Describe(ch)
 	c.eventsScrapesTotalMetric.Describe(ch)
 	c.eventsScrapeErrorsTotalMetric.Describe(ch)
@@ -146,42 +141,38 @@ func (c EventsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastEventsScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c EventsCollector) reportEventsMetrics(ch chan<- prometheus.Metric) error {
+// reportEventsMetrics
+// 1. find user's username in user map if available
+func (c *EventsCollector) reportEventsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
 	c.eventsInfoMetric.Reset()
-	query := ""
 
-	if c.eventsQuery != "" {
-		query = fmt.Sprintf("%s;", c.eventsQuery)
-	}
+	for _, event := range objs.Events {
+		if event.CreatedAt.Before(c.lastCheckFilter) {
+			continue
+		}
 
-	params := url.Values{}
-	params.Set("order-by", "timestamp")
-	params.Set("order-direction", "desc")
-	params.Set("results-per-page", "10")
-	params.Set("q", fmt.Sprintf("%stimestamp>%s", query, *c.lastCheckFilter))
+		// 1.
+		actorUsername := ""
+		if user, ok := objs.Users[event.Actor.GUID]; ok {
+			actorUsername = user.Username
+		}
 
-	*c.lastCheckFilter = time.Now().In(c.timeLocation).Format("2006-01-02T15:04:05Z")
-	events, err := c.cfClient.ListEventsByQuery(params)
-	if err != nil {
-		log.Errorf("Error while getting events: %v", err)
-		return err
-	}
-
-	for _, event := range events {
 		c.eventsInfoMetric.WithLabelValues(
 			event.Type,
-			event.Actor,
-			event.ActorType,
-			event.ActorName,
-			event.ActorUsername,
-			event.Actee,
-			event.ActeeType,
-			event.ActeeName,
-			event.SpaceGUID,
-			event.OrganizationGUID,
+			event.Actor.GUID,
+			event.Actor.Type,
+			event.Actor.Name,
+			actorUsername,
+			event.Target.GUID,
+			event.Target.Type,
+			event.Target.Name,
+			event.Space.GUID,
+			event.Org.GUID,
 		).Set(float64(1))
 	}
 
+	timeLocation, _ := time.LoadLocation("UTC")
+	c.lastCheckFilter = time.Now().In(timeLocation)
 	c.eventsInfoMetric.Collect(ch)
 	return nil
 }
