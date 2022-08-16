@@ -3,16 +3,15 @@ package collectors
 import (
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type SecurityGroupsCollector struct {
 	namespace                                     string
 	environment                                   string
 	deployment                                    string
-	cfClient                                      *cfclient.Client
 	securityGroupInfoMetric                       *prometheus.GaugeVec
 	securityGroupsScrapesTotalMetric              prometheus.Counter
 	securityGroupsScrapeErrorsTotalMetric         prometheus.Counter
@@ -25,7 +24,6 @@ func NewSecurityGroupsCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	cfClient *cfclient.Client,
 ) *SecurityGroupsCollector {
 	securityGroupInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -92,7 +90,6 @@ func NewSecurityGroupsCollector(
 		namespace:                                     namespace,
 		environment:                                   environment,
 		deployment:                                    deployment,
-		cfClient:                                      cfClient,
 		securityGroupInfoMetric:                       securityGroupInfoMetric,
 		securityGroupsScrapesTotalMetric:              securityGroupsScrapesTotalMetric,
 		securityGroupsScrapeErrorsTotalMetric:         securityGroupsScrapeErrorsTotalMetric,
@@ -102,26 +99,29 @@ func NewSecurityGroupsCollector(
 	}
 }
 
-func (c SecurityGroupsCollector) Collect(ch chan<- prometheus.Metric) {
-	var begun = time.Now()
-
+func (c SecurityGroupsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if err := c.reportSecurityGroupsMetrics(ch); err != nil {
+	err := objs.Error
+	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.securityGroupsScrapeErrorsTotalMetric.Inc()
+	} else {
+		err = c.reportSecurityGroupsMetrics(objs, ch)
+		if err != nil {
+			log.Error(err)
+			errorMetric = float64(1)
+			c.securityGroupsScrapeErrorsTotalMetric.Inc()
+		}
 	}
-	c.securityGroupsScrapeErrorsTotalMetric.Collect(ch)
 
+	c.securityGroupsScrapeErrorsTotalMetric.Collect(ch)
 	c.securityGroupsScrapesTotalMetric.Inc()
 	c.securityGroupsScrapesTotalMetric.Collect(ch)
-
 	c.lastSecurityGroupsScrapeErrorMetric.Set(errorMetric)
 	c.lastSecurityGroupsScrapeErrorMetric.Collect(ch)
-
 	c.lastSecurityGroupsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastSecurityGroupsScrapeTimestampMetric.Collect(ch)
-
-	c.lastSecurityGroupsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastSecurityGroupsScrapeDurationSecondsMetric.Set(objs.Took)
 	c.lastSecurityGroupsScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -134,23 +134,15 @@ func (c SecurityGroupsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastSecurityGroupsScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c SecurityGroupsCollector) reportSecurityGroupsMetrics(ch chan<- prometheus.Metric) error {
+func (c SecurityGroupsCollector) reportSecurityGroupsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
 	c.securityGroupInfoMetric.Reset()
 
-	securityGroups, err := c.cfClient.ListSecGroups()
-	if err != nil {
-		log.Errorf("Error while listing security groups: %v", err)
-		return err
-	}
-
-	for _, securityGroup := range securityGroups {
+	for _, cSGroup := range objs.SecurityGroups {
 		c.securityGroupInfoMetric.WithLabelValues(
-			securityGroup.Guid,
-			securityGroup.Name,
+			cSGroup.GUID,
+			cSGroup.Name,
 		).Set(float64(1))
 	}
-
 	c.securityGroupInfoMetric.Collect(ch)
-
 	return nil
 }

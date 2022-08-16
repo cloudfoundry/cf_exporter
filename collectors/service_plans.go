@@ -3,16 +3,15 @@ package collectors
 import (
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type ServicePlansCollector struct {
 	namespace                                   string
 	environment                                 string
 	deployment                                  string
-	cfClient                                    *cfclient.Client
 	servicePlanInfoMetric                       *prometheus.GaugeVec
 	servicePlansScrapesTotalMetric              prometheus.Counter
 	servicePlansScrapeErrorsTotalMetric         prometheus.Counter
@@ -25,7 +24,6 @@ func NewServicePlansCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	cfClient *cfclient.Client,
 ) *ServicePlansCollector {
 	servicePlanInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -92,7 +90,6 @@ func NewServicePlansCollector(
 		namespace:                                   namespace,
 		environment:                                 environment,
 		deployment:                                  deployment,
-		cfClient:                                    cfClient,
 		servicePlanInfoMetric:                       servicePlanInfoMetric,
 		servicePlansScrapesTotalMetric:              servicePlansScrapesTotalMetric,
 		servicePlansScrapeErrorsTotalMetric:         servicePlansScrapeErrorsTotalMetric,
@@ -102,26 +99,29 @@ func NewServicePlansCollector(
 	}
 }
 
-func (c ServicePlansCollector) Collect(ch chan<- prometheus.Metric) {
-	var begun = time.Now()
-
+func (c ServicePlansCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if err := c.reportServicePlansMetrics(ch); err != nil {
+	err := objs.Error
+	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.servicePlansScrapeErrorsTotalMetric.Inc()
+	} else {
+		err = c.reportServicePlansMetrics(objs, ch)
+		if err != nil {
+			log.Error(err)
+			errorMetric = float64(1)
+			c.servicePlansScrapeErrorsTotalMetric.Inc()
+		}
 	}
-	c.servicePlansScrapeErrorsTotalMetric.Collect(ch)
 
+	c.servicePlansScrapeErrorsTotalMetric.Collect(ch)
 	c.servicePlansScrapesTotalMetric.Inc()
 	c.servicePlansScrapesTotalMetric.Collect(ch)
-
 	c.lastServicePlansScrapeErrorMetric.Set(errorMetric)
 	c.lastServicePlansScrapeErrorMetric.Collect(ch)
-
 	c.lastServicePlansScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastServicePlansScrapeTimestampMetric.Collect(ch)
-
-	c.lastServicePlansScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastServicePlansScrapeDurationSecondsMetric.Set(objs.Took)
 	c.lastServicePlansScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -134,20 +134,14 @@ func (c ServicePlansCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastServicePlansScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c ServicePlansCollector) reportServicePlansMetrics(ch chan<- prometheus.Metric) error {
+func (c ServicePlansCollector) reportServicePlansMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
 	c.servicePlanInfoMetric.Reset()
 
-	servicePlans, err := c.cfClient.ListServicePlans()
-	if err != nil {
-		log.Errorf("Error while listing service planss: %v", err)
-		return err
-	}
-
-	for _, servicePlan := range servicePlans {
+	for _, cElem := range objs.ServicePlans {
 		c.servicePlanInfoMetric.WithLabelValues(
-			servicePlan.Guid,
-			servicePlan.Name,
-			servicePlan.ServiceGuid,
+			cElem.GUID,
+			cElem.Name,
+			cElem.ServiceOfferingGUID,
 		).Set(float64(1))
 	}
 

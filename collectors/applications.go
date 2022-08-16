@@ -1,12 +1,13 @@
 package collectors
 
 import (
+	"fmt"
 	"time"
 
-	cfclient "github.com/cloudfoundry-community/go-cfclient"
+	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/constant"
+	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"github.com/remeh/sizedwaitgroup"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -18,7 +19,6 @@ type ApplicationsCollector struct {
 	namespace                                   string
 	environment                                 string
 	deployment                                  string
-	cfClient                                    *cfclient.Client
 	applicationInfoMetric                       *prometheus.GaugeVec
 	applicationInstancesMetric                  *prometheus.GaugeVec
 	applicationInstancesRunningMetric           *prometheus.GaugeVec
@@ -35,7 +35,6 @@ func NewApplicationsCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	cfClient *cfclient.Client,
 ) *ApplicationsCollector {
 	applicationInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -146,7 +145,6 @@ func NewApplicationsCollector(
 		namespace:                                   namespace,
 		environment:                                 environment,
 		deployment:                                  deployment,
-		cfClient:                                    cfClient,
 		applicationInfoMetric:                       applicationInfoMetric,
 		applicationInstancesMetric:                  applicationInstancesMetric,
 		applicationInstancesRunningMetric:           applicationInstancesRunningMetric,
@@ -160,26 +158,29 @@ func NewApplicationsCollector(
 	}
 }
 
-func (c ApplicationsCollector) Collect(ch chan<- prometheus.Metric) {
-	var begun = time.Now()
-
+func (c ApplicationsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if err := c.reportApplicationsMetrics(ch); err != nil {
+	err := objs.Error
+	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.applicationsScrapeErrorsTotalMetric.Inc()
+	} else {
+		err = c.reportApplicationsMetrics(objs, ch)
+		if err != nil {
+			log.Error(err)
+			errorMetric = float64(1)
+			c.applicationsScrapeErrorsTotalMetric.Inc()
+		}
 	}
-	c.applicationsScrapeErrorsTotalMetric.Collect(ch)
 
+	c.applicationsScrapeErrorsTotalMetric.Collect(ch)
 	c.applicationsScrapesTotalMetric.Inc()
 	c.applicationsScrapesTotalMetric.Collect(ch)
-
 	c.lastApplicationsScrapeErrorMetric.Set(errorMetric)
 	c.lastApplicationsScrapeErrorMetric.Collect(ch)
-
 	c.lastApplicationsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastApplicationsScrapeTimestampMetric.Collect(ch)
-
-	c.lastApplicationsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastApplicationsScrapeDurationSecondsMetric.Set(objs.Took)
 	c.lastApplicationsScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -196,143 +197,121 @@ func (c ApplicationsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastApplicationsScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c ApplicationsCollector) reportApplicationsMetrics(ch chan<- prometheus.Metric) error {
+// reportApplicationsMetrics
+// 1. empty detected buildpacks for apps running on droplet
+//    staged with a buildpack that is no mot available
+//    fallback to buildpack field for compatibility with v0
+// 2. symmetrically in some corner cases, buildpack is null but
+//    detected_buildpack is available. Use detected_buildpack
+//    for compatibility with v0
+func (c ApplicationsCollector) reportApplicationsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
 	c.applicationInfoMetric.Reset()
 	c.applicationInstancesMetric.Reset()
 	c.applicationInstancesRunningMetric.Reset()
 	c.applicationMemoryMbMetric.Reset()
 	c.applicationDiskQuotaMbMetric.Reset()
 
-	organizations, err := c.cfClient.ListOrgs()
-	if err != nil {
-		log.Errorf("Error while listing organization: %v", err)
-		return err
-	}
-
-	wg := sizedwaitgroup.New(concurrentOrganizationsGoroutines)
-	errChannel := make(chan error, len(organizations))
-
-	for _, organization := range organizations {
-		wg.Add()
-		go func(organization cfclient.Org) {
-			defer wg.Done()
-
-			err := c.getOrgSpaces(ch, organization)
-			if err != nil {
-				errChannel <- err
+	for _, application := range objs.Apps {
+		processes, ok := objs.AppProcesses[application.GUID]
+		if !ok {
+			return fmt.Errorf("could not find processes for application '%s'", application.GUID)
+		}
+		process := processes[0]
+		for _, cProc := range processes {
+			if cProc.Type == "web" {
+				process = cProc
 			}
-		}(organization)
-	}
+		}
 
-	wg.Wait()
-	close(errChannel)
+		spaceGuid, ok := application.Relationships[constant.RelationshipTypeSpace]
+		if !ok {
+			return fmt.Errorf("could not find space relation in application '%s'", application.GUID)
+		}
+		space, ok := objs.Spaces[spaceGuid.GUID]
+		if !ok {
+			return fmt.Errorf("could not find space with guid '%s'", spaceGuid.GUID)
+		}
+		orgGuid, ok := space.Relationships[constant.RelationshipTypeOrganization]
+		if !ok {
+			return fmt.Errorf("could not find org relation in space '%s'", space.GUID)
+		}
+		organization, ok := objs.Orgs[orgGuid.GUID]
+		if !ok {
+			return fmt.Errorf("could not find org with guid '%s'", orgGuid.GUID)
+		}
+		appSum, ok := objs.AppSummaries[application.GUID]
+		if !ok {
+			return fmt.Errorf("could not find app summary with guid '%s'", application.GUID)
+		}
+
+		// 1.
+		detectedBuildpack := appSum.DetectedBuildpack
+		if len(detectedBuildpack) == 0 {
+			detectedBuildpack = appSum.Buildpack
+		}
+
+		// 2.
+		buildpack := appSum.Buildpack
+		if len(buildpack) == 0 {
+			buildpack = appSum.DetectedBuildpack
+		}
+
+		c.applicationInfoMetric.WithLabelValues(
+			application.GUID,
+			application.Name,
+			detectedBuildpack,
+			buildpack,
+			organization.GUID,
+			organization.Name,
+			space.GUID,
+			space.Name,
+			appSum.StackID,
+			string(application.State),
+		).Set(float64(1))
+
+		c.applicationInstancesMetric.WithLabelValues(
+			application.GUID,
+			application.Name,
+			organization.GUID,
+			organization.Name,
+			space.GUID,
+			space.Name,
+			string(application.State),
+		).Set(float64(process.Instances.Value))
+
+		c.applicationInstancesRunningMetric.WithLabelValues(
+			application.GUID,
+			application.Name,
+			organization.GUID,
+			organization.Name,
+			space.GUID,
+			space.Name,
+			string(application.State),
+		).Set(float64(appSum.RunningInstances))
+
+		c.applicationMemoryMbMetric.WithLabelValues(
+			application.GUID,
+			application.Name,
+			organization.GUID,
+			organization.Name,
+			space.GUID,
+			space.Name,
+		).Set(float64(process.MemoryInMB.Value))
+
+		c.applicationDiskQuotaMbMetric.WithLabelValues(
+			application.GUID,
+			application.Name,
+			organization.GUID,
+			organization.Name,
+			space.GUID,
+			space.Name,
+		).Set(float64(process.DiskInMB.Value))
+	}
 
 	c.applicationInfoMetric.Collect(ch)
 	c.applicationInstancesMetric.Collect(ch)
 	c.applicationInstancesRunningMetric.Collect(ch)
 	c.applicationMemoryMbMetric.Collect(ch)
 	c.applicationDiskQuotaMbMetric.Collect(ch)
-
-	return <-errChannel
-}
-
-func (c ApplicationsCollector) getOrgSpaces(ch chan<- prometheus.Metric, organization cfclient.Org) error {
-	spaces, err := c.cfClient.OrgSpaces(organization.Guid)
-	if err != nil {
-		log.Errorf("Error while listing spaces for organization `%s`: %v", organization.Guid, err)
-		return err
-	}
-
-	wg := sizedwaitgroup.New(concurrentSpacesGoroutines)
-	errChannel := make(chan error, len(spaces))
-
-	for _, space := range spaces {
-		wg.Add()
-		go func(space cfclient.Space) {
-			defer wg.Done()
-
-			err := c.getSpaceSummary(ch, organization, space)
-			if err != nil {
-				errChannel <- err
-			}
-		}(space)
-	}
-
-	wg.Wait()
-	close(errChannel)
-
-	return <-errChannel
-}
-
-func (c ApplicationsCollector) getSpaceSummary(ch chan<- prometheus.Metric, organization cfclient.Org, space cfclient.Space) error {
-	spaceSummary, err := space.Summary()
-	if err != nil {
-		log.Errorf("Error while getting summary for space `%s`: %v", space.Guid, err)
-		return err
-	}
-
-	for _, application := range spaceSummary.Apps {
-		detected_buildpack := application.DetectedBuildpack
-		if detected_buildpack == "" {
-			detected_buildpack = application.Buildpack
-		}
-
-		buildpack := application.Buildpack
-		if buildpack == "" {
-			buildpack = application.DetectedBuildpack
-		}
-
-		c.applicationInfoMetric.WithLabelValues(
-			application.Guid,
-			application.Name,
-			detected_buildpack,
-			buildpack,
-			organization.Guid,
-			organization.Name,
-			space.Guid,
-			space.Name,
-			application.StackGuid,
-			application.State,
-		).Set(float64(1))
-
-		c.applicationInstancesMetric.WithLabelValues(
-			application.Guid,
-			application.Name,
-			organization.Guid,
-			organization.Name,
-			space.Guid,
-			space.Name,
-			application.State,
-		).Set(float64(application.Instances))
-
-		c.applicationInstancesRunningMetric.WithLabelValues(
-			application.Guid,
-			application.Name,
-			organization.Guid,
-			organization.Name,
-			space.Guid,
-			space.Name,
-			application.State,
-		).Set(float64(application.RunningInstances))
-
-		c.applicationMemoryMbMetric.WithLabelValues(
-			application.Guid,
-			application.Name,
-			organization.Guid,
-			organization.Name,
-			space.Guid,
-			space.Name,
-		).Set(float64(application.Memory))
-
-		c.applicationDiskQuotaMbMetric.WithLabelValues(
-			application.Guid,
-			application.Name,
-			organization.Guid,
-			organization.Name,
-			space.Guid,
-			space.Name,
-		).Set(float64(application.DiskQuota))
-	}
-
 	return nil
 }

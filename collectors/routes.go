@@ -3,16 +3,15 @@ package collectors
 import (
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type RoutesCollector struct {
 	namespace                             string
 	environment                           string
 	deployment                            string
-	cfClient                              *cfclient.Client
 	routeInfoMetric                       *prometheus.GaugeVec
 	routesScrapesTotalMetric              prometheus.Counter
 	routesScrapeErrorsTotalMetric         prometheus.Counter
@@ -25,7 +24,6 @@ func NewRoutesCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	cfClient *cfclient.Client,
 ) *RoutesCollector {
 	routeInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -92,7 +90,6 @@ func NewRoutesCollector(
 		namespace:                             namespace,
 		environment:                           environment,
 		deployment:                            deployment,
-		cfClient:                              cfClient,
 		routeInfoMetric:                       routeInfoMetric,
 		routesScrapesTotalMetric:              routesScrapesTotalMetric,
 		routesScrapeErrorsTotalMetric:         routesScrapeErrorsTotalMetric,
@@ -102,26 +99,28 @@ func NewRoutesCollector(
 	}
 }
 
-func (c RoutesCollector) Collect(ch chan<- prometheus.Metric) {
-	var begun = time.Now()
-
+func (c RoutesCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if err := c.reportRoutesMetrics(ch); err != nil {
+	err := objs.Error
+	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.routesScrapeErrorsTotalMetric.Inc()
+	} else {
+		err = c.reportRoutesMetrics(objs, ch)
+		if err != nil {
+			log.Error(err)
+			errorMetric = float64(1)
+			c.routesScrapeErrorsTotalMetric.Inc()
+		}
 	}
 	c.routesScrapeErrorsTotalMetric.Collect(ch)
-
 	c.routesScrapesTotalMetric.Inc()
 	c.routesScrapesTotalMetric.Collect(ch)
-
 	c.lastRoutesScrapeErrorMetric.Set(errorMetric)
 	c.lastRoutesScrapeErrorMetric.Collect(ch)
-
 	c.lastRoutesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastRoutesScrapeTimestampMetric.Collect(ch)
-
-	c.lastRoutesScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastRoutesScrapeDurationSecondsMetric.Set(objs.Took)
 	c.lastRoutesScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -134,27 +133,24 @@ func (c RoutesCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastRoutesScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c RoutesCollector) reportRoutesMetrics(ch chan<- prometheus.Metric) error {
+func (c RoutesCollector) reportRoutesMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
 	c.routeInfoMetric.Reset()
 
-	routes, err := c.cfClient.ListRoutes()
-	if err != nil {
-		log.Errorf("Error while listing routes: %v", err)
-		return err
-	}
-
-	for _, route := range routes {
+	for _, route := range objs.Routes {
+		serviceGUID := ""
+		if binding, ok := objs.RoutesBindings[route.GUID]; ok {
+			serviceGUID = binding.ServiceInstanceGUID
+		}
 		c.routeInfoMetric.WithLabelValues(
-			route.Guid,
+			route.GUID,
 			route.Host,
 			route.Path,
-			route.DomainGuid,
-			route.SpaceGuid,
-			route.ServiceInstanceGuid,
+			route.DomainGUID,
+			route.SpaceGUID,
+			serviceGUID,
 		).Set(float64(1))
 	}
 
 	c.routeInfoMetric.Collect(ch)
-
 	return nil
 }

@@ -3,16 +3,15 @@ package collectors
 import (
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfclient"
+	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type ServiceBindingsCollector struct {
 	namespace                                      string
 	environment                                    string
 	deployment                                     string
-	cfClient                                       *cfclient.Client
 	serviceBindingInfoMetric                       *prometheus.GaugeVec
 	serviceBindingsScrapesTotalMetric              prometheus.Counter
 	serviceBindingsScrapeErrorsTotalMetric         prometheus.Counter
@@ -25,7 +24,6 @@ func NewServiceBindingsCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	cfClient *cfclient.Client,
 ) *ServiceBindingsCollector {
 	serviceBindingInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -92,7 +90,6 @@ func NewServiceBindingsCollector(
 		namespace:                                      namespace,
 		environment:                                    environment,
 		deployment:                                     deployment,
-		cfClient:                                       cfClient,
 		serviceBindingInfoMetric:                       serviceBindingInfoMetric,
 		serviceBindingsScrapesTotalMetric:              serviceBindingsScrapesTotalMetric,
 		serviceBindingsScrapeErrorsTotalMetric:         serviceBindingsScrapeErrorsTotalMetric,
@@ -102,26 +99,28 @@ func NewServiceBindingsCollector(
 	}
 }
 
-func (c ServiceBindingsCollector) Collect(ch chan<- prometheus.Metric) {
-	var begun = time.Now()
-
+func (c ServiceBindingsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if err := c.reportServiceBindingsMetrics(ch); err != nil {
+	err := objs.Error
+	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.serviceBindingsScrapeErrorsTotalMetric.Inc()
+	} else {
+		err = c.reportServiceBindingsMetrics(objs, ch)
+		if err != nil {
+			log.Error(err)
+			errorMetric = float64(1)
+			c.serviceBindingsScrapeErrorsTotalMetric.Inc()
+		}
 	}
 	c.serviceBindingsScrapeErrorsTotalMetric.Collect(ch)
-
 	c.serviceBindingsScrapesTotalMetric.Inc()
 	c.serviceBindingsScrapesTotalMetric.Collect(ch)
-
 	c.lastServiceBindingsScrapeErrorMetric.Set(errorMetric)
 	c.lastServiceBindingsScrapeErrorMetric.Collect(ch)
-
 	c.lastServiceBindingsScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastServiceBindingsScrapeTimestampMetric.Collect(ch)
-
-	c.lastServiceBindingsScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastServiceBindingsScrapeDurationSecondsMetric.Set(objs.Took)
 	c.lastServiceBindingsScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -134,24 +133,16 @@ func (c ServiceBindingsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastServiceBindingsScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c ServiceBindingsCollector) reportServiceBindingsMetrics(ch chan<- prometheus.Metric) error {
+func (c ServiceBindingsCollector) reportServiceBindingsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
 	c.serviceBindingInfoMetric.Reset()
 
-	serviceBindings, err := c.cfClient.ListServiceBindings()
-	if err != nil {
-		log.Errorf("Error while listing service bindings: %v", err)
-		return err
-	}
-
-	for _, serviceBinding := range serviceBindings {
+	for _, cItem := range objs.ServiceBindings {
 		c.serviceBindingInfoMetric.WithLabelValues(
-			serviceBinding.Guid,
-			serviceBinding.AppGuid,
-			serviceBinding.ServiceInstanceGuid,
+			cItem.GUID,
+			cItem.AppGUID,
+			cItem.ServiceInstanceGUID,
 		).Set(float64(1))
 	}
-
 	c.serviceBindingInfoMetric.Collect(ch)
-
 	return nil
 }

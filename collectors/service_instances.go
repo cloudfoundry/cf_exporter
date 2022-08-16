@@ -3,16 +3,16 @@ package collectors
 import (
 	"time"
 
-	cfclient "github.com/cloudfoundry-community/go-cfclient"
+	"code.cloudfoundry.org/cli/resources"
+	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type ServiceInstancesCollector struct {
 	namespace                                       string
 	environment                                     string
 	deployment                                      string
-	cfClient                                        *cfclient.Client
 	serviceInstanceInfoMetric                       *prometheus.GaugeVec
 	serviceInstancesScrapesTotalMetric              prometheus.Counter
 	serviceInstancesScrapeErrorsTotalMetric         prometheus.Counter
@@ -25,7 +25,6 @@ func NewServiceInstancesCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	cfClient *cfclient.Client,
 ) *ServiceInstancesCollector {
 	serviceInstanceInfoMetric := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -92,7 +91,6 @@ func NewServiceInstancesCollector(
 		namespace:                                       namespace,
 		environment:                                     environment,
 		deployment:                                      deployment,
-		cfClient:                                        cfClient,
 		serviceInstanceInfoMetric:                       serviceInstanceInfoMetric,
 		serviceInstancesScrapesTotalMetric:              serviceInstancesScrapesTotalMetric,
 		serviceInstancesScrapeErrorsTotalMetric:         serviceInstancesScrapeErrorsTotalMetric,
@@ -102,26 +100,29 @@ func NewServiceInstancesCollector(
 	}
 }
 
-func (c ServiceInstancesCollector) Collect(ch chan<- prometheus.Metric) {
-	var begun = time.Now()
-
+func (c ServiceInstancesCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if err := c.reportServiceInstancesMetrics(ch); err != nil {
+	err := objs.Error
+	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.serviceInstancesScrapeErrorsTotalMetric.Inc()
+	} else {
+		err = c.reportServiceInstancesMetrics(objs, ch)
+		if err != nil {
+			log.Error(err)
+			errorMetric = float64(1)
+			c.serviceInstancesScrapeErrorsTotalMetric.Inc()
+		}
 	}
-	c.serviceInstancesScrapeErrorsTotalMetric.Collect(ch)
 
+	c.serviceInstancesScrapeErrorsTotalMetric.Collect(ch)
 	c.serviceInstancesScrapesTotalMetric.Inc()
 	c.serviceInstancesScrapesTotalMetric.Collect(ch)
-
 	c.lastServiceInstancesScrapeErrorMetric.Set(errorMetric)
 	c.lastServiceInstancesScrapeErrorMetric.Collect(ch)
-
 	c.lastServiceInstancesScrapeTimestampMetric.Set(float64(time.Now().Unix()))
 	c.lastServiceInstancesScrapeTimestampMetric.Collect(ch)
-
-	c.lastServiceInstancesScrapeDurationSecondsMetric.Set(time.Since(begun).Seconds())
+	c.lastServiceInstancesScrapeDurationSecondsMetric.Set(objs.Took)
 	c.lastServiceInstancesScrapeDurationSecondsMetric.Collect(ch)
 }
 
@@ -134,24 +135,26 @@ func (c ServiceInstancesCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastServiceInstancesScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c ServiceInstancesCollector) reportServiceInstancesMetrics(ch chan<- prometheus.Metric) error {
+// reportServiceInstancesMetrics
+// 1. v0 compatibility
+func (c ServiceInstancesCollector) reportServiceInstancesMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
 	c.serviceInstanceInfoMetric.Reset()
 
-	serviceInstances, err := c.cfClient.ListServiceInstances()
-	if err != nil {
-		log.Errorf("Error while listing service instances: %v", err)
-		return err
-	}
+	for _, cElem := range objs.ServiceInstances {
+		// 1.
+		sType := string(cElem.Type)
+		if cElem.Type == resources.ManagedServiceInstance {
+			sType = "managed_service_instance"
+		}
 
-	for _, serviceInstance := range serviceInstances {
 		c.serviceInstanceInfoMetric.WithLabelValues(
-			serviceInstance.Guid,
-			serviceInstance.Name,
-			serviceInstance.ServicePlanGuid,
-			serviceInstance.SpaceGuid,
-			serviceInstance.Type,
-			serviceInstance.LastOperation.Type,
-			serviceInstance.LastOperation.State,
+			cElem.GUID,
+			cElem.Name,
+			cElem.ServicePlanGUID,
+			cElem.SpaceGUID,
+			sType,
+			string(cElem.LastOperation.Type),
+			string(cElem.LastOperation.State),
 		).Set(float64(1))
 	}
 
