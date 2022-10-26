@@ -5,54 +5,60 @@ import (
 	"fmt"
 	"reflect"
 
-	"code.cloudfoundry.org/jsonry/internal/context"
+	"code.cloudfoundry.org/jsonry/internal/errorcontext"
 )
 
 type unsupportedType struct {
-	context context.Context
-	typ     reflect.Type
+	typ reflect.Type
 }
 
-func newUnsupportedTypeError(ctx context.Context, t reflect.Type) error {
+func newUnsupportedTypeError(t reflect.Type) error {
 	return &unsupportedType{
-		context: ctx,
-		typ:     t,
+		typ: t,
 	}
 }
 
 func (u unsupportedType) Error() string {
-	return fmt.Sprintf(`unsupported type "%s" at %s`, u.typ, u.context)
+	return u.message(errorcontext.ErrorContext{})
+}
+
+func (u unsupportedType) message(ctx errorcontext.ErrorContext) string {
+	return fmt.Sprintf(`unsupported type "%s" at %s`, u.typ, ctx)
 }
 
 type unsupportedKeyType struct {
-	context context.Context
-	typ     reflect.Type
+	typ reflect.Type
 }
 
-func newUnsupportedKeyTypeError(ctx context.Context, t reflect.Type) error {
+func newUnsupportedKeyTypeError(t reflect.Type) error {
 	return &unsupportedKeyType{
-		context: ctx,
-		typ:     t,
+		typ: t,
 	}
 }
 
 func (u unsupportedKeyType) Error() string {
-	return fmt.Sprintf(`maps must only have string keys for "%s" at %s`, u.typ, u.context)
+	return u.message(errorcontext.ErrorContext{})
+}
+
+func (u unsupportedKeyType) message(ctx errorcontext.ErrorContext) string {
+	return fmt.Sprintf(`maps must only have string keys for "%s" at %s`, u.typ, ctx)
 }
 
 type conversionError struct {
-	context context.Context
-	value   interface{}
+	value interface{}
 }
 
-func newConversionError(ctx context.Context, value interface{}) error {
+func newConversionError(value interface{}) error {
 	return &conversionError{
-		context: ctx,
-		value:   value,
+		value: value,
 	}
 }
 
 func (c conversionError) Error() string {
+	return c.message(errorcontext.ErrorContext{})
+}
+
+func (c conversionError) message(ctx errorcontext.ErrorContext) string {
 	var t string
 	switch c.value.(type) {
 	case nil:
@@ -68,5 +74,78 @@ func (c conversionError) Error() string {
 		msg = fmt.Sprintf(`%stype "%s" `, msg, t)
 	}
 
-	return msg + "into " + c.context.String()
+	return msg + "into " + ctx.String()
+}
+
+type foreignError struct {
+	msg   string
+	cause error
+}
+
+func newForeignError(msg string, cause error) error {
+	return foreignError{
+		msg:   msg,
+		cause: cause,
+	}
+}
+
+func (e foreignError) Error() string {
+	return e.message(errorcontext.ErrorContext{})
+}
+
+func (e foreignError) message(ctx errorcontext.ErrorContext) string {
+	return fmt.Sprintf("%s at %s: %s", e.msg, ctx, e.cause)
+}
+
+type contextError struct {
+	cause   error
+	context errorcontext.ErrorContext
+}
+
+func (c contextError) Error() string {
+	if e, ok := c.cause.(interface {
+		message(errorcontext.ErrorContext) string
+	}); ok {
+		return e.message(c.context)
+	}
+	return c.cause.Error()
+}
+
+func wrapErrorWithFieldContext(err error, fieldName string, fieldType reflect.Type) error {
+	switch e := err.(type) {
+	case contextError:
+		e.context = e.context.WithField(fieldName, fieldType)
+		return e
+	default:
+		return contextError{
+			cause:   err,
+			context: errorcontext.ErrorContext{}.WithField(fieldName, fieldType),
+		}
+	}
+}
+
+func wrapErrorWithIndexContext(err error, index int, elementType reflect.Type) error {
+	switch e := err.(type) {
+	case contextError:
+		e.context = e.context.WithIndex(index, elementType)
+		return e
+	default:
+		return contextError{
+			cause:   err,
+			context: errorcontext.ErrorContext{}.WithIndex(index, elementType),
+		}
+	}
+}
+
+func wrapErrorWithKeyContext(err error, keyName string, valueType reflect.Type) error {
+	switch e := err.(type) {
+	case contextError:
+		e.context = e.context.WithKey(keyName, valueType)
+		return e
+	default:
+		return contextError{
+			cause:   err,
+			context: errorcontext.ErrorContext{}.WithKey(keyName, valueType),
+		}
+	}
 }

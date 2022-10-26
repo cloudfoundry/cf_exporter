@@ -1,4 +1,4 @@
-// JSONry exists to make is easier to marshal and unmarshal nested JSON into Go structures.
+// Package jsonry exists to make is easier to marshal and unmarshal nested JSON into Go structures.
 // For example:
 //
 //   {

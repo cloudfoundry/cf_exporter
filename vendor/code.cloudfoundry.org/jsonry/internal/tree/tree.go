@@ -1,3 +1,4 @@
+// Package tree is a Go representation of a JSON object
 package tree
 
 import (
