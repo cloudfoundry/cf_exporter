@@ -16,6 +16,7 @@ type CFObjects struct {
 	SpaceQuotas      map[string]Quota                              `json:"space_quotas"`
 	Apps             map[string]Application                        `json:"apps"`
 	Processes        map[string]resources.Process                  `json:"process"`
+	Tasks            map[string]Task                               `json:"tasks"`
 	Routes           map[string]resources.Route                    `json:"routes"`
 	RoutesBindings   map[string]resources.RouteBinding             `json:"route_bindings"`
 	Segments         map[string]resources.IsolationSegment         `json:"segments"`
@@ -91,6 +92,15 @@ type Application struct {
 	UpdatedAt     string                    `json:"updated_at,omitempty"`
 }
 
+type Task struct {
+	GUID          string                  `json:"guid,omitempty"`
+	State         constant.TaskState      `json:"state,omitempty"`
+	Relationships resources.Relationships `json:"relationships,omitempty"`
+	CreatedAt     time.Time               `json:"created_at,omitempty"`
+	MemoryInMb    int64                   `json:"memory_in_mb,omitempty"`
+	DiskInMb      int64                   `json:"disk_in_mb,omitempty"`
+}
+
 type SpaceSummary struct {
 	GUID string       `json:"guid,omitempty"`
 	Name string       `json:"name,omitempty"`
@@ -146,6 +156,7 @@ func NewCFObjects() *CFObjects {
 		SpaceQuotas:      map[string]Quota{},
 		Apps:             map[string]Application{},
 		Processes:        map[string]resources.Process{},
+		Tasks:            map[string]Task{},
 		Routes:           map[string]resources.Route{},
 		RoutesBindings:   map[string]resources.RouteBinding{},
 		Segments:         map[string]resources.IsolationSegment{},

@@ -147,6 +147,14 @@ func (c *Fetcher) fetchBuildpacks(session *SessionExt, entry *models.CFObjects) 
 	return err
 }
 
+func (c *Fetcher) fetchTasks(session *SessionExt, entry *models.CFObjects) error {
+	tasks, err := session.GetTasks()
+	if err == nil {
+		loadIndex(entry.Tasks, tasks, func(r models.Task) string { return r.GUID })
+	}
+	return err
+}
+
 func (c *Fetcher) fetchServiceBrokers(session *SessionExt, entry *models.CFObjects) error {
 	servicebrokers, _, err := session.V3().GetServiceBrokers(LargeQuery)
 	if err == nil {

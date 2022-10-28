@@ -19,6 +19,10 @@ var (
 		Key:    ccv3.OrderBy,
 		Values: []string{"-created_at"},
 	}
+	TaskActiveStates = ccv3.Query{
+		Key:    ccv3.StatesFilter,
+		Values: []string{"PENDING", "RUNNING", "CANCELING"},
+	}
 )
 
 type CFConfig struct {
@@ -67,6 +71,7 @@ func (c *Fetcher) workInit() {
 	c.worker.PushIf("security_groups", c.fetchSecurityGroups, filters.SecurityGroups)
 	c.worker.PushIf("stacks", c.fetchStacks, filters.Stacks)
 	c.worker.PushIf("buildpacks", c.fetchBuildpacks, filters.Buildpacks)
+	c.worker.PushIf("tasks", c.fetchTasks, filters.Tasks)
 	c.worker.PushIf("service_brokers", c.fetchServiceBrokers, filters.Services)
 	c.worker.PushIf("service_offerings", c.fetchServiceOfferings, filters.Services)
 	c.worker.PushIf("service_instances", c.fetchServiceInstances, filters.ServiceInstances)

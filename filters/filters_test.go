@@ -34,6 +34,7 @@ var _ = Describe("Filters", func() {
 				Expect(f.Enabled(filters.Services)).To(BeTrue())
 				Expect(f.Enabled(filters.Spaces)).To(BeTrue())
 				Expect(f.Enabled(filters.Stacks)).To(BeTrue())
+				Expect(f.Enabled(filters.Tasks)).To(BeFalse())
 				Expect(f.Enabled(filters.Events)).To(BeFalse())
 			})
 		})
@@ -57,6 +58,7 @@ var _ = Describe("Filters", func() {
 				Expect(f.Enabled(filters.Services)).To(BeFalse())
 				Expect(f.Enabled(filters.Spaces)).To(BeFalse())
 				Expect(f.Enabled(filters.Stacks)).To(BeTrue())
+				Expect(f.Enabled(filters.Tasks)).To(BeFalse())
 				Expect(f.Enabled(filters.Events)).To(BeFalse())
 			})
 

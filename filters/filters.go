@@ -19,6 +19,7 @@ const (
 	Services          = "services"
 	Spaces            = "spaces"
 	Stacks            = "stacks"
+	Tasks             = "tasks"
 )
 
 var (
@@ -36,6 +37,7 @@ var (
 		Services,
 		Spaces,
 		Stacks,
+		Tasks,
 	}
 )
 
@@ -58,6 +60,7 @@ func NewFilter(active ...string) (*Filter, error) {
 			Services:          true,
 			Spaces:            true,
 			Stacks:            true,
+			Tasks:             false,
 			Events:            false,
 		},
 	}
@@ -86,6 +89,7 @@ func (f *Filter) setActive(active []string) error {
 		Services:          false,
 		Spaces:            false,
 		Stacks:            false,
+		Tasks:             false,
 		Events:            false,
 	}
 

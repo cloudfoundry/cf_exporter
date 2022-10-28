@@ -75,6 +75,7 @@ var _ = Describe("Fetcher", func() {
 					"security_groups",
 					"stacks",
 					"buildpacks",
+					"tasks",
 					"service_brokers",
 					"service_offerings",
 					"service_instances",
@@ -114,6 +115,16 @@ var _ = Describe("Fetcher", func() {
 			BeforeEach(func() {
 				active = []string{filters.Buildpacks}
 				expected = []string{"info", "buildpacks"}
+			})
+			It("plans only specific jobs", func() {
+				Ω(jobs).Should(ConsistOf(expected))
+			})
+		})
+
+		When("tasks filter is set", func() {
+			BeforeEach(func() {
+				active = []string{ filters.Tasks }
+				expected = []string{ "info", "tasks" }
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
