@@ -74,7 +74,7 @@ var (
 
 	tlsCertFile = kingpin.Flag(
 		"web.tls.cert_file", "Path to a file that contains the TLS certificate (PEM format). If the certificate is signed by a certificate authority, the file should be the concatenation of the server's certificate, any intermediates, and the CA's certificate ($CF_EXPORTER_WEB_TLS_CERTFILE)",
-	).Envar("CF_EXPORTER_WEB_TLS_KEYFILE").ExistingFile()
+	).Envar("CF_EXPORTER_WEB_TLS_CERTFILE").ExistingFile()
 
 	tlsKeyFile = kingpin.Flag(
 		"web.tls.key_file", "Path to a file that contains the TLS private key (PEM format) ($CF_EXPORTER_WEB_TLS_KEYFILE)",
