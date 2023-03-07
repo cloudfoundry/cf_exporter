@@ -18,7 +18,7 @@ import (
 var (
 	cfAPIUrl = kingpin.Flag(
 		"cf.api_url", "Cloud Foundry API URL ($CF_EXPORTER_CF_API_URL)",
-	).Envar("CF_EXPORTER_CF_API_URL").Required().String()
+	).Envar("CF_EXPORTER_CF_API_URL").String()
 
 	cfUsername = kingpin.Flag(
 		"cf.username", "Cloud Foundry Username ($CF_EXPORTER_CF_USERNAME)",
