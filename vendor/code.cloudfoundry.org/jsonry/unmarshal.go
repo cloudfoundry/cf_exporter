@@ -9,8 +9,6 @@ import (
 	"strconv"
 
 	"code.cloudfoundry.org/jsonry/internal/path"
-
-	"code.cloudfoundry.org/jsonry/internal/context"
 	"code.cloudfoundry.org/jsonry/internal/tree"
 )
 
@@ -39,17 +37,17 @@ func Unmarshal(data []byte, receiver interface{}) error {
 		return fmt.Errorf("error parsing JSON: %w", err)
 	}
 
-	return unmarshalIntoStruct(context.Context{}, target, true, source)
+	return unmarshalIntoStruct(target, true, source)
 }
 
-func unmarshalIntoStruct(ctx context.Context, target reflect.Value, found bool, source interface{}) error {
+func unmarshalIntoStruct(target reflect.Value, found bool, source interface{}) error {
 	if !found || source == nil {
 		return nil
 	}
 
 	src, ok := source.(map[string]interface{})
 	if !ok {
-		return newConversionError(ctx, source)
+		return newConversionError(source)
 	}
 
 	target = allocateIfNeeded(target)
@@ -60,8 +58,8 @@ func unmarshalIntoStruct(ctx context.Context, target reflect.Value, found bool, 
 		if public(field) {
 			p := path.ComputePath(field)
 			s, found := tree.Tree(src).Fetch(p)
-			if err := unmarshal(ctx.WithField(field.Name, field.Type), target.Field(i), found, s); err != nil {
-				return err
+			if err := unmarshal(target.Field(i), found, s); err != nil {
+				return wrapErrorWithFieldContext(err, field.Name, field.Type)
 			}
 		}
 	}
@@ -69,28 +67,28 @@ func unmarshalIntoStruct(ctx context.Context, target reflect.Value, found bool, 
 	return nil
 }
 
-func unmarshal(ctx context.Context, target reflect.Value, found bool, source interface{}) error {
+func unmarshal(target reflect.Value, found bool, source interface{}) error {
 	kind := underlyingType(target).Kind()
 
 	var err error
 	switch {
 	case reflect.PtrTo(target.Type()).Implements(reflect.TypeOf((*json.Unmarshaler)(nil)).Elem()):
-		err = unmarshalIntoJSONUnmarshaler(ctx, target, found, source)
+		err = unmarshalIntoJSONUnmarshaler(target, found, source)
 	case basicType(kind), kind == reflect.Interface:
-		err = unmarshalInfoLeaf(ctx, target, found, source)
+		err = unmarshalInfoLeaf(target, found, source)
 	case kind == reflect.Struct:
-		err = unmarshalIntoStruct(ctx, target, found, source)
+		err = unmarshalIntoStruct(target, found, source)
 	case kind == reflect.Slice:
-		err = unmarshalIntoSlice(ctx, target, found, source)
+		err = unmarshalIntoSlice(target, found, source)
 	case kind == reflect.Map:
-		err = unmarshalIntoMap(ctx, target, found, source)
+		err = unmarshalIntoMap(target, found, source)
 	default:
-		err = newUnsupportedTypeError(ctx, target.Type())
+		err = newUnsupportedTypeError(target.Type())
 	}
 	return err
 }
 
-func unmarshalInfoLeaf(ctx context.Context, target reflect.Value, found bool, source interface{}) error {
+func unmarshalInfoLeaf(target reflect.Value, found bool, source interface{}) error {
 	if !found {
 		return nil
 	}
@@ -101,7 +99,7 @@ func unmarshalInfoLeaf(ctx context.Context, target reflect.Value, found bool, so
 		case nil:
 			return setZeroValue(target)
 		default:
-			return unmarshalInfoLeaf(ctx, allocateIfNeeded(target), found, source)
+			return unmarshalInfoLeaf(allocateIfNeeded(target), found, source)
 		}
 	case reflect.String:
 		switch s := source.(type) {
@@ -159,17 +157,17 @@ func unmarshalInfoLeaf(ctx context.Context, target reflect.Value, found bool, so
 		return nil
 	}
 
-	return newConversionError(ctx, source)
+	return newConversionError(source)
 }
 
-func unmarshalIntoSlice(ctx context.Context, target reflect.Value, found bool, source interface{}) error {
+func unmarshalIntoSlice(target reflect.Value, found bool, source interface{}) error {
 	if !found || source == nil {
 		return nil
 	}
 
 	src, ok := source.([]interface{})
 	if !ok {
-		return newConversionError(ctx, source)
+		return newConversionError(source)
 	}
 
 	slice := reflect.MakeSlice(underlyingType(target), len(src), len(src))
@@ -177,19 +175,19 @@ func unmarshalIntoSlice(ctx context.Context, target reflect.Value, found bool, s
 
 	for i := range src {
 		elem := slice.Index(i)
-		if err := unmarshal(ctx.WithIndex(i, elem.Type()), elem, true, src[i]); err != nil {
-			return err
+		if err := unmarshal(elem, true, src[i]); err != nil {
+			return wrapErrorWithIndexContext(err, i, elem.Type())
 		}
 	}
 
 	return nil
 }
 
-func unmarshalIntoMap(ctx context.Context, target reflect.Value, found bool, source interface{}) error {
+func unmarshalIntoMap(target reflect.Value, found bool, source interface{}) error {
 	targetType := underlyingType(target)
 
 	if targetType.Key().Kind() != reflect.String {
-		return newUnsupportedKeyTypeError(ctx, targetType.Key())
+		return newUnsupportedKeyTypeError(targetType.Key())
 	}
 
 	if !found || source == nil {
@@ -198,7 +196,7 @@ func unmarshalIntoMap(ctx context.Context, target reflect.Value, found bool, sou
 
 	src, ok := source.(map[string]interface{})
 	if !ok {
-		return newConversionError(ctx, source)
+		return newConversionError(source)
 	}
 
 	m := reflect.MakeMap(targetType)
@@ -206,8 +204,8 @@ func unmarshalIntoMap(ctx context.Context, target reflect.Value, found bool, sou
 
 	for k, v := range src {
 		targetValue := reflect.New(targetType.Elem()).Elem()
-		if err := unmarshal(ctx.WithKey(k, targetValue.Type()), targetValue, true, v); err != nil {
-			return err
+		if err := unmarshal(targetValue, true, v); err != nil {
+			return wrapErrorWithKeyContext(err, k, targetValue.Type())
 		}
 
 		m.SetMapIndex(reflect.ValueOf(k).Convert(targetType.Key()), targetValue)
@@ -216,7 +214,7 @@ func unmarshalIntoMap(ctx context.Context, target reflect.Value, found bool, sou
 	return nil
 }
 
-func unmarshalIntoJSONUnmarshaler(ctx context.Context, target reflect.Value, found bool, source interface{}) error {
+func unmarshalIntoJSONUnmarshaler(target reflect.Value, found bool, source interface{}) error {
 	if !found {
 		return nil
 	}
@@ -230,7 +228,7 @@ func unmarshalIntoJSONUnmarshaler(ctx context.Context, target reflect.Value, fou
 	s := elem.MethodByName("UnmarshalJSON").Call([]reflect.Value{reflect.ValueOf(json)})
 
 	if err := checkForError(s[0]); err != nil {
-		return fmt.Errorf("error from UnmarshalJSON() call at %s: %w", ctx, err)
+		return newForeignError("error from UnmarshalJSON() call", err)
 	}
 
 	target.Set(elem.Elem())

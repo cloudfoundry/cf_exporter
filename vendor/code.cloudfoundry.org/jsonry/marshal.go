@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"code.cloudfoundry.org/jsonry/internal/tree"
-
-	"code.cloudfoundry.org/jsonry/internal/context"
 	"code.cloudfoundry.org/jsonry/internal/path"
+	"code.cloudfoundry.org/jsonry/internal/tree"
 )
 
 // Marshal converts the specified Go struct into JSON. The input must be a struct or a pointer to a struct.
@@ -30,7 +28,7 @@ func Marshal(in interface{}) ([]byte, error) {
 		return nil, fmt.Errorf(`the input must be a struct, not "%s"`, iv.Kind())
 	}
 
-	m, err := marshalStruct(context.Context{}, iv)
+	m, err := marshalStruct(iv)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +36,7 @@ func Marshal(in interface{}) ([]byte, error) {
 	return json.Marshal(m)
 }
 
-func marshalStruct(ctx context.Context, in reflect.Value) (map[string]interface{}, error) {
+func marshalStruct(in reflect.Value) (map[string]interface{}, error) {
 	out := make(tree.Tree)
 	t := in.Type()
 
@@ -50,9 +48,9 @@ func marshalStruct(ctx context.Context, in reflect.Value) (map[string]interface{
 			val := in.Field(i)
 
 			if shouldMarshal(path, val) {
-				r, err := marshal(ctx.WithField(f.Name, f.Type), val)
+				r, err := marshal(val)
 				if err != nil {
-					return nil, err
+					return nil, wrapErrorWithFieldContext(err, f.Name, f.Type)
 				}
 
 				out.Attach(path, r)
@@ -63,7 +61,7 @@ func marshalStruct(ctx context.Context, in reflect.Value) (map[string]interface{
 	return out, nil
 }
 
-func marshal(ctx context.Context, in reflect.Value) (r interface{}, err error) {
+func marshal(in reflect.Value) (r interface{}, err error) {
 	input := reflect.Indirect(in)
 	kind := input.Kind()
 
@@ -71,35 +69,34 @@ func marshal(ctx context.Context, in reflect.Value) (r interface{}, err error) {
 	case kind == reflect.Invalid:
 		r = nil
 	case input.Type().Implements(reflect.TypeOf((*json.Marshaler)(nil)).Elem()):
-		r, err = marshalJSONMarshaler(ctx, input)
+		r, err = marshalJSONMarshaler(input)
 	case kind == reflect.Interface:
-		r, err = marshal(ctx, input.Elem())
+		r, err = marshal(input.Elem())
 	case basicType(kind):
 		r = in.Interface()
 	case kind == reflect.Struct:
-		r, err = marshalStruct(ctx, input)
+		r, err = marshalStruct(input)
 	case kind == reflect.Slice || kind == reflect.Array:
-		r, err = marshalList(ctx, input)
+		r, err = marshalList(input)
 	case kind == reflect.Map:
-		r, err = marshalMap(ctx, input)
+		r, err = marshalMap(input)
 	default:
-		err = newUnsupportedTypeError(ctx, input.Type())
+		err = newUnsupportedTypeError(input.Type())
 	}
 
 	return
 }
 
-func marshalList(ctx context.Context, in reflect.Value) (out []interface{}, err error) {
+func marshalList(in reflect.Value) (out []interface{}, err error) {
 	if in.Type().Kind() == reflect.Slice && in.IsNil() {
 		return out, nil
 	}
 
 	out = make([]interface{}, in.Len())
 	for i := 0; i < in.Len(); i++ {
-		ctx := ctx.WithIndex(i, in.Type())
-		r, err := marshal(ctx, in.Index(i))
+		r, err := marshal(in.Index(i))
 		if err != nil {
-			return nil, err
+			return nil, wrapErrorWithIndexContext(err, i, in.Type())
 		}
 		out[i] = r
 	}
@@ -107,7 +104,7 @@ func marshalList(ctx context.Context, in reflect.Value) (out []interface{}, err 
 	return out, nil
 }
 
-func marshalMap(ctx context.Context, in reflect.Value) (out map[string]interface{}, err error) {
+func marshalMap(in reflect.Value) (out map[string]interface{}, err error) {
 	if in.IsNil() {
 		return out, nil
 	}
@@ -117,14 +114,12 @@ func marshalMap(ctx context.Context, in reflect.Value) (out map[string]interface
 	for iter.Next() {
 		k := iter.Key()
 		if k.Kind() != reflect.String {
-			return nil, newUnsupportedKeyTypeError(ctx, in.Type())
+			return nil, newUnsupportedKeyTypeError(in.Type())
 		}
 
-		ctx := ctx.WithKey(k.String(), k.Type())
-
-		r, err := marshal(ctx, iter.Value())
+		r, err := marshal(iter.Value())
 		if err != nil {
-			return nil, err
+			return nil, wrapErrorWithKeyContext(err, k.String(), k.Type())
 		}
 		out[k.String()] = r
 	}
@@ -132,18 +127,18 @@ func marshalMap(ctx context.Context, in reflect.Value) (out map[string]interface
 	return out, nil
 }
 
-func marshalJSONMarshaler(ctx context.Context, in reflect.Value) (interface{}, error) {
+func marshalJSONMarshaler(in reflect.Value) (interface{}, error) {
 	const method = "MarshalJSON"
 	t := in.MethodByName(method).Call(nil)
 
 	if err := checkForError(t[1]); err != nil {
-		return nil, fmt.Errorf("error from %s() call at %s: %w", method, ctx, err)
+		return nil, newForeignError(fmt.Sprintf("error from %s() call", method), err)
 	}
 
 	var r interface{}
 	err := json.Unmarshal(t[0].Bytes(), &r)
 	if err != nil {
-		return nil, fmt.Errorf(`error parsing %s() output "%s" at %s: %w`, method, t[0].Bytes(), ctx, err)
+		return nil, newForeignError(fmt.Sprintf(`error parsing %s() output "%s"`, method, t[0].Bytes()), err)
 	}
 
 	return r, nil
