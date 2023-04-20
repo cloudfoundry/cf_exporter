@@ -1,3 +1,4 @@
+// Package path represents a notation for accessing elements in JSON
 package path
 
 import (

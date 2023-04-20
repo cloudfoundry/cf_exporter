@@ -1,0 +1,48 @@
+name: reports
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  reports:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: set up go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ">=1.20.0"
+
+      - name: Coverage report
+        run: |
+          mkdir website
+          go test -cover -coverprofile cover.out -v ./...
+          go tool cover -func=cover.out -o website/coverage.txt
+          total=$(cat website/coverage.txt | grep total: | awk '{ print $3}')
+          total_encoded=$(echo ${total} | sed 's/%/%25/g')
+          curl -fsSL https://img.shields.io/badge/coverage-${total_encoded}-blue -o website/coverage-badge.svg
+          rm -f cover.out
+
+      - name: Documentation report
+        run: |
+          mkdir website/doc
+          go install golang.org/x/tools/cmd/godoc@latest
+          go install code.rocketnine.space/tslocum/godoc-static@latest
+          godoc-static -zip="" -destination=website/doc .
+          rm -rf website/doc/src
+          curl -fsSL https://img.shields.io/badge/doc-passing-green -o website/doc/badge.svg
+
+      - name: Deploy pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: website
