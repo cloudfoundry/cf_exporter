@@ -5,7 +5,6 @@ import (
 
 	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
 )
 
 type RoutesCollector struct {
@@ -101,17 +100,11 @@ func NewRoutesCollector(
 
 func (c RoutesCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	err := objs.Error
 	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.routesScrapeErrorsTotalMetric.Inc()
 	} else {
-		err = c.reportRoutesMetrics(objs, ch)
-		if err != nil {
-			log.Error(err)
-			errorMetric = float64(1)
-			c.routesScrapeErrorsTotalMetric.Inc()
-		}
+		c.reportRoutesMetrics(objs, ch)
 	}
 	c.routesScrapeErrorsTotalMetric.Collect(ch)
 	c.routesScrapesTotalMetric.Inc()
@@ -133,7 +126,7 @@ func (c RoutesCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastRoutesScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c RoutesCollector) reportRoutesMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
+func (c RoutesCollector) reportRoutesMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	c.routeInfoMetric.Reset()
 
 	for _, route := range objs.Routes {
@@ -152,5 +145,4 @@ func (c RoutesCollector) reportRoutesMetrics(objs *models.CFObjects, ch chan<- p
 	}
 
 	c.routeInfoMetric.Collect(ch)
-	return nil
 }

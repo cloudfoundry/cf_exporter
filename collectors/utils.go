@@ -4,7 +4,6 @@ import (
 	"code.cloudfoundry.org/cli/types"
 )
 
-
 func BoolToFloat(val *bool) float64 {
 	if val == nil {
 		return 0

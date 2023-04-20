@@ -4,10 +4,11 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/bosh-prometheus/cf_exporter/collectors"
-	"github.com/bosh-prometheus/cf_exporter/filters"
 	"github.com/bosh-prometheus/cf_exporter/fetcher"
+	"github.com/bosh-prometheus/cf_exporter/filters"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
@@ -48,7 +49,7 @@ var (
 		"metrics.namespace", "Metrics Namespace ($CF_EXPORTER_METRICS_NAMESPACE)",
 	).Envar("CF_EXPORTER_METRICS_NAMESPACE").Default("cf").String()
 
- 	metricsEnvironment = kingpin.Flag(
+	metricsEnvironment = kingpin.Flag(
 		"metrics.environment", "Environment label to be attached to metrics ($CF_EXPORTER_METRICS_ENVIRONMENT)",
 	).Envar("CF_EXPORTER_METRICS_ENVIRONMENT").Required().String()
 
@@ -88,7 +89,7 @@ var (
 		"log.stream", "Set output stream for log. Valid outputs: [stderr, stdout]",
 	).Default("stdout").String()
 
-	logJson = kingpin.Flag(
+	logJSON = kingpin.Flag(
 		"log.json", "Output logs with JSON format",
 	).Default("false").Bool()
 
@@ -116,7 +117,6 @@ func (h *basicAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.handler(w, r)
-	return
 }
 
 func prometheusHandler() http.Handler {
@@ -139,7 +139,7 @@ func main() {
 	log.Infoln("Starting cf_exporter", version.Info())
 	log.Infoln("Build context", version.BuildContext())
 
-	if *logJson {
+	if *logJSON {
 		log.SetFormatter(&log.JSONFormatter{})
 	}
 	if *logOutput == "stderr" {
@@ -183,20 +183,31 @@ func main() {
 	handler := prometheusHandler()
 	http.Handle(*metricsPath, handler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`<html>
+		_, err := w.Write([]byte(`<html>
              <head><title>Cloud Foundry Exporter</title></head>
              <body>
              <h1>Cloud Foundry Exporter</h1>
              <p><a href='` + *metricsPath + `'>Metrics</a></p>
              </body>
              </html>`))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	})
+
+	server := &http.Server{
+		Addr:              *listenAddress,
+		ReadTimeout:       time.Second * 5,
+		ReadHeaderTimeout: time.Second * 10,
+	}
 
 	if *tlsCertFile != "" && *tlsKeyFile != "" {
 		log.Infoln("Listening TLS on", *listenAddress)
-		log.Fatal(http.ListenAndServeTLS(*listenAddress, *tlsCertFile, *tlsKeyFile, nil))
+		err = server.ListenAndServeTLS(*tlsCertFile, *tlsKeyFile)
 	} else {
 		log.Infoln("Listening on", *listenAddress)
-		log.Fatal(http.ListenAndServe(*listenAddress, nil))
+		err = server.ListenAndServe()
 	}
+
+	log.Fatal(err)
 }

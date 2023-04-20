@@ -92,8 +92,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("org filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.Organizations }
-				expected = []string{ "info", "organizations", "org_quotas" }
+				active = []string{filters.Organizations}
+				expected = []string{"info", "organizations", "org_quotas"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
@@ -102,8 +102,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("space filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.Spaces }
-				expected = []string{ "info", "spaces", "space_quotas" }
+				active = []string{filters.Spaces}
+				expected = []string{"info", "spaces", "space_quotas"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
@@ -112,8 +112,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("buildpack filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.Buildpacks }
-				expected = []string{ "info", "buildpacks" }
+				active = []string{filters.Buildpacks}
+				expected = []string{"info", "buildpacks"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
@@ -122,8 +122,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("isolationsegments filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.IsolationSegments }
-				expected = []string{ "info", "segments" }
+				active = []string{filters.IsolationSegments}
+				expected = []string{"info", "segments"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
@@ -132,8 +132,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("routes filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.Routes }
-				expected = []string{ "info", "routes", "route_services" }
+				active = []string{filters.Routes}
+				expected = []string{"info", "routes", "route_services"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
@@ -142,8 +142,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("securitygroups filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.SecurityGroups }
-				expected = []string{ "info", "security_groups" }
+				active = []string{filters.SecurityGroups}
+				expected = []string{"info", "security_groups"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
@@ -152,8 +152,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("servicebindings filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.ServiceBindings }
-				expected = []string{ "info", "service_bindings" }
+				active = []string{filters.ServiceBindings}
+				expected = []string{"info", "service_bindings"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
@@ -162,8 +162,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("serviceinstances filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.ServiceInstances }
-				expected = []string{ "info", "service_instances" }
+				active = []string{filters.ServiceInstances}
+				expected = []string{"info", "service_instances"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
@@ -172,8 +172,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("services filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.Services }
-				expected = []string{ "info", "service_brokers", "service_offerings" }
+				active = []string{filters.Services}
+				expected = []string{"info", "service_brokers", "service_offerings"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
@@ -182,8 +182,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("stacks filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.Stacks }
-				expected = []string{ "info", "stacks" }
+				active = []string{filters.Stacks}
+				expected = []string{"info", "stacks"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
@@ -192,8 +192,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("applications filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.Applications }
-				expected = []string{ "info", "organizations", "spaces", "applications", "process" }
+				active = []string{filters.Applications}
+				expected = []string{"info", "organizations", "spaces", "applications", "process"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))
@@ -202,8 +202,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("events filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.Events }
-				expected = []string{ "info", "users", "events" }
+				active = []string{filters.Events}
+				expected = []string{"info", "users", "events"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))

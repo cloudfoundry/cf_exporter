@@ -11,7 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-
 type SessionExt struct {
 	clients.Session
 }
@@ -48,6 +47,8 @@ func (s SessionExt) GetInfo() (models.Info, error) {
 	if err != nil {
 		return responseBody, err
 	}
+	defer httpres.Body.Close()
+
 	if httpres.StatusCode != http.StatusOK {
 		return responseBody, fmt.Errorf("http error")
 	}
@@ -71,7 +72,6 @@ func (s SessionExt) GetApplications() ([]models.Application, error) {
 	})
 	return res, err
 }
-
 
 func (s SessionExt) GetOrganizationQuotas() ([]models.Quota, error) {
 	res := []models.Quota{}
@@ -101,7 +101,7 @@ func (s SessionExt) GetSpaceQuotas() ([]models.Quota, error) {
 	return res, err
 }
 
-func (s SessionExt) GetEvents(query... ccv3.Query) ([]models.Event, error) {
+func (s SessionExt) GetEvents(query ...ccv3.Query) ([]models.Event, error) {
 	res := []models.Event{}
 	_, _, err := s.V3().MakeListRequest(ccv3.RequestParams{
 		RequestName:  "GetEvents",

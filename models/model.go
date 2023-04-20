@@ -13,7 +13,7 @@ type CFObjects struct {
 	Orgs             map[string]resources.Organization             `json:"orgs"`
 	OrgQuotas        map[string]Quota                              `json:"org_quotas"`
 	Spaces           map[string]resources.Space                    `json:"spaces"`
-	SpaceQuotas      map[string]Quota                              `json:"org_quotas"`
+	SpaceQuotas      map[string]Quota                              `json:"space_quotas"`
 	Apps             map[string]Application                        `json:"apps"`
 	Processes        map[string]resources.Process                  `json:"process"`
 	Routes           map[string]resources.Route                    `json:"routes"`

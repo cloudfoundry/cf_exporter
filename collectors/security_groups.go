@@ -5,7 +5,6 @@ import (
 
 	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
 )
 
 type SecurityGroupsCollector struct {
@@ -101,17 +100,11 @@ func NewSecurityGroupsCollector(
 
 func (c SecurityGroupsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	err := objs.Error
 	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.securityGroupsScrapeErrorsTotalMetric.Inc()
 	} else {
-		err = c.reportSecurityGroupsMetrics(objs, ch)
-		if err != nil {
-			log.Error(err)
-			errorMetric = float64(1)
-			c.securityGroupsScrapeErrorsTotalMetric.Inc()
-		}
+		c.reportSecurityGroupsMetrics(objs, ch)
 	}
 
 	c.securityGroupsScrapeErrorsTotalMetric.Collect(ch)
@@ -134,7 +127,7 @@ func (c SecurityGroupsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastSecurityGroupsScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c SecurityGroupsCollector) reportSecurityGroupsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
+func (c SecurityGroupsCollector) reportSecurityGroupsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	c.securityGroupInfoMetric.Reset()
 
 	for _, cSGroup := range objs.SecurityGroups {
@@ -144,5 +137,4 @@ func (c SecurityGroupsCollector) reportSecurityGroupsMetrics(objs *models.CFObje
 		).Set(float64(1))
 	}
 	c.securityGroupInfoMetric.Collect(ch)
-	return nil
 }

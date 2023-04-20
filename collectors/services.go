@@ -5,7 +5,6 @@ import (
 
 	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
 )
 
 type ServicesCollector struct {
@@ -101,17 +100,11 @@ func NewServicesCollector(
 
 func (c ServicesCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	err := objs.Error
 	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.servicesScrapeErrorsTotalMetric.Inc()
 	} else {
-		err = c.reportServicesMetrics(objs, ch)
-		if err != nil {
-			log.Error(err)
-			errorMetric = float64(1)
-			c.servicesScrapeErrorsTotalMetric.Inc()
-		}
+		c.reportServicesMetrics(objs, ch)
 	}
 
 	c.servicesScrapeErrorsTotalMetric.Collect(ch)
@@ -134,7 +127,7 @@ func (c ServicesCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastServicesScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c ServicesCollector) reportServicesMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
+func (c ServicesCollector) reportServicesMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	c.serviceInfoMetric.Reset()
 
 	for _, cService := range objs.ServiceOfferings {
@@ -145,5 +138,4 @@ func (c ServicesCollector) reportServicesMetrics(objs *models.CFObjects, ch chan
 	}
 
 	c.serviceInfoMetric.Collect(ch)
-	return nil
 }

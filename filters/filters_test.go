@@ -10,10 +10,10 @@ import (
 var _ = Describe("Filters", func() {
 
 	Describe("Constructing Filters", func() {
-			var (
-				err error
-				f *filters.Filter
-			)
+		var (
+			err error
+			f   *filters.Filter
+		)
 
 		Context("with no active filters", func() {
 			BeforeEach(func() {

@@ -1,6 +1,6 @@
 module github.com/bosh-prometheus/cf_exporter
 
-go 1.19
+go 1.20
 
 require (
 	code.cloudfoundry.org/cli v0.0.0-20220602204915-eda2b7b2321c

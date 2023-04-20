@@ -17,19 +17,18 @@ type Work struct {
 }
 
 type Worker struct {
-	filter *filters.Filter
-	group sync.WaitGroup
-	list  chan Work
-	errs  chan error
-	threads   int
+	filter  *filters.Filter
+	group   sync.WaitGroup
+	list    chan Work
+	errs    chan error
+	threads int
 }
-
 
 func NewWorker(threads int, filter *filters.Filter) *Worker {
 	return &Worker{
-		filter: filter,
-		list: make(chan Work, 1000),
-		errs: make(chan error, 1000),
+		filter:  filter,
+		list:    make(chan Work, 1000),
+		errs:    make(chan error, 1000),
 		threads: threads,
 	}
 }
@@ -82,7 +81,7 @@ func (c *Worker) run(id int, session *SessionExt, entry *models.CFObjects) {
 		log.Debugf("[%2d] %s", id, work.name)
 		start := time.Now()
 		err := work.handler(session, entry)
-		duration := time.Now().Sub(start)
+		duration := time.Since(start)
 		if err != nil {
 			log.Errorf("[%2d] %s error: %s", id, work.name, err)
 			c.errs <- err
