@@ -2,8 +2,9 @@ package collectors
 
 import (
 	"time"
-	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/bosh-prometheus/cf_exporter/models"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type IsolationSegmentsCollector struct {

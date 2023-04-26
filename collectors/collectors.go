@@ -1,9 +1,9 @@
 package collectors
 
 import (
-	"github.com/bosh-prometheus/cf_exporter/models"
-	"github.com/bosh-prometheus/cf_exporter/filters"
 	"github.com/bosh-prometheus/cf_exporter/fetcher"
+	"github.com/bosh-prometheus/cf_exporter/filters"
+	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -13,8 +13,9 @@ type ObjectCollector interface {
 }
 
 type Collector struct {
-	fetcher *fetcher.Fetcher
-	filter *filters.Filter
+	workers    int
+	config     *fetcher.CFConfig
+	filter     *filters.Filter
 	collectors []ObjectCollector
 }
 
@@ -22,13 +23,14 @@ func NewCollector(
 	namespace string,
 	environment string,
 	deployment string,
-	fetcher *fetcher.Fetcher,
+	workers int,
+	config *fetcher.CFConfig,
 	filter *filters.Filter,
 ) (*Collector, error) {
-
 	res := &Collector{
-		fetcher: fetcher,
-		filter: filter,
+		workers:    workers,
+		config:     config,
+		filter:     filter,
 		collectors: []ObjectCollector{},
 	}
 
@@ -100,9 +102,9 @@ func NewCollector(
 	return res, nil
 }
 
-
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
-	objs := c.fetcher.GetObjects()
+	fetcher := fetcher.NewFetcher(c.workers, c.config, c.filter)
+	objs := fetcher.GetObjects()
 	for _, collector := range c.collectors {
 		collector.Collect(objs, ch)
 	}

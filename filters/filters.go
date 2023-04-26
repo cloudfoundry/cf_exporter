@@ -43,7 +43,7 @@ type Filter struct {
 	activated map[string]bool
 }
 
-func NewFilter(active... string) (*Filter, error) {
+func NewFilter(active ...string) (*Filter, error) {
 	filter := &Filter{
 		activated: map[string]bool{
 			Applications:      true,
@@ -92,7 +92,7 @@ func (f *Filter) setActive(active []string) error {
 	// enable only given filters
 	for _, val := range active {
 		name := strings.Trim(val, " ")
-		name = strings.ToLower(val)
+		name = strings.ToLower(name)
 		if _, ok := f.activated[name]; !ok {
 			return fmt.Errorf("Filter `%s` is not supported", val)
 		}
@@ -106,7 +106,7 @@ func (f *Filter) Enabled(name string) bool {
 	return (ok && status)
 }
 
-func (f *Filter) Any(names... string) bool {
+func (f *Filter) Any(names ...string) bool {
 	for _, n := range names {
 		if f.Enabled(n) {
 			return true
@@ -115,7 +115,7 @@ func (f *Filter) Any(names... string) bool {
 	return false
 }
 
-func (f *Filter) All(names... string) bool {
+func (f *Filter) All(names ...string) bool {
 	for _, n := range names {
 		if !f.Enabled(n) {
 			return false

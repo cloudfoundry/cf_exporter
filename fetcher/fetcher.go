@@ -32,14 +32,14 @@ type CFConfig struct {
 
 type Fetcher struct {
 	sync.Mutex
-	config  *CFConfig
-	worker  *Worker
+	config *CFConfig
+	worker *Worker
 }
 
 func NewFetcher(threads int, config *CFConfig, filter *filters.Filter) *Fetcher {
 	return &Fetcher{
-		config:  config,
-		worker:  NewWorker(threads, filter),
+		config: config,
+		worker: NewWorker(threads, filter),
 	}
 }
 
@@ -47,7 +47,7 @@ func (c *Fetcher) GetObjects() *models.CFObjects {
 	log.Infof("collecting objects from cloud foundry API")
 	start := time.Now()
 	data := c.fetch()
-	took := time.Now().Sub(start).Seconds()
+	took := time.Since(start).Seconds()
 	log.Infof("collecting objects from cloud foundry API (done, %.0f sec)", took)
 	data.Took = took
 	return data

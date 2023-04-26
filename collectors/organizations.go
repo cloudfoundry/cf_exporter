@@ -232,12 +232,11 @@ func NewOrganizationsCollector(
 
 func (c OrganizationsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	err := objs.Error
 	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.organizationsScrapeErrorsTotalMetric.Inc()
 	} else {
-		err = c.reportOrganizationsMetrics(objs, ch)
+		err := c.reportOrganizationsMetrics(objs, ch)
 		if err != nil {
 			log.Error(err)
 			errorMetric = float64(1)

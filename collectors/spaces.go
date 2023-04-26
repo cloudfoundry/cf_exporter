@@ -220,12 +220,11 @@ func NewSpacesCollector(
 
 func (c SpacesCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	err := objs.Error
 	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.spacesScrapeErrorsTotalMetric.Inc()
 	} else {
-		err = c.reportSpacesMetrics(objs, ch)
+		err := c.reportSpacesMetrics(objs, ch)
 		if err != nil {
 			log.Error(err)
 			errorMetric = float64(1)
@@ -263,8 +262,8 @@ func (c SpacesCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 // reportSpacesMetrics
-// 1. rely on GUID value instead of map status because it
-//    may exists in relationship but with empty value
+//  1. rely on GUID value instead of map status because it
+//     may exists in relationship but with empty value
 func (c SpacesCollector) reportSpacesMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
 	c.spaceInfoMetric.Reset()
 	c.spaceNonBasicServicesAllowedMetric.Reset()
@@ -278,7 +277,6 @@ func (c SpacesCollector) reportSpacesMetrics(objs *models.CFObjects, ch chan<- p
 	c.spaceTotalServicesQuotaMetric.Reset()
 
 	for _, cSpace := range objs.Spaces {
-
 		relOrg, ok := cSpace.Relationships[constant.RelationshipTypeOrganization]
 		if !ok {
 			return fmt.Errorf("could not find org relationship in space '%s'", cSpace.GUID)

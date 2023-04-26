@@ -10,11 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	concurrentOrganizationsGoroutines = 10
-	concurrentSpacesGoroutines        = 10
-)
-
 type ApplicationsCollector struct {
 	namespace                                   string
 	environment                                 string
@@ -160,12 +155,11 @@ func NewApplicationsCollector(
 
 func (c ApplicationsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	err := objs.Error
 	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.applicationsScrapeErrorsTotalMetric.Inc()
 	} else {
-		err = c.reportApplicationsMetrics(objs, ch)
+		err := c.reportApplicationsMetrics(objs, ch)
 		if err != nil {
 			log.Error(err)
 			errorMetric = float64(1)
@@ -198,12 +192,12 @@ func (c ApplicationsCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 // reportApplicationsMetrics
-// 1. empty detected buildpacks for apps running on droplet
-//    staged with a buildpack that is no mot available
-//    fallback to buildpack field for compatibility with v0
-// 2. symmetrically in some corner cases, buildpack is null but
-//    detected_buildpack is available. Use detected_buildpack
-//    for compatibility with v0
+//  1. empty detected buildpacks for apps running on droplet
+//     staged with a buildpack that is no mot available
+//     fallback to buildpack field for compatibility with v0
+//  2. symmetrically in some corner cases, buildpack is null but
+//     detected_buildpack is available. Use detected_buildpack
+//     for compatibility with v0
 func (c ApplicationsCollector) reportApplicationsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
 	c.applicationInfoMetric.Reset()
 	c.applicationInstancesMetric.Reset()
@@ -223,21 +217,21 @@ func (c ApplicationsCollector) reportApplicationsMetrics(objs *models.CFObjects,
 			}
 		}
 
-		spaceGuid, ok := application.Relationships[constant.RelationshipTypeSpace]
+		spaceRel, ok := application.Relationships[constant.RelationshipTypeSpace]
 		if !ok {
 			return fmt.Errorf("could not find space relation in application '%s'", application.GUID)
 		}
-		space, ok := objs.Spaces[spaceGuid.GUID]
+		space, ok := objs.Spaces[spaceRel.GUID]
 		if !ok {
-			return fmt.Errorf("could not find space with guid '%s'", spaceGuid.GUID)
+			return fmt.Errorf("could not find space with guid '%s'", spaceRel.GUID)
 		}
-		orgGuid, ok := space.Relationships[constant.RelationshipTypeOrganization]
+		orgRel, ok := space.Relationships[constant.RelationshipTypeOrganization]
 		if !ok {
 			return fmt.Errorf("could not find org relation in space '%s'", space.GUID)
 		}
-		organization, ok := objs.Orgs[orgGuid.GUID]
+		organization, ok := objs.Orgs[orgRel.GUID]
 		if !ok {
-			return fmt.Errorf("could not find org with guid '%s'", orgGuid.GUID)
+			return fmt.Errorf("could not find org with guid '%s'", orgRel.GUID)
 		}
 		appSum, ok := objs.AppSummaries[application.GUID]
 		if !ok {

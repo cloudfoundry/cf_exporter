@@ -5,7 +5,6 @@ import (
 
 	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
 )
 
 type ServiceBindingsCollector struct {
@@ -101,17 +100,11 @@ func NewServiceBindingsCollector(
 
 func (c ServiceBindingsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	err := objs.Error
 	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.serviceBindingsScrapeErrorsTotalMetric.Inc()
 	} else {
-		err = c.reportServiceBindingsMetrics(objs, ch)
-		if err != nil {
-			log.Error(err)
-			errorMetric = float64(1)
-			c.serviceBindingsScrapeErrorsTotalMetric.Inc()
-		}
+		c.reportServiceBindingsMetrics(objs, ch)
 	}
 	c.serviceBindingsScrapeErrorsTotalMetric.Collect(ch)
 	c.serviceBindingsScrapesTotalMetric.Inc()
@@ -133,7 +126,7 @@ func (c ServiceBindingsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastServiceBindingsScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c ServiceBindingsCollector) reportServiceBindingsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
+func (c ServiceBindingsCollector) reportServiceBindingsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	c.serviceBindingInfoMetric.Reset()
 
 	for _, cItem := range objs.ServiceBindings {
@@ -144,5 +137,4 @@ func (c ServiceBindingsCollector) reportServiceBindingsMetrics(objs *models.CFOb
 		).Set(float64(1))
 	}
 	c.serviceBindingInfoMetric.Collect(ch)
-	return nil
 }

@@ -6,7 +6,6 @@ import (
 	"code.cloudfoundry.org/cli/resources"
 	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
 )
 
 type ServiceInstancesCollector struct {
@@ -102,17 +101,11 @@ func NewServiceInstancesCollector(
 
 func (c ServiceInstancesCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	err := objs.Error
 	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.serviceInstancesScrapeErrorsTotalMetric.Inc()
 	} else {
-		err = c.reportServiceInstancesMetrics(objs, ch)
-		if err != nil {
-			log.Error(err)
-			errorMetric = float64(1)
-			c.serviceInstancesScrapeErrorsTotalMetric.Inc()
-		}
+		c.reportServiceInstancesMetrics(objs, ch)
 	}
 
 	c.serviceInstancesScrapeErrorsTotalMetric.Collect(ch)
@@ -137,7 +130,7 @@ func (c ServiceInstancesCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // reportServiceInstancesMetrics
 // 1. v0 compatibility
-func (c ServiceInstancesCollector) reportServiceInstancesMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
+func (c ServiceInstancesCollector) reportServiceInstancesMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	c.serviceInstanceInfoMetric.Reset()
 
 	for _, cElem := range objs.ServiceInstances {
@@ -159,6 +152,4 @@ func (c ServiceInstancesCollector) reportServiceInstancesMetrics(objs *models.CF
 	}
 
 	c.serviceInstanceInfoMetric.Collect(ch)
-
-	return nil
 }

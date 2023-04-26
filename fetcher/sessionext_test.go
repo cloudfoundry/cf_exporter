@@ -20,6 +20,7 @@ import (
 )
 
 const (
+	//nolint:gosec
 	fakeToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE2NjAyMjQzOTksImV4cCI6MTY5MTc2MDM5OSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJSb2xlIjpbIk1hbmFnZXIiLCJQcm9qZWN0IEFkbWluaXN0cmF0b3IiXX0.Qh0M7WikXNEH1aHnsp5fGVrV2JKZpFV6OxDlQKX68Jk"
 )
 
@@ -113,7 +114,6 @@ var _ = Describe("Extensions", func() {
 		})
 	})
 
-
 	Context("fetching org quotas", func() {
 		It("no error occurs", func() {
 			server.AppendHandlers(
@@ -140,7 +140,6 @@ var _ = Describe("Extensions", func() {
 			Ω(objs[1].Name).Should(Equal("quota2"))
 		})
 	})
-
 
 	Context("fetching space quotas", func() {
 		It("no error occurs", func() {
@@ -169,7 +168,6 @@ var _ = Describe("Extensions", func() {
 		})
 	})
 
-
 	Context("fetching space summary", func() {
 		It("no error occurs", func() {
 			server.AppendHandlers(
@@ -179,12 +177,12 @@ var _ = Describe("Extensions", func() {
 						models.SpaceSummary{
 							GUID: "space-guid",
 							Apps: []models.AppSummary{
-								models.AppSummary{
-									GUID: "app1-guid",
+								{
+									GUID:             "app1-guid",
 									RunningInstances: 1,
 								},
-								models.AppSummary{
-									GUID: "app2-guid",
+								{
+									GUID:             "app2-guid",
 									RunningInstances: 2,
 								},
 							},
@@ -212,10 +210,10 @@ var _ = Describe("Extensions", func() {
 					ghttp.VerifyRequest("GET", "/v3/audit_events"),
 					ghttp.RespondWith(http.StatusOK, serializeList(
 						models.Event{
-							GUID: "event1-guid",
+							GUID:      "event1-guid",
 							CreatedAt: before,
 							UpdatedAt: now,
-							Type: "event1-type",
+							Type:      "event1-type",
 							Actor: models.EventActor{
 								GUID: "event1-actor-guid",
 								Type: "event1-actor-type",
@@ -234,10 +232,10 @@ var _ = Describe("Extensions", func() {
 							},
 						},
 						models.Event{
-							GUID: "event2-guid",
+							GUID:      "event2-guid",
 							CreatedAt: before,
 							UpdatedAt: now,
-							Type: "event2-type",
+							Type:      "event2-type",
 							Actor: models.EventActor{
 								GUID: "event2-actor-guid",
 								Type: "event2-actor-type",

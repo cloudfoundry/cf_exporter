@@ -196,8 +196,8 @@ func (c *Fetcher) fetchUsers(session *SessionExt, entry *models.CFObjects) error
 }
 
 // fetchEvents -
-// 1. create query param "created_ats[gt]=(now - 15min)". There is no point scrapping more
-//    data since the event metric will filter out events older than last scrap.
+//  1. create query param "created_ats[gt]=(now - 15min)". There is no point scrapping more
+//     data since the event metric will filter out events older than last scrap.
 func (c *Fetcher) fetchEvents(session *SessionExt, entry *models.CFObjects) error {
 	// 1.
 	location, _ := time.LoadLocation("UTC")

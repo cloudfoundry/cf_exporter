@@ -5,7 +5,6 @@ import (
 
 	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
 )
 
 type EventsCollector struct {
@@ -18,8 +17,8 @@ type EventsCollector struct {
 	lastEventsScrapeErrorMetric           prometheus.Gauge
 	lastEventsScrapeTimestampMetric       prometheus.Gauge
 	lastEventsScrapeDurationSecondsMetric prometheus.Gauge
-	lastCheckFilter time.Time
-	timeLocation    *time.Location
+	lastCheckFilter                       time.Time
+	timeLocation                          *time.Location
 }
 
 func NewEventsCollector(
@@ -108,17 +107,11 @@ func NewEventsCollector(
 
 func (c *EventsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	err := objs.Error
 	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.eventsScrapeErrorsTotalMetric.Inc()
 	} else {
-		err = c.reportEventsMetrics(objs, ch)
-		if err != nil {
-			log.Error(err)
-			errorMetric = float64(1)
-			c.eventsScrapeErrorsTotalMetric.Inc()
-		}
+		c.reportEventsMetrics(objs, ch)
 	}
 
 	c.eventsScrapeErrorsTotalMetric.Collect(ch)
@@ -143,7 +136,7 @@ func (c *EventsCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // reportEventsMetrics
 // 1. find user's username in user map if available
-func (c *EventsCollector) reportEventsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
+func (c *EventsCollector) reportEventsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	c.eventsInfoMetric.Reset()
 
 	for _, event := range objs.Events {
@@ -174,5 +167,4 @@ func (c *EventsCollector) reportEventsMetrics(objs *models.CFObjects, ch chan<- 
 	timeLocation, _ := time.LoadLocation("UTC")
 	c.lastCheckFilter = time.Now().In(timeLocation)
 	c.eventsInfoMetric.Collect(ch)
-	return nil
 }

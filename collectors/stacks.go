@@ -5,7 +5,6 @@ import (
 
 	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
 )
 
 type StacksCollector struct {
@@ -101,17 +100,11 @@ func NewStacksCollector(
 
 func (c StacksCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	err := objs.Error
 	if objs.Error != nil {
 		errorMetric = float64(1)
 		c.stacksScrapeErrorsTotalMetric.Inc()
 	} else {
-		err = c.reportStacksMetrics(objs, ch)
-		if err != nil {
-			log.Error(err)
-			errorMetric = float64(1)
-			c.stacksScrapeErrorsTotalMetric.Inc()
-		}
+		c.reportStacksMetrics(objs, ch)
 	}
 
 	c.stacksScrapeErrorsTotalMetric.Collect(ch)
@@ -134,7 +127,7 @@ func (c StacksCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastStacksScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c StacksCollector) reportStacksMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
+func (c StacksCollector) reportStacksMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	c.stackInfoMetric.Reset()
 
 	for _, cStack := range objs.Stacks {
@@ -145,5 +138,4 @@ func (c StacksCollector) reportStacksMetrics(objs *models.CFObjects, ch chan<- p
 	}
 
 	c.stackInfoMetric.Collect(ch)
-	return nil
 }
