@@ -171,9 +171,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	up := fetcher.NewFetcher(*workers, config, filter)
-
-	c, err := collectors.NewCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, up, filter)
+	c, err := collectors.NewCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, *workers, config, filter)
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
