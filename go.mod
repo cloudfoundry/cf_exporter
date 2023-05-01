@@ -6,7 +6,7 @@ require (
 	code.cloudfoundry.org/cli v0.0.0-20220602204915-eda2b7b2321c
 	github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.4.0
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.27.4
+	github.com/onsi/gomega v1.27.6
 	github.com/prometheus/client_golang v1.15.0
 	github.com/prometheus/common v0.42.0
 	github.com/sirupsen/logrus v1.9.0
