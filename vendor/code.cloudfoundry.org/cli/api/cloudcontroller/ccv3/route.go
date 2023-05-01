@@ -82,7 +82,7 @@ func (client Client) GetRoutes(query ...Query) ([]resources.Route, Warnings, err
 	return routes, warnings, err
 }
 
-func (client Client) MapRoute(routeGUID string, appGUID string, destinationProtocol string) (Warnings, error) {
+func (client Client) MapRoute(routeGUID string, appGUID string) (Warnings, error) {
 	type destinationProcess struct {
 		ProcessType string `json:"process_type"`
 	}
@@ -92,8 +92,7 @@ func (client Client) MapRoute(routeGUID string, appGUID string, destinationProto
 		Process *destinationProcess `json:"process,omitempty"`
 	}
 	type destination struct {
-		App      destinationApp `json:"app"`
-		Protocol string         `json:"protocol,omitempty"`
+		App destinationApp `json:"app"`
 	}
 
 	type body struct {
@@ -102,13 +101,8 @@ func (client Client) MapRoute(routeGUID string, appGUID string, destinationProto
 
 	requestBody := body{
 		Destinations: []destination{
-			{
-				App: destinationApp{GUID: appGUID},
-			},
+			{App: destinationApp{GUID: appGUID}},
 		},
-	}
-	if destinationProtocol != "" {
-		requestBody.Destinations[0].Protocol = destinationProtocol
 	}
 
 	_, warnings, err := client.MakeRequest(RequestParams{
@@ -121,7 +115,7 @@ func (client Client) MapRoute(routeGUID string, appGUID string, destinationProto
 }
 
 func (client Client) UnmapRoute(routeGUID string, destinationGUID string) (Warnings, error) {
-	var responseBody resources.Build
+	var responseBody Build
 
 	_, warnings, err := client.MakeRequest(RequestParams{
 		RequestName:  internal.UnmapRouteRequest,
@@ -129,22 +123,5 @@ func (client Client) UnmapRoute(routeGUID string, destinationGUID string) (Warni
 		ResponseBody: &responseBody,
 	})
 
-	return warnings, err
-}
-
-func (client Client) UpdateDestination(routeGUID string, destinationGUID string, protocol string) (Warnings, error) {
-	type body struct {
-		Protocol string `json:"protocol"`
-	}
-	requestBody := body{
-		Protocol: protocol,
-	}
-	var responseBody resources.Build
-	_, warnings, err := client.MakeRequest(RequestParams{
-		RequestName:  internal.PatchDestinationRequest,
-		URIParams:    internal.Params{"route_guid": routeGUID, "destination_guid": destinationGUID},
-		RequestBody:  &requestBody,
-		ResponseBody: &responseBody,
-	})
 	return warnings, err
 }

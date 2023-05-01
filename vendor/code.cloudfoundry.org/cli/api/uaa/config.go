@@ -2,7 +2,7 @@ package uaa
 
 import "time"
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Config
+//go:generate counterfeiter . Config
 
 // Config allows the Client to be configured
 type Config interface {

@@ -2,7 +2,7 @@ package uaa
 
 import "net/http"
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Connection
+//go:generate counterfeiter . Connection
 
 // Connection creates and executes http requests
 type Connection interface {

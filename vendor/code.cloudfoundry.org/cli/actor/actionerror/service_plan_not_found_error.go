@@ -3,17 +3,13 @@ package actionerror
 import "fmt"
 
 type ServicePlanNotFoundError struct {
-	PlanName          string
-	OfferingName      string
-	ServiceBrokerName string
+	PlanName     string
+	OfferingName string
 }
 
 func (e ServicePlanNotFoundError) Error() string {
 	if e.OfferingName != "" && e.PlanName != "" {
-		if e.ServiceBrokerName != "" {
-			return fmt.Sprintf("The plan %s could not be found for service offering %s and broker %s.", e.PlanName, e.OfferingName, e.ServiceBrokerName)
-		}
-		return fmt.Sprintf("The plan %s could not be found for service offering %s.", e.PlanName, e.OfferingName)
+		return fmt.Sprintf("The plan %s could not be found for service %s.", e.PlanName, e.OfferingName)
 	}
 
 	if e.PlanName != "" {

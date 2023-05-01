@@ -6,7 +6,7 @@ import (
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ProgressBar
+//go:generate counterfeiter . ProgressBar
 
 type ProgressBar interface {
 	Finish()

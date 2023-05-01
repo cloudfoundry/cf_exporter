@@ -8,8 +8,3 @@ type User struct {
 	PresentationName string `json:"presentation_name"`
 	Origin           string `json:"origin"`
 }
-
-type K8sUser struct {
-	Name string `json:"name"`
-	Kind string `json:"kind"`
-}

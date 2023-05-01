@@ -14,10 +14,8 @@ type RouteDestinationApp struct {
 }
 
 type RouteDestination struct {
-	GUID     string
-	App      RouteDestinationApp
-	Port     int
-	Protocol string
+	GUID string
+	App  RouteDestinationApp
 }
 
 type Route struct {

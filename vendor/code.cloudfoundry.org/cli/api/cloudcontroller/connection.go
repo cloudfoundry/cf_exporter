@@ -10,7 +10,7 @@
 // the V2 and V3 api respectively.
 package cloudcontroller
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Connection
+//go:generate counterfeiter . Connection
 
 // Connection creates and executes http requests
 type Connection interface {

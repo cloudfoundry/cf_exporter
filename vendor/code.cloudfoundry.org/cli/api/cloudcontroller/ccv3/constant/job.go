@@ -10,8 +10,6 @@ const (
 	JobFailed JobState = "FAILED"
 	// JobProcessing is when the job is waiting to be run.
 	JobProcessing JobState = "PROCESSING"
-	// JobPolling is when the job is waiting on an external resource to do the task
-	JobPolling JobState = "POLLING"
 )
 
 // JobErrorCode is the numeric code for a particular error.

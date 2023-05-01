@@ -1,10 +1,10 @@
 package actionerror
 
-// ServiceInstanceUpgradeNotAvailableError is returned when attempting to upgrade a single service instance,
+// ServiceUpgradeNotAvailableError is returned when attempting to upgrade a single service instance,
 // but there is no upgrade available on the current service plan, i.e., service instance is already
 // up-to-date.
-type ServiceInstanceUpgradeNotAvailableError struct{}
+type ServiceUpgradeNotAvailableError struct{}
 
-func (e ServiceInstanceUpgradeNotAvailableError) Error() string {
+func (e ServiceUpgradeNotAvailableError) Error() string {
 	return "No upgrade is available."
 }

@@ -10,7 +10,7 @@ import (
 	"code.cloudfoundry.org/cli/api/uaa"
 )
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . UAAClient
+//go:generate counterfeiter . UAAClient
 
 const accessTokenExpirationMargin = time.Minute
 
@@ -19,7 +19,7 @@ type UAAClient interface {
 	RefreshAccessToken(refreshToken string) (uaa.RefreshedTokens, error)
 }
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . TokenCache
+//go:generate counterfeiter . TokenCache
 
 // TokenCache is where the UAA token information is stored.
 type TokenCache interface {
@@ -50,13 +50,16 @@ func NewUAAAuthentication(client UAAClient, cache TokenCache) *UAAAuthentication
 // wrapped connection's Make. If the client is not set on the wrapper, it will
 // not add any header or handle any authentication errors.
 func (t *UAAAuthentication) Make(request *cloudcontroller.Request, passedResponse *cloudcontroller.Response) error {
-	if request.Header.Get("Authorization") == "" && (t.cache.AccessToken() != "" || t.cache.RefreshToken() != "") {
+	if t.client == nil {
+		return t.connection.Make(request, passedResponse)
+	}
+
+	if t.cache.AccessToken() != "" || t.cache.RefreshToken() != "" {
 		// assert a valid access token for authenticated requests
-		err := t.refreshTokenIfNecessary(t.cache.AccessToken())
+		err := t.refreshToken()
 		if nil != err {
 			return err
 		}
-
 		request.Header.Set("Authorization", t.cache.AccessToken())
 	}
 
@@ -77,10 +80,10 @@ func (t *UAAAuthentication) Wrap(innerconnection cloudcontroller.Connection) clo
 
 // refreshToken refreshes the JWT access token if it is expired or about to expire.
 // If the access token is not yet expired, no action is performed.
-func (t *UAAAuthentication) refreshTokenIfNecessary(accessToken string) error {
+func (t *UAAAuthentication) refreshToken() error {
 	var expiresIn time.Duration
 
-	tokenStr := strings.TrimPrefix(accessToken, "bearer ")
+	tokenStr := strings.TrimPrefix(t.cache.AccessToken(), "bearer ")
 	token, err := jws.ParseJWT([]byte(tokenStr))
 
 	if err == nil {

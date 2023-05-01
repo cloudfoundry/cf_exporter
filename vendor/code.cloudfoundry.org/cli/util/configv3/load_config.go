@@ -166,12 +166,6 @@ func LoadConfig(flags ...FlagOverride) (*Config, error) {
 		tty:              isTTY,
 	}
 
-	config.UserConfig = DynamicUserConfig{
-		ConfigFile:           &config.ConfigFile,
-		DefaultUserConfig:    DefaultUserConfig{ConfigFile: &config.ConfigFile},
-		KubernetesUserConfig: KubernetesUserConfig{ConfigFile: &config.ConfigFile},
-	}
-
 	return &config, jsonError
 }
 

@@ -1,12 +1,29 @@
 package ccv3
 
 import (
+	"encoding/json"
+
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/internal"
-	"code.cloudfoundry.org/cli/resources"
 )
 
-func (client *Client) GetFeatureFlag(flagName string) (resources.FeatureFlag, Warnings, error) {
-	var responseBody resources.FeatureFlag
+// FeatureFlag represents a Cloud Controller V3 Feature Flag.
+type FeatureFlag struct {
+	Name    string `json:"name"`
+	Enabled bool   `json:"enabled"`
+}
+
+func (f FeatureFlag) MarshalJSON() ([]byte, error) {
+	var ccBodyFlag struct {
+		Enabled bool `json:"enabled"`
+	}
+
+	ccBodyFlag.Enabled = f.Enabled
+
+	return json.Marshal(ccBodyFlag)
+}
+
+func (client *Client) GetFeatureFlag(flagName string) (FeatureFlag, Warnings, error) {
+	var responseBody FeatureFlag
 
 	_, warnings, err := client.MakeRequest(RequestParams{
 		RequestName:  internal.GetFeatureFlagRequest,
@@ -18,23 +35,23 @@ func (client *Client) GetFeatureFlag(flagName string) (resources.FeatureFlag, Wa
 }
 
 // GetFeatureFlags lists feature flags.
-func (client *Client) GetFeatureFlags() ([]resources.FeatureFlag, Warnings, error) {
-	var featureFlags []resources.FeatureFlag
+func (client *Client) GetFeatureFlags() ([]FeatureFlag, Warnings, error) {
+	var resources []FeatureFlag
 
 	_, warnings, err := client.MakeListRequest(RequestParams{
 		RequestName:  internal.GetFeatureFlagsRequest,
-		ResponseBody: resources.FeatureFlag{},
+		ResponseBody: FeatureFlag{},
 		AppendToList: func(item interface{}) error {
-			featureFlags = append(featureFlags, item.(resources.FeatureFlag))
+			resources = append(resources, item.(FeatureFlag))
 			return nil
 		},
 	})
 
-	return featureFlags, warnings, err
+	return resources, warnings, err
 }
 
-func (client *Client) UpdateFeatureFlag(flag resources.FeatureFlag) (resources.FeatureFlag, Warnings, error) {
-	var responseBody resources.FeatureFlag
+func (client *Client) UpdateFeatureFlag(flag FeatureFlag) (FeatureFlag, Warnings, error) {
+	var responseBody FeatureFlag
 
 	_, warnings, err := client.MakeRequest(RequestParams{
 		RequestName:  internal.PatchFeatureFlagRequest,

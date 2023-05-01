@@ -20,8 +20,7 @@ type requestOptions struct {
 
 	// RequestName is the name of the request (see routes)
 	RequestName string
-	// Header contains custom headers to pass to the request.
-	Header http.Header
+
 	// Method is the HTTP method.
 	Method string
 	// URL is the request path.
@@ -51,25 +50,15 @@ func (requester *RealRequester) newHTTPRequest(passedRequest requestOptions) (*c
 	if err != nil {
 		return nil, err
 	}
-
 	if passedRequest.Query != nil {
 		request.URL.RawQuery = FormatQueryParameters(passedRequest.Query).Encode()
 	}
 
 	request.Header = http.Header{}
-	if passedRequest.Header != nil {
-		request.Header = passedRequest.Header
-	}
+	request.Header.Set("Accept", "application/json")
+	request.Header.Set("User-Agent", requester.userAgent)
 
-	if request.Header.Get("User-Agent") == "" {
-		request.Header.Set("User-Agent", requester.userAgent)
-	}
-
-	if request.Header.Get("Accept") == "" {
-		request.Header.Set("Accept", "application/json")
-	}
-
-	if request.Header.Get("Content-Type") == "" {
+	if passedRequest.Body != nil {
 		request.Header.Set("Content-Type", "application/json")
 	}
 

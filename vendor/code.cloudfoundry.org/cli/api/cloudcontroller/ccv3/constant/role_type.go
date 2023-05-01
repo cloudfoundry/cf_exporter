@@ -11,5 +11,4 @@ const (
 	SpaceDeveloperRole    RoleType = "space_developer"
 	SpaceAuditorRole      RoleType = "space_auditor"
 	SpaceManagerRole      RoleType = "space_manager"
-	SpaceSupporterRole    RoleType = "space_supporter"
 )

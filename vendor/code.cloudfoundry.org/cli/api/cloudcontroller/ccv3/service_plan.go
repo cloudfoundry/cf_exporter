@@ -1,28 +1,10 @@
 package ccv3
 
 import (
-	"code.cloudfoundry.org/cli/api/cloudcontroller/ccerror"
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/constant"
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/internal"
 	"code.cloudfoundry.org/cli/resources"
-	"code.cloudfoundry.org/cli/util/lookuptable"
 )
-
-func (client *Client) GetServicePlanByGUID(guid string) (resources.ServicePlan, Warnings, error) {
-	if guid == "" {
-		return resources.ServicePlan{}, nil, ccerror.ServicePlanNotFound{}
-	}
-
-	var result resources.ServicePlan
-
-	_, warnings, err := client.MakeRequest(RequestParams{
-		RequestName:  internal.GetServicePlanRequest,
-		URIParams:    internal.Params{"service_plan_guid": guid},
-		ResponseBody: &result,
-	})
-
-	return result, warnings, err
-}
 
 // GetServicePlans lists service plan with optional filters.
 func (client *Client) GetServicePlans(query ...Query) ([]resources.ServicePlan, Warnings, error) {
@@ -108,16 +90,14 @@ type ServiceOfferingWithPlans struct {
 }
 
 func (client *Client) GetServicePlansWithOfferings(query ...Query) ([]ServiceOfferingWithPlans, Warnings, error) {
-	query = append(query,
-		Query{
-			Key:    Include,
-			Values: []string{"service_offering"},
-		},
-		Query{
-			Key:    FieldsServiceOfferingServiceBroker,
-			Values: []string{"name,guid"},
-		},
-	)
+	query = append(query, Query{
+		Key:    Include,
+		Values: []string{"service_offering"},
+	})
+	query = append(query, Query{
+		Key:    FieldsServiceOfferingServiceBroker,
+		Values: []string{"name,guid"},
+	})
 
 	plans, included, warnings, err := client.getServicePlans(query...)
 	if err != nil {
@@ -139,7 +119,10 @@ func (client *Client) GetServicePlansWithOfferings(query ...Query) ([]ServiceOff
 		return i
 	}
 
-	brokerNameLookup := lookuptable.NameFromGUID(included.ServiceBrokers)
+	brokerNameLookup := make(map[string]string)
+	for _, b := range included.ServiceBrokers {
+		brokerNameLookup[b.GUID] = b.Name
+	}
 
 	for _, p := range plans {
 		i := indexOfOffering(p.ServiceOfferingGUID)
@@ -157,7 +140,10 @@ func (client *Client) GetServicePlansWithOfferings(query ...Query) ([]ServiceOff
 }
 
 func computeSpaceDetailsTable(included IncludedResources) map[string]planSpaceDetails {
-	orgNameFromGUID := lookuptable.NameFromGUID(included.Organizations)
+	orgNameFromGUID := make(map[string]string)
+	for _, org := range included.Organizations {
+		orgNameFromGUID[org.GUID] = org.Name
+	}
 
 	spaceDetailsFromGUID := make(map[string]planSpaceDetails)
 	for _, space := range included.Spaces {
