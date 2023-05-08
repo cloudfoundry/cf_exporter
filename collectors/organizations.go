@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"code.cloudfoundry.org/cli/resources"
 	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
@@ -238,7 +239,6 @@ func (c OrganizationsCollector) Collect(objs *models.CFObjects, ch chan<- promet
 	} else {
 		err := c.reportOrganizationsMetrics(objs, ch)
 		if err != nil {
-			log.Error(err)
 			errorMetric = float64(1)
 			c.organizationsScrapeErrorsTotalMetric.Inc()
 		}
@@ -274,7 +274,69 @@ func (c OrganizationsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastOrganizationsScrapeDurationSecondsMetric.Describe(ch)
 }
 
+func (c OrganizationsCollector) reportOrg(org resources.Organization, objs *models.CFObjects) error {
+	quotaName := ""
+	if org.QuotaGUID != "" {
+		quota, ok := objs.OrgQuotas[org.QuotaGUID]
+		if !ok {
+			return fmt.Errorf("could not find org quota with guid '%s'", org.QuotaGUID)
+		}
+		quotaName = quota.Name
+		c.organizationNonBasicServicesAllowedMetric.WithLabelValues(
+			org.GUID,
+			org.Name,
+		).Set(BoolToFloat(quota.Services.PaidServicePlans))
+		c.organizationInstanceMemoryMbLimitMetric.WithLabelValues(
+			org.GUID,
+			org.Name,
+		).Set(NullIntToFloat(quota.Apps.InstanceMemory))
+		c.organizationTotalAppInstancesQuotaMetric.WithLabelValues(
+			org.GUID,
+			org.Name,
+		).Set(NullIntToFloat(quota.Apps.TotalAppInstances))
+		c.organizationTotalAppTasksQuotaMetric.WithLabelValues(
+			org.GUID,
+			org.Name,
+		).Set(NullIntToFloat(quota.Apps.PerAppTasks))
+		c.organizationTotalMemoryMbQuotaMetric.WithLabelValues(
+			org.GUID,
+			org.Name,
+		).Set(NullIntToFloat(quota.Apps.TotalMemory))
+		c.organizationTotalPrivateDomainsQuotaMetric.WithLabelValues(
+			org.GUID,
+			org.Name,
+		).Set(NullIntToFloat(quota.Domains.TotalDomains))
+		c.organizationTotalReservedRoutePortsQuotaMetric.WithLabelValues(
+			org.GUID,
+			org.Name,
+		).Set(NullIntToFloat(quota.Routes.TotalReservedPorts))
+		c.organizationTotalRoutesQuotaMetric.WithLabelValues(
+			org.GUID,
+			org.Name,
+		).Set(NullIntToFloat(quota.Routes.TotalRoutes))
+		c.organizationTotalServiceKeysQuotaMetric.WithLabelValues(
+			org.GUID,
+			org.Name,
+		).Set(NullIntToFloat(quota.Services.TotalServiceKeys))
+		c.organizationTotalServicesQuotaMetric.WithLabelValues(
+			org.GUID,
+			org.Name,
+		).Set(NullIntToFloat(quota.Services.TotalServiceInstances))
+	}
+	c.organizationInfoMetric.WithLabelValues(
+		org.GUID,
+		org.Name,
+		quotaName,
+	).Set(float64(1))
+
+	return nil
+}
+
+// reportOrganizationsMetrics
+//  1. continue processing application list upon error
 func (c OrganizationsCollector) reportOrganizationsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
+	var res error
+
 	c.organizationInfoMetric.Reset()
 	c.organizationNonBasicServicesAllowedMetric.Reset()
 	c.organizationInstanceMemoryMbLimitMetric.Reset()
@@ -288,59 +350,12 @@ func (c OrganizationsCollector) reportOrganizationsMetrics(objs *models.CFObject
 	c.organizationTotalServicesQuotaMetric.Reset()
 
 	for _, cOrg := range objs.Orgs {
-		quotaName := ""
-		if cOrg.QuotaGUID != "" {
-			quota, ok := objs.OrgQuotas[cOrg.QuotaGUID]
-			if !ok {
-				return fmt.Errorf("could not find org quota with guid '%s'", cOrg.QuotaGUID)
-			}
-			quotaName = quota.Name
-			c.organizationNonBasicServicesAllowedMetric.WithLabelValues(
-				cOrg.GUID,
-				cOrg.Name,
-			).Set(BoolToFloat(quota.Services.PaidServicePlans))
-			c.organizationInstanceMemoryMbLimitMetric.WithLabelValues(
-				cOrg.GUID,
-				cOrg.Name,
-			).Set(NullIntToFloat(quota.Apps.InstanceMemory))
-			c.organizationTotalAppInstancesQuotaMetric.WithLabelValues(
-				cOrg.GUID,
-				cOrg.Name,
-			).Set(NullIntToFloat(quota.Apps.TotalAppInstances))
-			c.organizationTotalAppTasksQuotaMetric.WithLabelValues(
-				cOrg.GUID,
-				cOrg.Name,
-			).Set(NullIntToFloat(quota.Apps.PerAppTasks))
-			c.organizationTotalMemoryMbQuotaMetric.WithLabelValues(
-				cOrg.GUID,
-				cOrg.Name,
-			).Set(NullIntToFloat(quota.Apps.TotalMemory))
-			c.organizationTotalPrivateDomainsQuotaMetric.WithLabelValues(
-				cOrg.GUID,
-				cOrg.Name,
-			).Set(NullIntToFloat(quota.Domains.TotalDomains))
-			c.organizationTotalReservedRoutePortsQuotaMetric.WithLabelValues(
-				cOrg.GUID,
-				cOrg.Name,
-			).Set(NullIntToFloat(quota.Routes.TotalReservedPorts))
-			c.organizationTotalRoutesQuotaMetric.WithLabelValues(
-				cOrg.GUID,
-				cOrg.Name,
-			).Set(NullIntToFloat(quota.Routes.TotalRoutes))
-			c.organizationTotalServiceKeysQuotaMetric.WithLabelValues(
-				cOrg.GUID,
-				cOrg.Name,
-			).Set(NullIntToFloat(quota.Services.TotalServiceKeys))
-			c.organizationTotalServicesQuotaMetric.WithLabelValues(
-				cOrg.GUID,
-				cOrg.Name,
-			).Set(NullIntToFloat(quota.Services.TotalServiceInstances))
+		err := c.reportOrg(cOrg, objs)
+		// 1.
+		if err != nil {
+			log.Warn(err)
+			res = err
 		}
-		c.organizationInfoMetric.WithLabelValues(
-			cOrg.GUID,
-			cOrg.Name,
-			quotaName,
-		).Set(float64(1))
 	}
 
 	c.organizationInfoMetric.Collect(ch)
@@ -354,5 +369,5 @@ func (c OrganizationsCollector) reportOrganizationsMetrics(objs *models.CFObject
 	c.organizationTotalRoutesQuotaMetric.Collect(ch)
 	c.organizationTotalServiceKeysQuotaMetric.Collect(ch)
 	c.organizationTotalServicesQuotaMetric.Collect(ch)
-	return nil
+	return res
 }

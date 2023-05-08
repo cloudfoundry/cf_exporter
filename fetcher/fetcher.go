@@ -82,7 +82,7 @@ func (c *Fetcher) fetch() *models.CFObjects {
 
 	session, err := NewSessionExt(c.config)
 	if err != nil {
-		log.Errorf("unable to initialize cloud foundry clients: %s", err)
+		log.WithError(err).Error("unable to initialize cloud foundry clients")
 		result.Error = err
 		return result
 	}

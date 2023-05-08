@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/constant"
+	"code.cloudfoundry.org/cli/resources"
 	"github.com/bosh-prometheus/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
@@ -226,7 +227,6 @@ func (c SpacesCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Me
 	} else {
 		err := c.reportSpacesMetrics(objs, ch)
 		if err != nil {
-			log.Error(err)
 			errorMetric = float64(1)
 			c.spacesScrapeErrorsTotalMetric.Inc()
 		}
@@ -261,10 +261,92 @@ func (c SpacesCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastSpacesScrapeDurationSecondsMetric.Describe(ch)
 }
 
-// reportSpacesMetrics
+// reportSpace
 //  1. rely on GUID value instead of map status because it
 //     may exists in relationship but with empty value
+func (c SpacesCollector) reportSpace(space resources.Space, objs *models.CFObjects) error {
+	relOrg, ok := space.Relationships[constant.RelationshipTypeOrganization]
+	if !ok {
+		return fmt.Errorf("could not find org relationship in space '%s'", space.GUID)
+	}
+	quotaName := ""
+	// 1.
+	relQuota := space.Relationships[constant.RelationshipTypeQuota]
+	if relQuota.GUID != "" {
+		quota, okQ := objs.SpaceQuotas[relQuota.GUID]
+		if !okQ {
+			return fmt.Errorf("could not find space quota '%s' from space '%s'", relQuota.GUID, space.GUID)
+		}
+		quotaName = quota.Name
+		c.spaceNonBasicServicesAllowedMetric.WithLabelValues(
+			space.GUID,
+			space.Name,
+			relOrg.GUID,
+		).Set(BoolToFloat(quota.Services.PaidServicePlans))
+
+		c.spaceInstanceMemoryMbLimitMetric.WithLabelValues(
+			space.GUID,
+			space.Name,
+			relOrg.GUID,
+		).Set(NullIntToFloat(quota.Apps.InstanceMemory))
+
+		c.spaceTotalAppInstancesQuotaMetric.WithLabelValues(
+			space.GUID,
+			space.Name,
+			relOrg.GUID,
+		).Set(NullIntToFloat(quota.Apps.TotalAppInstances))
+
+		c.spaceTotalAppTasksQuotaMetric.WithLabelValues(
+			space.GUID,
+			space.Name,
+			relOrg.GUID,
+		).Set(NullIntToFloat(quota.Apps.PerAppTasks))
+
+		c.spaceTotalMemoryMbQuotaMetric.WithLabelValues(
+			space.GUID,
+			space.Name,
+			relOrg.GUID,
+		).Set(NullIntToFloat(quota.Apps.TotalMemory))
+
+		c.spaceTotalReservedRoutePortsQuotaMetric.WithLabelValues(
+			space.GUID,
+			space.Name,
+			relOrg.GUID,
+		).Set(NullIntToFloat(quota.Routes.TotalReservedPorts))
+
+		c.spaceTotalRoutesQuotaMetric.WithLabelValues(
+			space.GUID,
+			space.Name,
+			relOrg.GUID,
+		).Set(NullIntToFloat(quota.Routes.TotalRoutes))
+
+		c.spaceTotalServiceKeysQuotaMetric.WithLabelValues(
+			space.GUID,
+			space.Name,
+			relOrg.GUID,
+		).Set(NullIntToFloat(quota.Services.TotalServiceKeys))
+
+		c.spaceTotalServicesQuotaMetric.WithLabelValues(
+			space.GUID,
+			space.Name,
+			relOrg.GUID,
+		).Set(NullIntToFloat(quota.Services.TotalServiceInstances))
+	}
+
+	c.spaceInfoMetric.WithLabelValues(
+		space.GUID,
+		space.Name,
+		relOrg.GUID,
+		quotaName,
+	).Set(float64(1))
+	return nil
+}
+
+// reportSpacesMetrics
+//  1. continue processing application list upon error
 func (c SpacesCollector) reportSpacesMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
+	var res error
+
 	c.spaceInfoMetric.Reset()
 	c.spaceNonBasicServicesAllowedMetric.Reset()
 	c.spaceInstanceMemoryMbLimitMetric.Reset()
@@ -277,80 +359,12 @@ func (c SpacesCollector) reportSpacesMetrics(objs *models.CFObjects, ch chan<- p
 	c.spaceTotalServicesQuotaMetric.Reset()
 
 	for _, cSpace := range objs.Spaces {
-		relOrg, ok := cSpace.Relationships[constant.RelationshipTypeOrganization]
-		if !ok {
-			return fmt.Errorf("could not find org relationship in space '%s'", cSpace.GUID)
-		}
-		quotaName := ""
+		err := c.reportSpace(cSpace, objs)
 		// 1.
-		relQuota := cSpace.Relationships[constant.RelationshipTypeQuota]
-		if relQuota.GUID != "" {
-			quota, okQ := objs.SpaceQuotas[relQuota.GUID]
-			if !okQ {
-				return fmt.Errorf("could not find space quota '%s' from space '%s'", relQuota.GUID, cSpace.GUID)
-			}
-			quotaName = quota.Name
-			c.spaceNonBasicServicesAllowedMetric.WithLabelValues(
-				cSpace.GUID,
-				cSpace.Name,
-				relOrg.GUID,
-			).Set(BoolToFloat(quota.Services.PaidServicePlans))
-
-			c.spaceInstanceMemoryMbLimitMetric.WithLabelValues(
-				cSpace.GUID,
-				cSpace.Name,
-				relOrg.GUID,
-			).Set(NullIntToFloat(quota.Apps.InstanceMemory))
-
-			c.spaceTotalAppInstancesQuotaMetric.WithLabelValues(
-				cSpace.GUID,
-				cSpace.Name,
-				relOrg.GUID,
-			).Set(NullIntToFloat(quota.Apps.TotalAppInstances))
-
-			c.spaceTotalAppTasksQuotaMetric.WithLabelValues(
-				cSpace.GUID,
-				cSpace.Name,
-				relOrg.GUID,
-			).Set(NullIntToFloat(quota.Apps.PerAppTasks))
-
-			c.spaceTotalMemoryMbQuotaMetric.WithLabelValues(
-				cSpace.GUID,
-				cSpace.Name,
-				relOrg.GUID,
-			).Set(NullIntToFloat(quota.Apps.TotalMemory))
-
-			c.spaceTotalReservedRoutePortsQuotaMetric.WithLabelValues(
-				cSpace.GUID,
-				cSpace.Name,
-				relOrg.GUID,
-			).Set(NullIntToFloat(quota.Routes.TotalReservedPorts))
-
-			c.spaceTotalRoutesQuotaMetric.WithLabelValues(
-				cSpace.GUID,
-				cSpace.Name,
-				relOrg.GUID,
-			).Set(NullIntToFloat(quota.Routes.TotalRoutes))
-
-			c.spaceTotalServiceKeysQuotaMetric.WithLabelValues(
-				cSpace.GUID,
-				cSpace.Name,
-				relOrg.GUID,
-			).Set(NullIntToFloat(quota.Services.TotalServiceKeys))
-
-			c.spaceTotalServicesQuotaMetric.WithLabelValues(
-				cSpace.GUID,
-				cSpace.Name,
-				relOrg.GUID,
-			).Set(NullIntToFloat(quota.Services.TotalServiceInstances))
+		if err != nil {
+			log.Warn(err)
+			res = err
 		}
-
-		c.spaceInfoMetric.WithLabelValues(
-			cSpace.GUID,
-			cSpace.Name,
-			relOrg.GUID,
-			quotaName,
-		).Set(float64(1))
 	}
 
 	c.spaceInfoMetric.Collect(ch)
@@ -363,5 +377,5 @@ func (c SpacesCollector) reportSpacesMetrics(objs *models.CFObjects, ch chan<- p
 	c.spaceTotalRoutesQuotaMetric.Collect(ch)
 	c.spaceTotalServiceKeysQuotaMetric.Collect(ch)
 	c.spaceTotalServicesQuotaMetric.Collect(ch)
-	return nil
+	return res
 }

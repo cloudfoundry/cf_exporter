@@ -8,6 +8,7 @@ import (
 	"code.cloudfoundry.org/cli/resources"
 	"github.com/bosh-prometheus/cf_exporter/filters"
 	"github.com/bosh-prometheus/cf_exporter/models"
+	log "github.com/sirupsen/logrus"
 )
 
 func loadIndex[T any](store map[string]T, objects []T, key func(T) string) {
@@ -38,6 +39,9 @@ func (c *Fetcher) fetchOrgQuotas(session *SessionExt, entry *models.CFObjects) e
 	return err
 }
 
+// fetchSpaces
+//  1. silent fail because space may have been deleted between listing and
+//     summary fetching attempt. See bosh-prometheus/cf_exporter#85
 func (c *Fetcher) fetchSpaces(session *SessionExt, entry *models.CFObjects) error {
 	spaces, _, _, err := session.V3().GetSpaces(LargeQuery)
 	if err != nil {
@@ -58,10 +62,14 @@ func (c *Fetcher) fetchSpaces(session *SessionExt, entry *models.CFObjects) erro
 					entry.AppSummaries[app.GUID] = app
 				}
 				c.Unlock()
+			} else {
+				log.WithError(err).Warnf("could not fetch space '%s' summary", space.GUID)
 			}
-			return err
+			// 1
+			return nil
 		}, filters.Applications)
 	}
+
 	return nil
 }
 
