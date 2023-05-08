@@ -161,7 +161,6 @@ func (c ApplicationsCollector) Collect(objs *models.CFObjects, ch chan<- prometh
 	} else {
 		err := c.reportApplicationsMetrics(objs, ch)
 		if err != nil {
-			log.Error(err)
 			errorMetric = float64(1)
 			c.applicationsScrapeErrorsTotalMetric.Inc()
 		}
@@ -198,7 +197,109 @@ func (c ApplicationsCollector) Describe(ch chan<- *prometheus.Desc) {
 //  2. symmetrically in some corner cases, buildpack is null but
 //     detected_buildpack is available. Use detected_buildpack
 //     for compatibility with v0
+func (c ApplicationsCollector) reportApp(application models.Application, objs *models.CFObjects) error {
+	processes, ok := objs.AppProcesses[application.GUID]
+	if !ok {
+		return fmt.Errorf("could not find processes for application '%s'", application.GUID)
+	}
+	process := processes[0]
+	for _, cProc := range processes {
+		if cProc.Type == "web" {
+			process = cProc
+		}
+	}
+	spaceRel, ok := application.Relationships[constant.RelationshipTypeSpace]
+	if !ok {
+		return fmt.Errorf("could not find space relation in application '%s'", application.GUID)
+	}
+	space, ok := objs.Spaces[spaceRel.GUID]
+	if !ok {
+		return fmt.Errorf("could not find space with guid '%s'", spaceRel.GUID)
+	}
+	orgRel, ok := space.Relationships[constant.RelationshipTypeOrganization]
+	if !ok {
+		return fmt.Errorf("could not find org relation in space '%s'", space.GUID)
+	}
+	organization, ok := objs.Orgs[orgRel.GUID]
+	if !ok {
+		return fmt.Errorf("could not find org with guid '%s'", orgRel.GUID)
+	}
+
+	appSum, ok := objs.AppSummaries[application.GUID]
+	if !ok {
+		return fmt.Errorf("could not find app summary with guid '%s'", application.GUID)
+	}
+
+	// 1.
+	detectedBuildpack := appSum.DetectedBuildpack
+	if len(detectedBuildpack) == 0 {
+		detectedBuildpack = appSum.Buildpack
+	}
+
+	// 2.
+	buildpack := appSum.Buildpack
+	if len(buildpack) == 0 {
+		buildpack = appSum.DetectedBuildpack
+	}
+
+	c.applicationInfoMetric.WithLabelValues(
+		application.GUID,
+		application.Name,
+		detectedBuildpack,
+		buildpack,
+		organization.GUID,
+		organization.Name,
+		space.GUID,
+		space.Name,
+		appSum.StackID,
+		string(application.State),
+	).Set(float64(1))
+
+	c.applicationInstancesMetric.WithLabelValues(
+		application.GUID,
+		application.Name,
+		organization.GUID,
+		organization.Name,
+		space.GUID,
+		space.Name,
+		string(application.State),
+	).Set(float64(process.Instances.Value))
+
+	c.applicationInstancesRunningMetric.WithLabelValues(
+		application.GUID,
+		application.Name,
+		organization.GUID,
+		organization.Name,
+		space.GUID,
+		space.Name,
+		string(application.State),
+	).Set(float64(appSum.RunningInstances))
+
+	c.applicationMemoryMbMetric.WithLabelValues(
+		application.GUID,
+		application.Name,
+		organization.GUID,
+		organization.Name,
+		space.GUID,
+		space.Name,
+	).Set(float64(process.MemoryInMB.Value))
+
+	c.applicationDiskQuotaMbMetric.WithLabelValues(
+		application.GUID,
+		application.Name,
+		organization.GUID,
+		organization.Name,
+		space.GUID,
+		space.Name,
+	).Set(float64(process.DiskInMB.Value))
+	return nil
+}
+
+// reportApplicationsMetrics
+//  1. continue processing application list upon error
 func (c ApplicationsCollector) reportApplicationsMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
+	var res error
+
 	c.applicationInfoMetric.Reset()
 	c.applicationInstancesMetric.Reset()
 	c.applicationInstancesRunningMetric.Reset()
@@ -206,100 +307,12 @@ func (c ApplicationsCollector) reportApplicationsMetrics(objs *models.CFObjects,
 	c.applicationDiskQuotaMbMetric.Reset()
 
 	for _, application := range objs.Apps {
-		processes, ok := objs.AppProcesses[application.GUID]
-		if !ok {
-			return fmt.Errorf("could not find processes for application '%s'", application.GUID)
-		}
-		process := processes[0]
-		for _, cProc := range processes {
-			if cProc.Type == "web" {
-				process = cProc
-			}
-		}
-
-		spaceRel, ok := application.Relationships[constant.RelationshipTypeSpace]
-		if !ok {
-			return fmt.Errorf("could not find space relation in application '%s'", application.GUID)
-		}
-		space, ok := objs.Spaces[spaceRel.GUID]
-		if !ok {
-			return fmt.Errorf("could not find space with guid '%s'", spaceRel.GUID)
-		}
-		orgRel, ok := space.Relationships[constant.RelationshipTypeOrganization]
-		if !ok {
-			return fmt.Errorf("could not find org relation in space '%s'", space.GUID)
-		}
-		organization, ok := objs.Orgs[orgRel.GUID]
-		if !ok {
-			return fmt.Errorf("could not find org with guid '%s'", orgRel.GUID)
-		}
-		appSum, ok := objs.AppSummaries[application.GUID]
-		if !ok {
-			return fmt.Errorf("could not find app summary with guid '%s'", application.GUID)
-		}
-
+		err := c.reportApp(application, objs)
 		// 1.
-		detectedBuildpack := appSum.DetectedBuildpack
-		if len(detectedBuildpack) == 0 {
-			detectedBuildpack = appSum.Buildpack
+		if err != nil {
+			log.Warn(err)
+			res = err
 		}
-
-		// 2.
-		buildpack := appSum.Buildpack
-		if len(buildpack) == 0 {
-			buildpack = appSum.DetectedBuildpack
-		}
-
-		c.applicationInfoMetric.WithLabelValues(
-			application.GUID,
-			application.Name,
-			detectedBuildpack,
-			buildpack,
-			organization.GUID,
-			organization.Name,
-			space.GUID,
-			space.Name,
-			appSum.StackID,
-			string(application.State),
-		).Set(float64(1))
-
-		c.applicationInstancesMetric.WithLabelValues(
-			application.GUID,
-			application.Name,
-			organization.GUID,
-			organization.Name,
-			space.GUID,
-			space.Name,
-			string(application.State),
-		).Set(float64(process.Instances.Value))
-
-		c.applicationInstancesRunningMetric.WithLabelValues(
-			application.GUID,
-			application.Name,
-			organization.GUID,
-			organization.Name,
-			space.GUID,
-			space.Name,
-			string(application.State),
-		).Set(float64(appSum.RunningInstances))
-
-		c.applicationMemoryMbMetric.WithLabelValues(
-			application.GUID,
-			application.Name,
-			organization.GUID,
-			organization.Name,
-			space.GUID,
-			space.Name,
-		).Set(float64(process.MemoryInMB.Value))
-
-		c.applicationDiskQuotaMbMetric.WithLabelValues(
-			application.GUID,
-			application.Name,
-			organization.GUID,
-			organization.Name,
-			space.GUID,
-			space.Name,
-		).Set(float64(process.DiskInMB.Value))
 	}
 
 	c.applicationInfoMetric.Collect(ch)
@@ -307,5 +320,5 @@ func (c ApplicationsCollector) reportApplicationsMetrics(objs *models.CFObjects,
 	c.applicationInstancesRunningMetric.Collect(ch)
 	c.applicationMemoryMbMetric.Collect(ch)
 	c.applicationDiskQuotaMbMetric.Collect(ch)
-	return nil
+	return res
 }
