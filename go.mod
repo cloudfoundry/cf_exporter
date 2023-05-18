@@ -9,7 +9,7 @@ require (
 	github.com/onsi/gomega v1.27.6
 	github.com/prometheus/client_golang v1.15.1
 	github.com/prometheus/common v0.43.0
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.2
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
 
