@@ -132,6 +132,17 @@ func (client Client) UnmapRoute(routeGUID string, destinationGUID string) (Warni
 	return warnings, err
 }
 
+func (client Client) UnshareRoute(routeGUID string, spaceGUID string) (Warnings, error) {
+	var responseBody resources.Build
+
+	_, warnings, err := client.MakeRequest(RequestParams{
+		RequestName:  internal.UnshareRouteRequest,
+		URIParams:    internal.Params{"route_guid": routeGUID, "space_guid": spaceGUID},
+		ResponseBody: &responseBody,
+	})
+	return warnings, err
+}
+
 func (client Client) UpdateDestination(routeGUID string, destinationGUID string, protocol string) (Warnings, error) {
 	type body struct {
 		Protocol string `json:"protocol"`
@@ -143,6 +154,56 @@ func (client Client) UpdateDestination(routeGUID string, destinationGUID string,
 	_, warnings, err := client.MakeRequest(RequestParams{
 		RequestName:  internal.PatchDestinationRequest,
 		URIParams:    internal.Params{"route_guid": routeGUID, "destination_guid": destinationGUID},
+		RequestBody:  &requestBody,
+		ResponseBody: &responseBody,
+	})
+	return warnings, err
+}
+
+func (client Client) ShareRoute(routeGUID string, spaceGUID string) (Warnings, error) {
+	type space struct {
+		GUID string `json:"guid"`
+	}
+
+	type body struct {
+		Data []space `json:"data"`
+	}
+
+	requestBody := body{
+		Data: []space{
+			{GUID: spaceGUID},
+		},
+	}
+
+	var responseBody resources.Build
+	_, warnings, err := client.MakeRequest(RequestParams{
+		RequestName:  internal.ShareRouteRequest,
+		URIParams:    internal.Params{"route_guid": routeGUID},
+		RequestBody:  &requestBody,
+		ResponseBody: &responseBody,
+	})
+	return warnings, err
+}
+
+func (client Client) MoveRoute(routeGUID string, spaceGUID string) (Warnings, error) {
+	type space struct {
+		GUID string `json:"guid"`
+	}
+
+	type body struct {
+		Data space `json:"data"`
+	}
+
+	requestBody := body{
+		Data: space{
+			GUID: spaceGUID,
+		},
+	}
+
+	var responseBody resources.Build
+	_, warnings, err := client.MakeRequest(RequestParams{
+		RequestName:  internal.PatchMoveRouteRequest,
+		URIParams:    internal.Params{"route_guid": routeGUID},
 		RequestBody:  &requestBody,
 		ResponseBody: &responseBody,
 	})
