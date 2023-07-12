@@ -114,6 +114,33 @@ var _ = Describe("Extensions", func() {
 		})
 	})
 
+	Context("fetching tasks", func() {
+		It("no error occurs", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/v3/tasks", "per_page=5000&states=PENDING,RUNNING,CANCELING"),
+					ghttp.RespondWith(http.StatusOK, serializeList(
+						models.Task{
+							GUID: "guid1",
+							State: constant.TaskPending,
+						},
+						models.Task{
+							GUID: "guid2",
+							State: constant.TaskCanceling,
+						},
+					)),
+				),
+			)
+			objs, err := target.GetTasks()
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(objs).Should(HaveLen(2))
+			Ω(objs[0].GUID).Should(Equal("guid1"))
+			Ω(objs[0].State).Should(Equal(constant.TaskPending))
+			Ω(objs[1].GUID).Should(Equal("guid2"))
+			Ω(objs[1].State).Should(Equal(constant.TaskCanceling))
+		})
+	})
+
 	Context("fetching org quotas", func() {
 		It("no error occurs", func() {
 			server.AppendHandlers(

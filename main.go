@@ -42,7 +42,7 @@ var (
 	).Envar("CF_EXPORTER_CF_DEPLOYMENT_NAME").Required().String()
 
 	filterCollectors = kingpin.Flag(
-		"filter.collectors", "Comma separated collectors to filter (Applications,Buildpacks,Events,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks). If not set, all collectors except Events is enabled ($CF_EXPORTER_FILTER_COLLECTORS)",
+		"filter.collectors", "Comma separated collectors to filter (Applications,Buildpacks,Events,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks,Tasks). If not set, all collectors except Events and Tasks are enabled ($CF_EXPORTER_FILTER_COLLECTORS)",
 	).Envar("CF_EXPORTER_FILTER_COLLECTORS").Default("").String()
 
 	metricsNamespace = kingpin.Flag(

@@ -406,7 +406,15 @@ func (actor Actor) UnmapRoute(routeGUID string, destinationGUID string) (Warning
 	warnings, err := actor.CloudControllerClient.UnmapRoute(routeGUID, destinationGUID)
 	return Warnings(warnings), err
 }
+func (actor Actor) ShareRoute(routeGUID string, spaceGUID string) (Warnings, error) {
+	warnings, err := actor.CloudControllerClient.ShareRoute(routeGUID, spaceGUID)
+	return Warnings(warnings), err
+}
 
+func (actor Actor) UnshareRoute(routeGUID string, spaceGUID string) (Warnings, error) {
+	warnings, err := actor.CloudControllerClient.UnshareRoute(routeGUID, spaceGUID)
+	return Warnings(warnings), err
+}
 func (actor Actor) GetApplicationRoutes(appGUID string) ([]resources.Route, Warnings, error) {
 	allWarnings := Warnings{}
 
@@ -421,6 +429,11 @@ func (actor Actor) GetApplicationRoutes(appGUID string) ([]resources.Route, Warn
 	}
 
 	return routes, allWarnings, nil
+}
+
+func (actor Actor) MoveRoute(routeGUID string, spaceGUID string) (Warnings, error) {
+	warnings, err := actor.CloudControllerClient.MoveRoute(routeGUID, spaceGUID)
+	return Warnings(warnings), err
 }
 
 func getDomainName(fullURL, host, path string, port int) string {

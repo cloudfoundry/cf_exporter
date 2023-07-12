@@ -73,6 +73,20 @@ func (s SessionExt) GetApplications() ([]models.Application, error) {
 	return res, err
 }
 
+func (s SessionExt) GetTasks() ([]models.Task, error) {
+	res := []models.Task{}
+	_, _, err := s.V3().MakeListRequest(ccv3.RequestParams{
+		RequestName:  "GetTasks",
+		Query:        []ccv3.Query{LargeQuery, TaskActiveStates},
+		ResponseBody: models.Task{},
+		AppendToList: func(item interface{}) error {
+			res = append(res, item.(models.Task))
+			return nil
+		},
+	})
+	return res, err
+}
+
 func (s SessionExt) GetOrganizationQuotas() ([]models.Quota, error) {
 	res := []models.Quota{}
 	_, _, err := s.V3().MakeListRequest(ccv3.RequestParams{

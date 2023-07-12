@@ -103,6 +103,7 @@ const (
 	GetSpaceStagingSecurityGroupsRequest                        = "GetSpaceStagingSecurityGroups"
 	GetSSHEnabled                                               = "GetSSHEnabled"
 	GetStacksRequest                                            = "GetStacks"
+	GetTasksRequest                                             = "GetTasks"
 	GetUserRequest                                              = "GetUser"
 	GetUsersRequest                                             = "GetUsers"
 	MapRouteRequest                                             = "MapRoute"
@@ -130,6 +131,7 @@ const (
 	PatchSpaceFeaturesRequest                                   = "PatchSpaceFeatures"
 	PatchSpaceQuotaRequest                                      = "PatchSpaceQuota"
 	PatchStackRequest                                           = "PatchStack"
+	PatchMoveRouteRequest                                       = "PatchMoveRouteRequest"
 	PostApplicationActionApplyManifest                          = "PostApplicationActionApplyM"
 	PostApplicationActionRestartRequest                         = "PostApplicationActionRestart"
 	PostApplicationActionStartRequest                           = "PostApplicationActionStart"
@@ -172,7 +174,9 @@ const (
 	PostUserRequest                                             = "PostUser"
 	PutTaskCancelRequest                                        = "PutTaskCancel"
 	SharePrivateDomainRequest                                   = "SharePrivateDomainRequest"
+	ShareRouteRequest                                           = "ShareRouteRequest"
 	UnmapRouteRequest                                           = "UnmapRoute"
+	UnshareRouteRequest                                         = "UnshareRoute"
 	WhoAmI                                                      = "WhoAmI"
 )
 
@@ -277,6 +281,9 @@ var APIRoutes = map[string]Route{
 	MapRouteRequest:                                             {Path: "/v3/routes/:route_guid/destinations", Method: http.MethodPost},
 	UnmapRouteRequest:                                           {Path: "/v3/routes/:route_guid/destinations/:destination_guid", Method: http.MethodDelete},
 	PatchDestinationRequest:                                     {Path: "/v3/routes/:route_guid/destinations/:destination_guid", Method: http.MethodPatch},
+	ShareRouteRequest:                                           {Path: "/v3/routes/:route_guid/relationships/shared_spaces", Method: http.MethodPost},
+	UnshareRouteRequest:                                         {Path: "/v3/routes/:route_guid/relationships/shared_spaces/:space_guid", Method: http.MethodDelete},
+	PatchMoveRouteRequest:                                       {Path: "/v3/routes/:route_guid/relationships/space", Method: http.MethodPatch},
 	GetSecurityGroupsRequest:                                    {Path: "/v3/security_groups", Method: http.MethodGet},
 	PostSecurityGroupRequest:                                    {Path: "/v3/security_groups", Method: http.MethodPost},
 	DeleteSecurityGroupRequest:                                  {Path: "/v3/security_groups/:security_group_guid", Method: http.MethodDelete},
@@ -338,6 +345,7 @@ var APIRoutes = map[string]Route{
 	GetStacksRequest:                                            {Path: "/v3/stacks", Method: http.MethodGet},
 	PatchStackRequest:                                           {Path: "/v3/stacks/:stack_guid", Method: http.MethodPatch},
 	PutTaskCancelRequest:                                        {Path: "/v3/tasks/:task_guid/cancel", Method: http.MethodPut},
+	GetTasksRequest:                                             {Path: "/v3/tasks", Method: http.MethodGet},
 	GetUsersRequest:                                             {Path: "/v3/users", Method: http.MethodGet},
 	GetUserRequest:                                              {Path: "/v3/users/:user_guid", Method: http.MethodGet},
 	PostUserRequest:                                             {Path: "/v3/users", Method: http.MethodPost},
