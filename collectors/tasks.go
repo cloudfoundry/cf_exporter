@@ -225,7 +225,7 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 
 		memorySum := int64(0)
 		for _, task := range tasks {
-			memorySum += int64(task.MemoryInMb)
+			memorySum += task.MemoryInMb
 		}
 		c.tasksMemoryMbSumMetric.WithLabelValues(
 			key.application_id,
@@ -234,7 +234,7 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 
 		diskSum := int64(0)
 		for _, task := range tasks {
-			diskSum += int64(task.DiskInMb)
+			diskSum += task.DiskInMb
 		}
 		c.tasksDiskQuotaMbSumMetric.WithLabelValues(
 			key.application_id,
