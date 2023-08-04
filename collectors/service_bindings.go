@@ -32,7 +32,7 @@ func NewServiceBindingsCollector(
 			Help:        "Labeled Cloud Foundry Service Binding information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"service_binding_id", "application_id", "service_instance_id"},
+		[]string{"service_binding_id", "applicationID", "service_instance_id"},
 	)
 
 	serviceBindingsScrapesTotalMetric := prometheus.NewCounter(
