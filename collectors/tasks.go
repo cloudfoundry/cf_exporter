@@ -186,7 +186,7 @@ func (c TasksCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.lastTasksScrapeDurationSecondsMetric.Describe(ch)
 }
 
-func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) error {
+func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	c.taskInfoMetric.Reset()
 	c.tasksCountMetric.Reset()
 	c.tasksMemoryMbSumMetric.Reset()
@@ -258,6 +258,4 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 	c.tasksMemoryMbSumMetric.Collect(ch)
 	c.tasksDiskQuotaMbSumMetric.Collect(ch)
 	c.tasksOldestCreatedAtMetric.Collect(ch)
-
-	return nil
 }
