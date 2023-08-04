@@ -3,14 +3,14 @@ package collectors
 import (
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/bosh-prometheus/cf_exporter/models"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type TasksCollector struct {
-	namespace                                       string
-	environment                                     string
-	deployment                                      string
+	namespace                            string
+	environment                          string
+	deployment                           string
 	taskInfoMetric                       *prometheus.GaugeVec
 	tasksCountMetric                     *prometheus.GaugeVec
 	tasksMemoryMbSumMetric               *prometheus.GaugeVec
@@ -134,9 +134,9 @@ func NewTasksCollector(
 	)
 
 	return &TasksCollector{
-		namespace:                                       namespace,
-		environment:                                     environment,
-		deployment:                                      deployment,
+		namespace:                            namespace,
+		environment:                          environment,
+		deployment:                           deployment,
 		taskInfoMetric:                       taskInfoMetric,
 		tasksCountMetric:                     tasksCountMetric,
 		tasksMemoryMbSumMetric:               tasksMemoryMbSumMetric,

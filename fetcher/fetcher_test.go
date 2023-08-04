@@ -123,8 +123,8 @@ var _ = Describe("Fetcher", func() {
 
 		When("tasks filter is set", func() {
 			BeforeEach(func() {
-				active = []string{ filters.Tasks }
-				expected = []string{ "info", "tasks" }
+				active = []string{filters.Tasks}
+				expected = []string{"info", "tasks"}
 			})
 			It("plans only specific jobs", func() {
 				Ω(jobs).Should(ConsistOf(expected))

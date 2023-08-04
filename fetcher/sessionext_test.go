@@ -121,11 +121,11 @@ var _ = Describe("Extensions", func() {
 					ghttp.VerifyRequest("GET", "/v3/tasks", "per_page=5000&states=PENDING,RUNNING,CANCELING"),
 					ghttp.RespondWith(http.StatusOK, serializeList(
 						models.Task{
-							GUID: "guid1",
+							GUID:  "guid1",
 							State: constant.TaskPending,
 						},
 						models.Task{
-							GUID: "guid2",
+							GUID:  "guid2",
 							State: constant.TaskCanceling,
 						},
 					)),
