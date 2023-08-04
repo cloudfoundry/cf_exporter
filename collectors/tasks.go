@@ -197,7 +197,7 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 		application_id string
 		state          string
 	}
-	groupedTasks := map[keyType][]*models.Task{}
+	groupedTasks := map[keyType][]models.Task{}
 	for _, task := range objs.Tasks {
 		application_id := "unavailable"
 		if app, ok := task.Relationships["app"]; ok && app.GUID != "" {
@@ -207,9 +207,9 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 
 		existingValue, ok := groupedTasks[key]
 		if !ok {
-			existingValue = []*models.Task{}
+			existingValue = []models.Task{}
 		}
-		groupedTasks[key] = append(existingValue, &task)
+		groupedTasks[key] = append(existingValue, task)
 	}
 
 	for key, tasks := range groupedTasks {
