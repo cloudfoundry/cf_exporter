@@ -2,6 +2,7 @@ package collectors
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"code.cloudfoundry.org/cli/resources"
@@ -45,7 +46,7 @@ func NewOrganizationsCollector(
 			Help:        "Labeled Cloud Foundry Organization information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"organization_id", "organization_name", "quota_name"},
+		[]string{"organization_id", "organization_name", "quota_name", "suspended"},
 	)
 
 	organizationNonBasicServicesAllowedMetric := prometheus.NewGaugeVec(
@@ -327,6 +328,7 @@ func (c OrganizationsCollector) reportOrg(org resources.Organization, objs *mode
 		org.GUID,
 		org.Name,
 		quotaName,
+		strconv.FormatBool(org.Suspended),
 	).Set(float64(1))
 
 	return nil
