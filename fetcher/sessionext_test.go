@@ -77,6 +77,13 @@ var _ = Describe("Extensions", func() {
 			),
 		)
 
+		server.AppendHandlers(
+			ghttp.CombineHandlers(
+				ghttp.VerifyRequest("POST", "/oauth/token"),
+				ghttp.RespondWith(http.StatusOK, tokenResponse),
+			),
+		)
+
 		config = &CFConfig{
 			URL:          server.URL(),
 			ClientID:     "fake",
