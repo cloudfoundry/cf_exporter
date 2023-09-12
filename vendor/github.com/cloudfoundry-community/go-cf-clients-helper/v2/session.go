@@ -119,7 +119,6 @@ func (s *Session) init(config *configv3.Config, configUaa *configv3.Config, conf
 	ccWrappersV3 := []ccv3.ConnectionWrapper{}
 	authWrapperV3 := ccWrapper.NewUAAAuthentication(nil, config)
 
-
 	ccWrappersV3 = append(ccWrappersV3, authWrapperV3)
 	ccWrappersV3 = append(ccWrappersV3, ccWrapper.NewRetryRequest(config.RequestRetryCount()))
 	if s.IsDebugMode() {
