@@ -39,7 +39,7 @@ func NewApplicationsCollector(
 			Help:        "Labeled Cloud Foundry Application information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "application_name", "detected_buildpack", "buildpack", "organization_id", "organization_name", "space_id", "space_name", "stack_id", "state"},
+		[]string{"application_id", "application_name", "detected_buildpack", "buildpack", "organization_id", "organization_name", "space_id", "space_name", "stack_id", "state"},
 	)
 
 	applicationInstancesMetric := prometheus.NewGaugeVec(
@@ -50,7 +50,7 @@ func NewApplicationsCollector(
 			Help:        "Number of desired Cloud Foundry Application Instances.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "application_name", "organization_id", "organization_name", "space_id", "space_name", "state"},
+		[]string{"application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name", "state"},
 	)
 
 	applicationInstancesRunningMetric := prometheus.NewGaugeVec(
@@ -61,7 +61,7 @@ func NewApplicationsCollector(
 			Help:        "Number of running Cloud Foundry Application Instances.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "application_name", "organization_id", "organization_name", "space_id", "space_name", "state"},
+		[]string{"application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name", "state"},
 	)
 
 	applicationMemoryMbMetric := prometheus.NewGaugeVec(
@@ -72,7 +72,7 @@ func NewApplicationsCollector(
 			Help:        "Cloud Foundry Application Memory (Mb).",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
+		[]string{"application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
 	)
 
 	applicationDiskQuotaMbMetric := prometheus.NewGaugeVec(
@@ -83,7 +83,7 @@ func NewApplicationsCollector(
 			Help:        "Cloud Foundry Application Disk Quota (Mb).",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
+		[]string{"application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name"},
 	)
 
 	applicationsScrapesTotalMetric := prometheus.NewCounter(
