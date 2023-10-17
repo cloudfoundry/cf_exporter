@@ -36,7 +36,7 @@ func NewTasksCollector(
 			Help:        "Labeled Cloud Foundry Task information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "state"},
+		[]string{"application_id", "state"},
 	)
 
 	tasksCountMetric := prometheus.NewGaugeVec(
@@ -47,7 +47,7 @@ func NewTasksCollector(
 			Help:        "Number of Cloud Foundry Tasks.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "state"},
+		[]string{"application_id", "state"},
 	)
 
 	tasksMemoryMbSumMetric := prometheus.NewGaugeVec(
@@ -58,7 +58,7 @@ func NewTasksCollector(
 			Help:        "Sum of Cloud Foundry Tasks Memory (Mb).",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "state"},
+		[]string{"application_id", "state"},
 	)
 
 	tasksDiskQuotaMbSumMetric := prometheus.NewGaugeVec(
@@ -69,7 +69,7 @@ func NewTasksCollector(
 			Help:        "Sum of Cloud Foundry Tasks Disk Quota (Mb).",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "state"},
+		[]string{"application_id", "state"},
 	)
 
 	tasksOldestCreatedAtMetric := prometheus.NewGaugeVec(
@@ -80,7 +80,7 @@ func NewTasksCollector(
 			Help:        "Number of seconds since 1970 of creation time of oldest Cloud Foundry task.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "state"},
+		[]string{"application_id", "state"},
 	)
 
 	tasksScrapesTotalMetric := prometheus.NewCounter(
@@ -194,16 +194,16 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 	c.tasksOldestCreatedAtMetric.Reset()
 
 	type keyType struct {
-		applicationID string
-		state         string
+		application_id string
+		state          string
 	}
 	groupedTasks := map[keyType][]models.Task{}
 	for _, task := range objs.Tasks {
-		applicationID := "unavailable"
+		application_id := "unavailable"
 		if app, ok := task.Relationships["app"]; ok && app.GUID != "" {
-			applicationID = app.GUID
+			application_id = app.GUID
 		}
-		key := keyType{applicationID, string(task.State)}
+		key := keyType{application_id, string(task.State)}
 
 		existingValue, ok := groupedTasks[key]
 		if !ok {
@@ -214,12 +214,12 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 
 	for key, tasks := range groupedTasks {
 		c.taskInfoMetric.WithLabelValues(
-			key.applicationID,
+			key.application_id,
 			key.state,
 		).Set(float64(1))
 
 		c.tasksCountMetric.WithLabelValues(
-			key.applicationID,
+			key.application_id,
 			key.state,
 		).Set(float64(len(tasks)))
 
@@ -228,7 +228,7 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 			memorySum += task.MemoryInMb
 		}
 		c.tasksMemoryMbSumMetric.WithLabelValues(
-			key.applicationID,
+			key.application_id,
 			key.state,
 		).Set(float64(memorySum))
 
@@ -237,7 +237,7 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 			diskSum += task.DiskInMb
 		}
 		c.tasksDiskQuotaMbSumMetric.WithLabelValues(
-			key.applicationID,
+			key.application_id,
 			key.state,
 		).Set(float64(diskSum))
 
@@ -248,7 +248,7 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 			}
 		}
 		c.tasksOldestCreatedAtMetric.WithLabelValues(
-			key.applicationID,
+			key.application_id,
 			key.state,
 		).Set(float64(createdAtOldest.Unix()))
 	}
