@@ -1,14 +1,14 @@
 package fetcher
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"github.com/onsi/ginkgo"
+	"github.com/onsi/gomega"
 
 	"github.com/bosh-prometheus/cf_exporter/filters"
 )
 
-var _ = Describe("Fetcher", func() {
-	Context("fetching jobs are planned according to filter", func() {
+var _ = ginkgo.Describe("Fetcher", func() {
+	ginkgo.Context("fetching jobs are planned according to filter", func() {
 		var (
 			fetcher  *Fetcher
 			active   []string
@@ -16,11 +16,11 @@ var _ = Describe("Fetcher", func() {
 			expected []string
 		)
 
-		JustBeforeEach(func() {
+		ginkgo.JustBeforeEach(func() {
 			f, err := filters.NewFilter(active...)
-			Ω(err).ShouldNot(HaveOccurred())
+			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
 			fetcher = NewFetcher(10, &CFConfig{}, f)
-			Ω(fetcher).ShouldNot(BeNil())
+			gomega.Ω(fetcher).ShouldNot(gomega.BeNil())
 			fetcher.workInit()
 
 			close(fetcher.worker.list)
@@ -30,8 +30,8 @@ var _ = Describe("Fetcher", func() {
 			}
 		})
 
-		When("default filters are set", func() {
-			BeforeEach(func() {
+		ginkgo.When("default filters are set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{}
 				expected = []string{
 					"info",
@@ -54,13 +54,13 @@ var _ = Describe("Fetcher", func() {
 					"segments",
 				}
 			})
-			It("plans all jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans all jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("all filters are set", func() {
-			BeforeEach(func() {
+		ginkgo.When("all filters are set", func() {
+			ginkgo.BeforeEach(func() {
 				active = filters.All
 				expected = []string{
 					"info",
@@ -86,138 +86,138 @@ var _ = Describe("Fetcher", func() {
 					"events",
 				}
 			})
-			It("plans all jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans all jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("org filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("org filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.Organizations}
 				expected = []string{"info", "organizations", "org_quotas"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("space filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("space filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.Spaces}
 				expected = []string{"info", "spaces", "space_quotas"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("buildpack filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("buildpack filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.Buildpacks}
 				expected = []string{"info", "buildpacks"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("tasks filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("tasks filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.Tasks}
 				expected = []string{"info", "tasks"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("isolationsegments filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("isolationsegments filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.IsolationSegments}
 				expected = []string{"info", "segments"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("routes filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("routes filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.Routes}
 				expected = []string{"info", "routes", "route_services"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("securitygroups filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("securitygroups filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.SecurityGroups}
 				expected = []string{"info", "security_groups"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("servicebindings filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("servicebindings filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.ServiceBindings}
 				expected = []string{"info", "service_bindings"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("serviceinstances filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("serviceinstances filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.ServiceInstances}
 				expected = []string{"info", "service_instances"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("services filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("services filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.Services}
 				expected = []string{"info", "service_brokers", "service_offerings"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("stacks filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("stacks filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.Stacks}
 				expected = []string{"info", "stacks"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("applications filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("applications filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.Applications}
 				expected = []string{"info", "organizations", "spaces", "applications", "process"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 
-		When("events filter is set", func() {
-			BeforeEach(func() {
+		ginkgo.When("events filter is set", func() {
+			ginkgo.BeforeEach(func() {
 				active = []string{filters.Events}
 				expected = []string{"info", "users", "events"}
 			})
-			It("plans only specific jobs", func() {
-				Ω(jobs).Should(ConsistOf(expected))
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
 			})
 		})
 

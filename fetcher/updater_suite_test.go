@@ -3,11 +3,11 @@ package fetcher
 import (
 	"testing"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"github.com/onsi/ginkgo"
+	"github.com/onsi/gomega"
 )
 
 func TestUpdater(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Updater Suite")
+	gomega.RegisterFailHandler(ginkgo.Fail)
+	ginkgo.RunSpecs(t, "Updater Suite")
 }
