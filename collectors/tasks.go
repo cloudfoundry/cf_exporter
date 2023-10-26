@@ -194,16 +194,16 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 	c.tasksOldestCreatedAtMetric.Reset()
 
 	type keyType struct {
-		application_id string
-		state          string
+		applicationID string
+		state         string
 	}
 	groupedTasks := map[keyType][]models.Task{}
 	for _, task := range objs.Tasks {
-		application_id := "unavailable"
+		applicationID := "unavailable"
 		if app, ok := task.Relationships["app"]; ok && app.GUID != "" {
-			application_id = app.GUID
+			applicationID = app.GUID
 		}
-		key := keyType{application_id, string(task.State)}
+		key := keyType{applicationID, string(task.State)}
 
 		existingValue, ok := groupedTasks[key]
 		if !ok {
@@ -214,12 +214,12 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 
 	for key, tasks := range groupedTasks {
 		c.taskInfoMetric.WithLabelValues(
-			key.application_id,
+			key.applicationID,
 			key.state,
 		).Set(float64(1))
 
 		c.tasksCountMetric.WithLabelValues(
-			key.application_id,
+			key.applicationID,
 			key.state,
 		).Set(float64(len(tasks)))
 
@@ -228,7 +228,7 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 			memorySum += task.MemoryInMb
 		}
 		c.tasksMemoryMbSumMetric.WithLabelValues(
-			key.application_id,
+			key.applicationID,
 			key.state,
 		).Set(float64(memorySum))
 
@@ -237,7 +237,7 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 			diskSum += task.DiskInMb
 		}
 		c.tasksDiskQuotaMbSumMetric.WithLabelValues(
-			key.application_id,
+			key.applicationID,
 			key.state,
 		).Set(float64(diskSum))
 
@@ -248,7 +248,7 @@ func (c TasksCollector) reportTasksMetrics(objs *models.CFObjects, ch chan<- pro
 			}
 		}
 		c.tasksOldestCreatedAtMetric.WithLabelValues(
-			key.application_id,
+			key.applicationID,
 			key.state,
 		).Set(float64(createdAtOldest.Unix()))
 	}
