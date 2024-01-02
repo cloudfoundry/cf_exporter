@@ -36,7 +36,7 @@ func NewTasksCollector(
 			Help:        "Labeled Cloud Foundry Task information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "state"},
+		[]string{"application_id", "state"},
 	)
 
 	tasksCountMetric := prometheus.NewGaugeVec(
@@ -47,7 +47,7 @@ func NewTasksCollector(
 			Help:        "Number of Cloud Foundry Tasks.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "state"},
+		[]string{"application_id", "state"},
 	)
 
 	tasksMemoryMbSumMetric := prometheus.NewGaugeVec(
@@ -58,7 +58,7 @@ func NewTasksCollector(
 			Help:        "Sum of Cloud Foundry Tasks Memory (Mb).",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "state"},
+		[]string{"application_id", "state"},
 	)
 
 	tasksDiskQuotaMbSumMetric := prometheus.NewGaugeVec(
@@ -69,7 +69,7 @@ func NewTasksCollector(
 			Help:        "Sum of Cloud Foundry Tasks Disk Quota (Mb).",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "state"},
+		[]string{"application_id", "state"},
 	)
 
 	tasksOldestCreatedAtMetric := prometheus.NewGaugeVec(
@@ -80,7 +80,7 @@ func NewTasksCollector(
 			Help:        "Number of seconds since 1970 of creation time of oldest Cloud Foundry task.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"applicationID", "state"},
+		[]string{"application_id", "state"},
 	)
 
 	tasksScrapesTotalMetric := prometheus.NewCounter(

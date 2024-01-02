@@ -10,8 +10,8 @@ import (
 
 	"github.com/onsi/gomega/ghttp"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"github.com/onsi/ginkgo"
+	"github.com/onsi/gomega"
 
 	"encoding/json"
 	"net/http"
@@ -34,11 +34,11 @@ func serializeList[T any](obj ...T) string {
 
 func serialize[T any](obj T) string {
 	content, err := json.Marshal(obj)
-	Ω(err).ShouldNot(HaveOccurred())
+	gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
 	return string(content)
 }
 
-var _ = Describe("Extensions", func() {
+var _ = ginkgo.Describe("Extensions", func() {
 
 	var (
 		err    error
@@ -47,7 +47,7 @@ var _ = Describe("Extensions", func() {
 		config *CFConfig
 	)
 
-	BeforeEach(func() {
+	ginkgo.BeforeEach(func() {
 		tokenResponse := fmt.Sprintf(`{"access_token": "%s", "refresh_token": "value"}`, fakeToken)
 		server = ghttp.NewServer()
 
@@ -77,22 +77,29 @@ var _ = Describe("Extensions", func() {
 			),
 		)
 
+		server.AppendHandlers(
+			ghttp.CombineHandlers(
+				ghttp.VerifyRequest("POST", "/oauth/token"),
+				ghttp.RespondWith(http.StatusOK, tokenResponse),
+			),
+		)
+
 		config = &CFConfig{
 			URL:          server.URL(),
 			ClientID:     "fake",
 			ClientSecret: "fake",
 		}
 		target, err = NewSessionExt(config)
-		Ω(err).ShouldNot(HaveOccurred())
-		Ω(target).ShouldNot(BeNil())
+		gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
+		gomega.Ω(target).ShouldNot(gomega.BeNil())
 	})
 
-	AfterEach(func() {
+	ginkgo.AfterEach(func() {
 		server.Close()
 	})
 
-	Context("fetching applications", func() {
-		It("no error occurs", func() {
+	ginkgo.Context("fetching applications", func() {
+		ginkgo.It("no error occurs", func() {
 			server.AppendHandlers(
 				ghttp.CombineHandlers(
 					ghttp.VerifyRequest("GET", "/v3/apps", "per_page=5000"),
@@ -107,15 +114,15 @@ var _ = Describe("Extensions", func() {
 				),
 			)
 			app, err := target.GetApplications()
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(app).Should(HaveLen(1))
-			Ω(app[0].GUID).Should(Equal("app1-guid"))
-			Ω(app[0].Name).Should(Equal("app1"))
+			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
+			gomega.Ω(app).Should(gomega.HaveLen(1))
+			gomega.Ω(app[0].GUID).Should(gomega.Equal("app1-guid"))
+			gomega.Ω(app[0].Name).Should(gomega.Equal("app1"))
 		})
 	})
 
-	Context("fetching tasks", func() {
-		It("no error occurs", func() {
+	ginkgo.Context("fetching tasks", func() {
+		ginkgo.It("no error occurs", func() {
 			server.AppendHandlers(
 				ghttp.CombineHandlers(
 					ghttp.VerifyRequest("GET", "/v3/tasks", "per_page=5000&states=PENDING,RUNNING,CANCELING"),
@@ -132,17 +139,17 @@ var _ = Describe("Extensions", func() {
 				),
 			)
 			objs, err := target.GetTasks()
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(objs).Should(HaveLen(2))
-			Ω(objs[0].GUID).Should(Equal("guid1"))
-			Ω(objs[0].State).Should(Equal(constant.TaskPending))
-			Ω(objs[1].GUID).Should(Equal("guid2"))
-			Ω(objs[1].State).Should(Equal(constant.TaskCanceling))
+			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
+			gomega.Ω(objs).Should(gomega.HaveLen(2))
+			gomega.Ω(objs[0].GUID).Should(gomega.Equal("guid1"))
+			gomega.Ω(objs[0].State).Should(gomega.Equal(constant.TaskPending))
+			gomega.Ω(objs[1].GUID).Should(gomega.Equal("guid2"))
+			gomega.Ω(objs[1].State).Should(gomega.Equal(constant.TaskCanceling))
 		})
 	})
 
-	Context("fetching org quotas", func() {
-		It("no error occurs", func() {
+	ginkgo.Context("fetching org quotas", func() {
+		ginkgo.It("no error occurs", func() {
 			server.AppendHandlers(
 				ghttp.CombineHandlers(
 					ghttp.VerifyRequest("GET", "/v3/organization_quotas", "per_page=5000"),
@@ -159,17 +166,17 @@ var _ = Describe("Extensions", func() {
 				),
 			)
 			objs, err := target.GetOrganizationQuotas()
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(objs).Should(HaveLen(2))
-			Ω(objs[0].GUID).Should(Equal("guid1"))
-			Ω(objs[0].Name).Should(Equal("quota1"))
-			Ω(objs[1].GUID).Should(Equal("guid2"))
-			Ω(objs[1].Name).Should(Equal("quota2"))
+			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
+			gomega.Ω(objs).Should(gomega.HaveLen(2))
+			gomega.Ω(objs[0].GUID).Should(gomega.Equal("guid1"))
+			gomega.Ω(objs[0].Name).Should(gomega.Equal("quota1"))
+			gomega.Ω(objs[1].GUID).Should(gomega.Equal("guid2"))
+			gomega.Ω(objs[1].Name).Should(gomega.Equal("quota2"))
 		})
 	})
 
-	Context("fetching space quotas", func() {
-		It("no error occurs", func() {
+	ginkgo.Context("fetching space quotas", func() {
+		ginkgo.It("no error occurs", func() {
 			server.AppendHandlers(
 				ghttp.CombineHandlers(
 					ghttp.VerifyRequest("GET", "/v3/space_quotas", "per_page=5000"),
@@ -186,17 +193,17 @@ var _ = Describe("Extensions", func() {
 				),
 			)
 			objs, err := target.GetSpaceQuotas()
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(objs).Should(HaveLen(2))
-			Ω(objs[0].GUID).Should(Equal("guid1"))
-			Ω(objs[0].Name).Should(Equal("quota1"))
-			Ω(objs[1].GUID).Should(Equal("guid2"))
-			Ω(objs[1].Name).Should(Equal("quota2"))
+			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
+			gomega.Ω(objs).Should(gomega.HaveLen(2))
+			gomega.Ω(objs[0].GUID).Should(gomega.Equal("guid1"))
+			gomega.Ω(objs[0].Name).Should(gomega.Equal("quota1"))
+			gomega.Ω(objs[1].GUID).Should(gomega.Equal("guid2"))
+			gomega.Ω(objs[1].Name).Should(gomega.Equal("quota2"))
 		})
 	})
 
-	Context("fetching space summary", func() {
-		It("no error occurs", func() {
+	ginkgo.Context("fetching space summary", func() {
+		ginkgo.It("no error occurs", func() {
 			server.AppendHandlers(
 				ghttp.CombineHandlers(
 					ghttp.VerifyRequest("GET", "/v2/spaces/space-guid/summary"),
@@ -218,18 +225,18 @@ var _ = Describe("Extensions", func() {
 				),
 			)
 			objs, err := target.GetSpaceSummary("space-guid")
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(objs.GUID).Should(Equal("space-guid"))
-			Ω(objs.Apps).Should(HaveLen(2))
-			Ω(objs.Apps[0].GUID).Should(Equal("app1-guid"))
-			Ω(objs.Apps[0].RunningInstances).Should(Equal(1))
-			Ω(objs.Apps[1].GUID).Should(Equal("app2-guid"))
-			Ω(objs.Apps[1].RunningInstances).Should(Equal(2))
+			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
+			gomega.Ω(objs.GUID).Should(gomega.Equal("space-guid"))
+			gomega.Ω(objs.Apps).Should(gomega.HaveLen(2))
+			gomega.Ω(objs.Apps[0].GUID).Should(gomega.Equal("app1-guid"))
+			gomega.Ω(objs.Apps[0].RunningInstances).Should(gomega.Equal(1))
+			gomega.Ω(objs.Apps[1].GUID).Should(gomega.Equal("app2-guid"))
+			gomega.Ω(objs.Apps[1].RunningInstances).Should(gomega.Equal(2))
 		})
 	})
 
-	Context("fetching app events", func() {
-		It("no error occurs", func() {
+	ginkgo.Context("fetching app events", func() {
+		ginkgo.It("no error occurs", func() {
 			now := time.Now()
 			before := now.Add(-10 * time.Minute)
 			server.AppendHandlers(
@@ -284,32 +291,32 @@ var _ = Describe("Extensions", func() {
 				),
 			)
 			objs, err := target.GetEvents()
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(objs).Should(HaveLen(2))
-			Ω(objs[0].GUID).Should(Equal("event1-guid"))
-			Ω(objs[0].CreatedAt).Should(BeTemporally("==", before))
-			Ω(objs[0].UpdatedAt).Should(BeTemporally("==", now))
-			Ω(objs[0].Type).Should(Equal("event1-type"))
-			Ω(objs[0].Actor.GUID).Should(Equal("event1-actor-guid"))
-			Ω(objs[0].Actor.Type).Should(Equal("event1-actor-type"))
-			Ω(objs[0].Actor.Name).Should(Equal("event1-actor-name"))
-			Ω(objs[0].Target.GUID).Should(Equal("event1-target-guid"))
-			Ω(objs[0].Target.Type).Should(Equal("event1-target-type"))
-			Ω(objs[0].Target.Name).Should(Equal("event1-target-name"))
-			Ω(objs[0].Space.GUID).Should(Equal("event1-space-guid"))
-			Ω(objs[0].Org.GUID).Should(Equal("event1-org-guid"))
-			Ω(objs[1].GUID).Should(Equal("event2-guid"))
-			Ω(objs[1].CreatedAt).Should(BeTemporally("==", before))
-			Ω(objs[1].UpdatedAt).Should(BeTemporally("==", now))
-			Ω(objs[1].Type).Should(Equal("event2-type"))
-			Ω(objs[1].Actor.GUID).Should(Equal("event2-actor-guid"))
-			Ω(objs[1].Actor.Type).Should(Equal("event2-actor-type"))
-			Ω(objs[1].Actor.Name).Should(Equal("event2-actor-name"))
-			Ω(objs[1].Target.GUID).Should(Equal("event2-target-guid"))
-			Ω(objs[1].Target.Type).Should(Equal("event2-target-type"))
-			Ω(objs[1].Target.Name).Should(Equal("event2-target-name"))
-			Ω(objs[1].Space.GUID).Should(Equal("event2-space-guid"))
-			Ω(objs[1].Org.GUID).Should(Equal("event2-org-guid"))
+			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
+			gomega.Ω(objs).Should(gomega.HaveLen(2))
+			gomega.Ω(objs[0].GUID).Should(gomega.Equal("event1-guid"))
+			gomega.Ω(objs[0].CreatedAt).Should(gomega.BeTemporally("==", before))
+			gomega.Ω(objs[0].UpdatedAt).Should(gomega.BeTemporally("==", now))
+			gomega.Ω(objs[0].Type).Should(gomega.Equal("event1-type"))
+			gomega.Ω(objs[0].Actor.GUID).Should(gomega.Equal("event1-actor-guid"))
+			gomega.Ω(objs[0].Actor.Type).Should(gomega.Equal("event1-actor-type"))
+			gomega.Ω(objs[0].Actor.Name).Should(gomega.Equal("event1-actor-name"))
+			gomega.Ω(objs[0].Target.GUID).Should(gomega.Equal("event1-target-guid"))
+			gomega.Ω(objs[0].Target.Type).Should(gomega.Equal("event1-target-type"))
+			gomega.Ω(objs[0].Target.Name).Should(gomega.Equal("event1-target-name"))
+			gomega.Ω(objs[0].Space.GUID).Should(gomega.Equal("event1-space-guid"))
+			gomega.Ω(objs[0].Org.GUID).Should(gomega.Equal("event1-org-guid"))
+			gomega.Ω(objs[1].GUID).Should(gomega.Equal("event2-guid"))
+			gomega.Ω(objs[1].CreatedAt).Should(gomega.BeTemporally("==", before))
+			gomega.Ω(objs[1].UpdatedAt).Should(gomega.BeTemporally("==", now))
+			gomega.Ω(objs[1].Type).Should(gomega.Equal("event2-type"))
+			gomega.Ω(objs[1].Actor.GUID).Should(gomega.Equal("event2-actor-guid"))
+			gomega.Ω(objs[1].Actor.Type).Should(gomega.Equal("event2-actor-type"))
+			gomega.Ω(objs[1].Actor.Name).Should(gomega.Equal("event2-actor-name"))
+			gomega.Ω(objs[1].Target.GUID).Should(gomega.Equal("event2-target-guid"))
+			gomega.Ω(objs[1].Target.Type).Should(gomega.Equal("event2-target-type"))
+			gomega.Ω(objs[1].Target.Name).Should(gomega.Equal("event2-target-name"))
+			gomega.Ω(objs[1].Space.GUID).Should(gomega.Equal("event2-space-guid"))
+			gomega.Ω(objs[1].Org.GUID).Should(gomega.Equal("event2-org-guid"))
 		})
 	})
 })
