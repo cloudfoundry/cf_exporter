@@ -180,7 +180,7 @@ func main() {
 
 	handler := prometheusHandler()
 	http.Handle(*metricsPath, handler)
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		_, err := w.Write([]byte(`<html>
              <head><title>Cloud Foundry Exporter</title></head>
              <body>
