@@ -95,10 +95,15 @@ func (c *Fetcher) fetch() *models.CFObjects {
 
 	c.workInit()
 
+	// Fetch and filter droplets
+	appDropletMap, err := c.fetchAndFilterDroplets(session)
+	if err != nil {
+		log.WithError(err).Error("unable to fetch and filter droplets")
+		result.Error = err
+		return result
+	}
+	result.AppDroplets = appDropletMap
+
 	result.Error = c.worker.Do(session, result)
 	return result
 }
-
-// Local Variables:
-// ispell-local-dictionary: "american"
-// End:

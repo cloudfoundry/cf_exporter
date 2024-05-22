@@ -153,6 +153,50 @@ func (s SessionExt) GetSpaceSummary(guid string) (*models.SpaceSummary, error) {
 	return &res, nil
 }
 
+func (s SessionExt) ListDroplets() ([]models.Droplet, error) {
+	client := s.Raw()
+	url := fmt.Sprintf("%s/v3/droplets", s.V3().CloudControllerURL)
+	var droplets []models.Droplet
+
+	for {
+		req, err := client.NewRequest("GET", url, nil)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			return nil, fmt.Errorf("unexpected status code %d on request %s", resp.StatusCode, url)
+		}
+
+		var data struct {
+			Pagination struct {
+				Next struct {
+					Href string `json:"href"`
+				} `json:"next"`
+			} `json:"pagination"`
+			Resources []models.Droplet `json:"resources"`
+		}
+		decoder := json.NewDecoder(resp.Body)
+		err = decoder.Decode(&data)
+		if err != nil {
+			return nil, err
+		}
+
+		droplets = append(droplets, data.Resources...)
+
+		if data.Pagination.Next.Href == "" {
+			break
+		}
+		url = data.Pagination.Next.Href
+	}
+
+	return droplets, nil
+}
+
 // Local Variables:
 // ispell-local-dictionary: "american"
 // End:

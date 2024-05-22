@@ -97,6 +97,24 @@ func (c *Fetcher) fetchDomains(session *SessionExt, entry *models.CFObjects) err
 	return err
 }
 
+func (c *Fetcher) fetchAndFilterDroplets(session *SessionExt) (map[string]models.Droplet, error) {
+	droplets, err := session.ListDroplets()
+	if err != nil {
+		return nil, err
+	}
+
+	// Create a map to store the first droplet per app
+	appDropletMap := make(map[string]models.Droplet)
+	for _, droplet := range droplets {
+		appGUID := droplet.Relationships.App.Data.GUID
+		if _, exists := appDropletMap[appGUID]; !exists {
+			appDropletMap[appGUID] = droplet
+		}
+	}
+
+	return appDropletMap, nil
+}
+
 func (c *Fetcher) fetchProcesses(session *SessionExt, entry *models.CFObjects) error {
 	processes, _, err := session.V3().GetProcesses(LargeQuery)
 	if err != nil {
