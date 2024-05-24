@@ -1,3 +1,4 @@
 /dist
 /cf_exporter
 *.tar.gz
+.env

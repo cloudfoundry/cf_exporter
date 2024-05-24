@@ -53,7 +53,7 @@ func NewApplicationsCollector(
 			Help:        "Buildpack used by an Application.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"application_id", "application_name", "buildpack"},
+		[]string{"application_id", "application_name", "buildpack", "detect_output", "buildpack_name", "version"},
 	)
 
 	applicationInstancesMetric := prometheus.NewGaugeVec(
@@ -266,6 +266,9 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 				application.GUID,
 				application.Name,
 				bp.Name,
+				bp.DetectOutput,
+				bp.BuildpackName,
+				bp.Version,
 			).Set(float64(1))
 		}
 	}

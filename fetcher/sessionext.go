@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3"
 	"github.com/bosh-prometheus/cf_exporter/models"
@@ -191,10 +192,32 @@ func (s SessionExt) ListDroplets() ([]models.Droplet, error) {
 		if data.Pagination.Next.Href == "" {
 			break
 		}
-		url = data.Pagination.Next.Href
+		nextURL, err := getNextURL(url, data.Pagination.Next.Href)
+		if err != nil {
+			return nil, err
+		}
+		url = nextURL
 	}
 
 	return droplets, nil
+}
+
+func getNextURL(currentURL, nextHref string) (string, error) {
+	parsedNext, err := url.Parse(nextHref)
+	if err != nil {
+		return "", err
+	}
+	if parsedNext.IsAbs() {
+		return parsedNext.String(), nil
+	}
+
+	parsedCurrent, err := url.Parse(currentURL)
+	if err != nil {
+		return "", err
+	}
+
+	resolved := parsedCurrent.ResolveReference(parsedNext)
+	return resolved.String(), nil
 }
 
 // Local Variables:
