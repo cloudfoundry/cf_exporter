@@ -29,6 +29,7 @@ type CFObjects struct {
 	ServiceOfferings map[string]resources.ServiceOffering          `json:"service_offerings"`
 	ServicePlans     map[string]resources.ServicePlan              `json:"service_plans"`
 	ServiceBindings  map[string]resources.ServiceCredentialBinding `json:"service_bindings"`
+	RouteBindings 	 map[string]resources.RouteBinding			   `json:"route_bindings"`
 	SpaceSummaries   map[string]SpaceSummary                       `json:"space_summaries"`
 	AppSummaries     map[string]AppSummary                         `json:"app_summaries"`
 	AppProcesses     map[string][]resources.Process                `json:"app_processes"`
@@ -169,6 +170,7 @@ func NewCFObjects() *CFObjects {
 		ServiceOfferings: map[string]resources.ServiceOffering{},
 		ServicePlans:     map[string]resources.ServicePlan{},
 		ServiceBindings:  map[string]resources.ServiceCredentialBinding{},
+		RouteBindings:    map[string]resources.RouteBinding{},
 		SpaceSummaries:   map[string]SpaceSummary{},
 		AppSummaries:     map[string]AppSummary{},
 		AppProcesses:     map[string][]resources.Process{},
