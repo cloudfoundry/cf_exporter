@@ -89,6 +89,15 @@ func (c *Fetcher) fetchApplications(session *SessionExt, entry *models.CFObjects
 	return err
 }
 
+func (c *Fetcher) fetchDomains(session *SessionExt, entry *models.CFObjects) error {
+	domains, _, err := session.V3().GetDomains(LargeQuery)
+	if err == nil {
+		loadIndex(entry.Domains, domains, func(r resources.Domain) string { return r.GUID })
+	}
+	return err
+}
+
+
 func (c *Fetcher) fetchProcesses(session *SessionExt, entry *models.CFObjects) error {
 	processes, _, err := session.V3().GetProcesses(LargeQuery)
 	if err != nil {
