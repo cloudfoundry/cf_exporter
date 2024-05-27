@@ -34,7 +34,7 @@ func NewDomainsCollector(namespace string, environment string, deployment string
     domainInfoScrapesTotalMetric := prometheus.NewCounter(
         prometheus.CounterOpts{
             Namespace:   namespace,
-            Subsystem:   "domain_info_scrapes",
+            Subsystem:   "domain_scrapes",
             Name:        "total",
             Help:        "Total number of scrapes for Cloud Foundry Domains.",
             ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
@@ -44,7 +44,7 @@ func NewDomainsCollector(namespace string, environment string, deployment string
     domainInfoScrapeErrorsTotalMetric := prometheus.NewCounter(
         prometheus.CounterOpts{
             Namespace:   namespace,
-            Subsystem:   "domain_info_scrape_errors",
+            Subsystem:   "domain_scrape_errors",
             Name:        "total",
             Help:        "Total number of scrape errors of Cloud Foundry Domains.",
             ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
@@ -55,7 +55,7 @@ func NewDomainsCollector(namespace string, environment string, deployment string
         prometheus.GaugeOpts{
             Namespace:   namespace,
             Subsystem:   "",
-            Name:        "last_domain_info_scrape_error",
+            Name:        "last_domains_scrape_error",
             Help:        "Whether the last scrape of Domains metrics from Cloud Foundry resulted in an error (1 for error, 0 for success).",
             ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
         },
@@ -65,7 +65,7 @@ func NewDomainsCollector(namespace string, environment string, deployment string
         prometheus.GaugeOpts{
             Namespace:   namespace,
             Subsystem:   "",
-            Name:        "last_domain_info_scrape_timestamp",
+            Name:        "last_domains_scrape_timestamp",
             Help:        "Number of seconds since 1970 since last scrape of Domains metrics from Cloud Foundry.",
             ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
         },
@@ -75,7 +75,7 @@ func NewDomainsCollector(namespace string, environment string, deployment string
         prometheus.GaugeOpts{
             Namespace:   namespace,
             Subsystem:   "",
-            Name:        "last_domain_info_scrape_duration_seconds",
+            Name:        "last_domains_scrape_duration_seconds",
             Help:        "Duration of the last scrape of Domains metrics from Cloud Foundry.",
             ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
         },
