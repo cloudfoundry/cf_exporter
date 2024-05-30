@@ -200,7 +200,10 @@ func (c *Fetcher) fetchServiceBindings(session *SessionExt, entry *models.CFObje
 	if err == nil {
 		loadIndex(entry.ServiceBindings, bindings, func(r resources.ServiceCredentialBinding) string { return r.GUID })
 	}
+	return err
+}
 
+func (c *Fetcher) fetchRouteBindings(session *SessionExt, entry *models.CFObjects) error {
 	routeBindings, _, _, err := session.V3().GetRouteBindings(LargeQuery)
 	if err == nil {
 		loadIndex(entry.RouteBindings, routeBindings, func(r resources.RouteBinding) string { return r.RouteGUID })
