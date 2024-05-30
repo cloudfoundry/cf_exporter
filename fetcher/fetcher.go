@@ -81,6 +81,7 @@ func (c *Fetcher) workInit() {
 	c.worker.PushIf("service_bindings", c.fetchServiceBindings, filters.ServiceBindings)
 	c.worker.PushIf("users", c.fetchUsers, filters.Events)
 	c.worker.PushIf("events", c.fetchEvents, filters.Events)
+	c.worker.PushIf("droplets", c.fetchDroplets, filters.Droplets)
 }
 
 func (c *Fetcher) fetch() *models.CFObjects {
@@ -94,15 +95,6 @@ func (c *Fetcher) fetch() *models.CFObjects {
 	}
 
 	c.workInit()
-
-	// Fetch and filter droplets
-	appDropletMap, err := c.fetchAndFilterDroplets(session)
-	if err != nil {
-		log.WithError(err).Error("unable to fetch and filter droplets")
-		result.Error = err
-		return result
-	}
-	result.AppDroplets = appDropletMap
 
 	result.Error = c.worker.Do(session, result)
 	return result

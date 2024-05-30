@@ -115,6 +115,16 @@ func (c *Fetcher) fetchAndFilterDroplets(session *SessionExt) (map[string]models
 	return appDropletMap, nil
 }
 
+func (c *Fetcher) fetchDroplets(session *SessionExt, result *models.CFObjects) error {
+	appDropletMap, err := c.fetchAndFilterDroplets(session)
+	if err != nil {
+		log.WithError(err).Error("unable to fetch and filter droplets")
+		return err
+	}
+	result.AppDroplets = appDropletMap
+	return nil
+}
+
 func (c *Fetcher) fetchProcesses(session *SessionExt, entry *models.CFObjects) error {
 	processes, _, err := session.V3().GetProcesses(LargeQuery)
 	if err != nil {
