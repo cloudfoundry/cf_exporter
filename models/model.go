@@ -1,5 +1,3 @@
-// models/cf_objects.go
-
 package models
 
 import (
