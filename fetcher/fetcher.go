@@ -81,7 +81,7 @@ func (c *Fetcher) workInit() {
 	c.worker.PushIf("service_bindings", c.fetchServiceBindings, filters.ServiceBindings)
 	c.worker.PushIf("users", c.fetchUsers, filters.Events)
 	c.worker.PushIf("events", c.fetchEvents, filters.Events)
-	c.worker.PushIf("droplets", c.fetchDroplets, filters.Droplets)
+	c.worker.PushIf("droplets", c.fetchV3Apps, filters.Applications)
 }
 
 func (c *Fetcher) fetch() *models.CFObjects {

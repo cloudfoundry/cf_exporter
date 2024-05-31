@@ -154,10 +154,10 @@ func (s SessionExt) GetSpaceSummary(guid string) (*models.SpaceSummary, error) {
 	return &res, nil
 }
 
-func (s SessionExt) ListDroplets() ([]models.Droplet, error) {
+func (s SessionExt) ListV3Apps() ([]models.Application, error) {
 	client := s.Raw()
-	url := fmt.Sprintf("%s/v3/droplets", s.V3().CloudControllerURL)
-	var droplets []models.Droplet
+	url := "/v3/apps"
+	var apps []models.Application
 
 	for {
 		req, err := client.NewRequest("GET", url, nil)
@@ -179,7 +179,7 @@ func (s SessionExt) ListDroplets() ([]models.Droplet, error) {
 					Href string `json:"href"`
 				} `json:"next"`
 			} `json:"pagination"`
-			Resources []models.Droplet `json:"resources"`
+			Resources []models.Application `json:"resources"`
 		}
 		decoder := json.NewDecoder(resp.Body)
 		err = decoder.Decode(&data)
@@ -187,7 +187,7 @@ func (s SessionExt) ListDroplets() ([]models.Droplet, error) {
 			return nil, err
 		}
 
-		droplets = append(droplets, data.Resources...)
+		apps = append(apps, data.Resources...)
 
 		if data.Pagination.Next.Href == "" {
 			break
@@ -199,7 +199,7 @@ func (s SessionExt) ListDroplets() ([]models.Droplet, error) {
 		url = nextURL
 	}
 
-	return droplets, nil
+	return apps, nil
 }
 
 func getNextURL(currentURL, nextHref string) (string, error) {

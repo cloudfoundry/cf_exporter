@@ -36,7 +36,6 @@ type CFObjects struct {
 	AppProcesses     map[string][]resources.Process                `json:"app_processes"`
 	Events           map[string]Event                              `json:"events"`
 	Users            map[string]resources.User                     `json:"users"`
-	AppDroplets      map[string]Droplet                            `json:"app_droplets"`
 	Took             float64
 	Error            error
 }
@@ -93,37 +92,6 @@ type Application struct {
 	Lifecycle     Lifecycle                 `json:"lifecycle,omitempty"`
 	CreatedAt     string                    `json:"created_at,omitempty"`
 	UpdatedAt     string                    `json:"updated_at,omitempty"`
-}
-
-type Droplet struct {
-	GUID          string        `json:"guid"`
-	CreatedAt     string        `json:"created_at"`
-	UpdatedAt     string        `json:"updated_at"`
-	State         string        `json:"state"`
-	Error         string        `json:"error"`
-	Lifecycle     Lifecycle     `json:"lifecycle"`
-	Buildpacks    []Buildpack   `json:"buildpacks"`
-	Stack         string        `json:"stack"`
-	Relationships Relationships `json:"relationships"`
-}
-
-type Buildpack struct {
-	Name          string `json:"name"`
-	DetectOutput  string `json:"detect_output"`
-	BuildpackName string `json:"buildpack_name"`
-	Version       string `json:"version"`
-}
-
-type Relationships struct {
-	App RelationshipData `json:"app"`
-}
-
-type RelationshipData struct {
-	Data GUID `json:"data"`
-}
-
-type GUID struct {
-	GUID string `json:"guid"`
 }
 
 type Task struct {
@@ -208,7 +176,6 @@ func NewCFObjects() *CFObjects {
 		AppProcesses:     map[string][]resources.Process{},
 		Users:            map[string]resources.User{},
 		Events:           map[string]Event{},
-		AppDroplets:      map[string]Droplet{},
 		Took:             0,
 		Error:            nil,
 	}

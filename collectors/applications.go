@@ -53,7 +53,7 @@ func NewApplicationsCollector(
 			Help:        "Buildpack used by an Application.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"application_id", "application_name", "buildpack", "detect_output", "buildpack_name", "version"},
+		[]string{"application_id", "application_name", "buildpack_name"},
 	)
 
 	applicationInstancesMetric := prometheus.NewGaugeVec(
@@ -259,16 +259,13 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 	}
 
 	// 3. Use the droplet data for the buildpack metric
-	droplet, exists := objs.AppDroplets[application.GUID]
+	apps, exists := objs.Apps[application.GUID]
 	if exists {
-		for _, bp := range droplet.Buildpacks {
+		for _, bp := range apps.Lifecycle.Data.Buildpacks {
 			c.applicationBuildpackMetric.WithLabelValues(
 				application.GUID,
 				application.Name,
-				bp.Name,
-				bp.DetectOutput,
-				bp.BuildpackName,
-				bp.Version,
+				bp,
 			).Set(float64(1))
 		}
 	}
