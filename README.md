@@ -252,6 +252,18 @@ The exporter returns the following `Service Bindings` metrics:
 | *metrics.namespace*_last_service_bindings_scrape_timestamp        | Number of seconds since 1970 since last scrape of Service Bindings metrics from Cloud Foundry                                | `environment`, `deployment`                                                                 |
 | *metrics.namespace*_last_service_bindings_scrape_duration_seconds | Duration of the last scrape of Service Bindings metrics from Cloud Foundry                                                   | `environment`, `deployment`                                                                 |
 
+
+The exporter returns the following `Service Route Bindings` metrics:
+
+| Metric                                                            | Description                                                                                                                  | Labels                                                                                      |
+| ------                                                            | -----------                                                                                                                  | ------                                                                                      |
+| *metrics.namespace*_service_route_binding_info                          | Labeled Cloud Foundry Service Route Binding information with a constant `1` value                                                  | `environment`, `deployment`, `route_id`, `route_service_url`, `service_instance_id`, `service_route_binding_id` |
+| *metrics.namespace*_service_route_bindings_scrapes_total                | Total number of scrapes for Cloud Foundry Service Bindings                                                                   | `environment`, `deployment`                                                                 |
+| *metrics.namespace*_service_route_bindings_scrape_errors_total          | Total number of scrape errors of Cloud Foundry Service Bindings                                                              | `environment`, `deployment`                                                                 |
+| *metrics.namespace*_last_service_route_bindings_scrape_error            | Whether the last scrape of Service Bindings metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment`                                                                 |
+| *metrics.namespace*_last_service_route_bindings_scrape_timestamp        | Number of seconds since 1970 since last scrape of Service Bindings metrics from Cloud Foundry                                | `environment`, `deployment`                                                                 |
+| *metrics.namespace*_last_service_route_bindings_scrape_duration_seconds | Duration of the last scrape of Service Bindings metrics from Cloud Foundry                                                   | `environment`, `deployment`                                                                 |
+
 The exporter returns the following `Service Instances` metrics:
 
 | Metric                                                             | Description                                                                                                                   | Labels                                                                                                                                                            |
