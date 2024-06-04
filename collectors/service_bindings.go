@@ -29,10 +29,10 @@ func NewServiceBindingsCollector(
 			Namespace:   namespace,
 			Subsystem:   "service_binding",
 			Name:        "info",
-			Help:        "Labeled Cloud Foundry Service Binding information with a constant '1' value, including route bindings.",
+			Help:        "Labeled Cloud Foundry Service Binding information with a constant '1' value",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"service_binding_id", "application_id", "service_instance_id", "route_binding_id"},
+		[]string{"service_binding_id", "application_id", "service_instance_id"},
 	)
 
 	serviceBindingsScrapesTotalMetric := prometheus.NewCounter(
@@ -130,16 +130,10 @@ func (c ServiceBindingsCollector) reportServiceBindingsMetrics(objs *models.CFOb
 	c.serviceBindingInfoMetric.Reset()
 
 	for _, cItem := range objs.ServiceBindings {
-		routeBindingID := ""
-		if routeBinding, exists := objs.RouteBindings[cItem.GUID]; exists {
-			routeBindingID = routeBinding.GUID
-		}
-
 		c.serviceBindingInfoMetric.WithLabelValues(
 			cItem.GUID,
 			cItem.AppGUID,
 			cItem.ServiceInstanceGUID,
-			routeBindingID,
 		).Set(float64(1))
 	}
 	c.serviceBindingInfoMetric.Collect(ch)

@@ -9,34 +9,34 @@ import (
 )
 
 type CFObjects struct {
-	Info             Info                                          `json:"info"`
-	Orgs             map[string]resources.Organization             `json:"orgs"`
-	OrgQuotas        map[string]Quota                              `json:"org_quotas"`
-	Spaces           map[string]resources.Space                    `json:"spaces"`
-	SpaceQuotas      map[string]Quota                              `json:"space_quotas"`
-	Apps             map[string]Application                        `json:"apps"`
-	Processes        map[string]resources.Process                  `json:"process"`
-	Tasks            map[string]Task                               `json:"tasks"`
-	Routes           map[string]resources.Route                    `json:"routes"`
-	RoutesBindings   map[string]resources.RouteBinding             `json:"route_bindings"`
-	Segments         map[string]resources.IsolationSegment         `json:"segments"`
-	ServiceInstances map[string]resources.ServiceInstance          `json:"service_instances"`
-	SecurityGroups   map[string]resources.SecurityGroup            `json:"security_groups"`
-	Stacks           map[string]resources.Stack                    `json:"stacks"`
-	Buildpacks       map[string]resources.Buildpack                `json:"buildpacks"`
-	Domains          map[string]resources.Domain                   `json:"domains"`
-	ServiceBrokers   map[string]resources.ServiceBroker            `json:"service_brokers"`
-	ServiceOfferings map[string]resources.ServiceOffering          `json:"service_offerings"`
-	ServicePlans     map[string]resources.ServicePlan              `json:"service_plans"`
-	ServiceBindings  map[string]resources.ServiceCredentialBinding `json:"service_bindings"`
-	RouteBindings 	 map[string]resources.RouteBinding			   `json:"route_bindings"`
-	SpaceSummaries   map[string]SpaceSummary                       `json:"space_summaries"`
-	AppSummaries     map[string]AppSummary                         `json:"app_summaries"`
-	AppProcesses     map[string][]resources.Process                `json:"app_processes"`
-	Events           map[string]Event                              `json:"events"`
-	Users            map[string]resources.User                     `json:"users"`
-	Took             float64
-	Error            error
+	Info                 Info                                          `json:"info"`
+	Orgs                 map[string]resources.Organization             `json:"orgs"`
+	OrgQuotas            map[string]Quota                              `json:"org_quotas"`
+	Spaces               map[string]resources.Space                    `json:"spaces"`
+	SpaceQuotas          map[string]Quota                              `json:"space_quotas"`
+	Apps                 map[string]Application                        `json:"apps"`
+	Processes            map[string]resources.Process                  `json:"process"`
+	Tasks                map[string]Task                               `json:"tasks"`
+	Routes               map[string]resources.Route                    `json:"routes"`
+	RoutesBindings       map[string]resources.RouteBinding             `json:"route_bindings"`
+	Segments             map[string]resources.IsolationSegment         `json:"segments"`
+	ServiceInstances     map[string]resources.ServiceInstance          `json:"service_instances"`
+	SecurityGroups       map[string]resources.SecurityGroup            `json:"security_groups"`
+	Stacks               map[string]resources.Stack                    `json:"stacks"`
+	Buildpacks           map[string]resources.Buildpack                `json:"buildpacks"`
+	Domains              map[string]resources.Domain                   `json:"domains"`
+	ServiceBrokers       map[string]resources.ServiceBroker            `json:"service_brokers"`
+	ServiceOfferings     map[string]resources.ServiceOffering          `json:"service_offerings"`
+	ServicePlans         map[string]resources.ServicePlan              `json:"service_plans"`
+	ServiceBindings      map[string]resources.ServiceCredentialBinding `json:"service_bindings"`
+	SpaceSummaries       map[string]SpaceSummary                       `json:"space_summaries"`
+	AppSummaries         map[string]AppSummary                         `json:"app_summaries"`
+	AppProcesses         map[string][]resources.Process                `json:"app_processes"`
+	Events               map[string]Event                              `json:"events"`
+	Users                map[string]resources.User                     `json:"users"`
+	ServiceRouteBindings map[string]resources.RouteBinding             `json:"service_route_bindings"`
+	Took                 float64
+	Error                error
 }
 
 type QuotaApp struct {
@@ -150,33 +150,33 @@ type Event struct {
 
 func NewCFObjects() *CFObjects {
 	return &CFObjects{
-		Info:             Info{},
-		Orgs:             map[string]resources.Organization{},
-		OrgQuotas:        map[string]Quota{},
-		Spaces:           map[string]resources.Space{},
-		SpaceQuotas:      map[string]Quota{},
-		Apps:             map[string]Application{},
-		Processes:        map[string]resources.Process{},
-		Tasks:            map[string]Task{},
-		Routes:           map[string]resources.Route{},
-		RoutesBindings:   map[string]resources.RouteBinding{},
-		Segments:         map[string]resources.IsolationSegment{},
-		ServiceInstances: map[string]resources.ServiceInstance{},
-		SecurityGroups:   map[string]resources.SecurityGroup{},
-		Stacks:           map[string]resources.Stack{},
-		Buildpacks:       map[string]resources.Buildpack{},
-		Domains:          map[string]resources.Domain{},
-		ServiceBrokers:   map[string]resources.ServiceBroker{},
-		ServiceOfferings: map[string]resources.ServiceOffering{},
-		ServicePlans:     map[string]resources.ServicePlan{},
-		ServiceBindings:  map[string]resources.ServiceCredentialBinding{},
-		RouteBindings:    map[string]resources.RouteBinding{},
-		SpaceSummaries:   map[string]SpaceSummary{},
-		AppSummaries:     map[string]AppSummary{},
-		AppProcesses:     map[string][]resources.Process{},
-		Users:            map[string]resources.User{},
-		Events:           map[string]Event{},
-		Took:             0,
-		Error:            nil,
+		Info:                 Info{},
+		Orgs:                 map[string]resources.Organization{},
+		OrgQuotas:            map[string]Quota{},
+		Spaces:               map[string]resources.Space{},
+		SpaceQuotas:          map[string]Quota{},
+		Apps:                 map[string]Application{},
+		Processes:            map[string]resources.Process{},
+		Tasks:                map[string]Task{},
+		Routes:               map[string]resources.Route{},
+		RoutesBindings:       map[string]resources.RouteBinding{},
+		Segments:             map[string]resources.IsolationSegment{},
+		ServiceInstances:     map[string]resources.ServiceInstance{},
+		SecurityGroups:       map[string]resources.SecurityGroup{},
+		Stacks:               map[string]resources.Stack{},
+		Buildpacks:           map[string]resources.Buildpack{},
+		Domains:              map[string]resources.Domain{},
+		ServiceBrokers:       map[string]resources.ServiceBroker{},
+		ServiceOfferings:     map[string]resources.ServiceOffering{},
+		ServicePlans:         map[string]resources.ServicePlan{},
+		ServiceBindings:      map[string]resources.ServiceCredentialBinding{},
+		SpaceSummaries:       map[string]SpaceSummary{},
+		AppSummaries:         map[string]AppSummary{},
+		AppProcesses:         map[string][]resources.Process{},
+		Users:                map[string]resources.User{},
+		Events:               map[string]Event{},
+		ServiceRouteBindings: map[string]resources.RouteBinding{},
+		Took:                 0,
+		Error:                nil,
 	}
 }

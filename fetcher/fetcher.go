@@ -79,7 +79,7 @@ func (c *Fetcher) workInit() {
 	c.worker.PushIf("service_plans", c.fetchServicePlans, filters.ServicePlans)
 	c.worker.PushIf("segments", c.fetchIsolationSegments, filters.IsolationSegments)
 	c.worker.PushIf("service_bindings", c.fetchServiceBindings, filters.ServiceBindings)
-	c.worker.PushIf("service_bindings", c.fetchServiceRouteBindings, filters.ServiceBindings)
+	c.worker.PushIf("service_route_bindings", c.fetchServiceRouteBindings, filters.ServiceRouteBindings)
 	c.worker.PushIf("users", c.fetchUsers, filters.Events)
 	c.worker.PushIf("events", c.fetchEvents, filters.Events)
 }
