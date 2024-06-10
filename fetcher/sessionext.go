@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3"
 	"github.com/bosh-prometheus/cf_exporter/models"
@@ -152,72 +151,6 @@ func (s SessionExt) GetSpaceSummary(guid string) (*models.SpaceSummary, error) {
 		return nil, err
 	}
 	return &res, nil
-}
-
-func (s SessionExt) ListV3Apps() ([]models.Application, error) {
-	client := s.Raw()
-	url := "/v3/apps"
-	var apps []models.Application
-
-	for {
-		req, err := client.NewRequest("GET", url, nil)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := client.Do(req)
-		if err != nil {
-			return nil, err
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("unexpected status code %d on request %s", resp.StatusCode, url)
-		}
-
-		var data struct {
-			Pagination struct {
-				Next struct {
-					Href string `json:"href"`
-				} `json:"next"`
-			} `json:"pagination"`
-			Resources []models.Application `json:"resources"`
-		}
-		decoder := json.NewDecoder(resp.Body)
-		err = decoder.Decode(&data)
-		if err != nil {
-			return nil, err
-		}
-
-		apps = append(apps, data.Resources...)
-
-		if data.Pagination.Next.Href == "" {
-			break
-		}
-		nextURL, err := getNextURL(url, data.Pagination.Next.Href)
-		if err != nil {
-			return nil, err
-		}
-		url = nextURL
-	}
-
-	return apps, nil
-}
-
-func getNextURL(currentURL, nextHref string) (string, error) {
-	parsedNext, err := url.Parse(nextHref)
-	if err != nil {
-		return "", err
-	}
-	if parsedNext.IsAbs() {
-		return parsedNext.String(), nil
-	}
-
-	parsedCurrent, err := url.Parse(currentURL)
-	if err != nil {
-		return "", err
-	}
-
-	resolved := parsedCurrent.ResolveReference(parsedNext)
-	return resolved.String(), nil
 }
 
 // Local Variables:
