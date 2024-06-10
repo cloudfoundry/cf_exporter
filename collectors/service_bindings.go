@@ -29,7 +29,7 @@ func NewServiceBindingsCollector(
 			Namespace:   namespace,
 			Subsystem:   "service_binding",
 			Name:        "info",
-			Help:        "Labeled Cloud Foundry Service Binding information with a constant '1' value",
+			Help:        "Labeled Cloud Foundry Service Binding information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
 		[]string{"service_binding_id", "application_id", "service_instance_id"},
