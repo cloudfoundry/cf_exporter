@@ -44,6 +44,12 @@ func NewCollector(
 		res.collectors = append(res.collectors, collector)
 	}
 
+	if filter.Enabled(filters.Domains) {
+		collector := NewDomainsCollector(namespace, environment, deployment)
+		res.collectors = append(res.collectors, collector)
+	
+	}
+
 	if filter.Enabled(filters.IsolationSegments) {
 		collector := NewIsolationSegmentsCollector(namespace, environment, deployment)
 		res.collectors = append(res.collectors, collector)

@@ -8,6 +8,7 @@ import (
 const (
 	Applications      = "applications"
 	Buildpacks        = "buildpacks"
+	Domains 		  = "domains"
 	Events            = "events"
 	IsolationSegments = "isolationsegments"
 	Organizations     = "organizations"
@@ -26,6 +27,7 @@ var (
 	All = []string{
 		Applications,
 		Buildpacks,
+		Domains,
 		Events,
 		IsolationSegments,
 		Organizations,
@@ -50,6 +52,7 @@ func NewFilter(active ...string) (*Filter, error) {
 		activated: map[string]bool{
 			Applications:      true,
 			Buildpacks:        true,
+			Domains: 		   true,
 			IsolationSegments: true,
 			Organizations:     true,
 			Routes:            true,
@@ -79,6 +82,7 @@ func (f *Filter) setActive(active []string) error {
 	f.activated = map[string]bool{
 		Applications:      false,
 		Buildpacks:        false,
+		Domains: 		   false,	
 		IsolationSegments: false,
 		Organizations:     false,
 		Routes:            false,

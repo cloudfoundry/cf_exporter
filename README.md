@@ -154,6 +154,17 @@ The exporter returns the following `Buildpacks` metrics:
 | *metrics.namespace*_last_buildpacks_scrape_timestamp        | Number of seconds since 1970 since last scrape of Buildpacks metrics from Cloud Foundry                                | `environment`, `deployment`                                                                            |
 | *metrics.namespace*_last_buildpacks_scrape_duration_seconds | Duration of the last scrape of Buildpacks metrics from Cloud Foundry                                                   | `environment`, `deployment`                                                                            |
 
+The exporter returns the following `Domain` metrics:
+
+| Metric                                                      | Description                                                                                                            | Labels                                                                                                 |
+| ------                                                      | -----------                                                                                                            | ------                                                                                                 |
+| *metrics.namespace*_domain_info                          | Cloud Foundry domains, labeled by domain ID, name, whether it is internal, and supported protocol. Metric value is set to 1.                                     | `environment`, `deployment`, `domain_id`, `domain_name`, `internal`, `protocol` |
+| *metrics.namespace*_domain_scrapes_total                | Total number of scrapes for Cloud Foundry Domains                                                                   | `environment`, `deployment`                                                                            |
+| *metrics.namespace*_domain_scrape_errors_total          | Total number of scrape errors of Cloud Foundry Domains                                                              | `environment`, `deployment`                                                                            |
+| *metrics.namespace*_last_domains_scrape_error            | Whether the last scrape of Domain metrics from Cloud Foundry resulted in an error (`1` for error, `0` for success) | `environment`, `deployment`                                                                            |
+| *metrics.namespace*_last_domains_scrape_timestamp        | Number of seconds since 1970 since last scrape of Domain metrics from Cloud Foundry                                | `environment`, `deployment`                                                                            |
+| *metrics.namespace*_last_domains_scrape_duration_seconds | Duration of the last scrape of Domain metrics from Cloud Foundry                                                   | `environment`, `deployment`   
+
 The exporter returns the following `Events` metrics:
 
 | Metric                                                  | Description                                                                                                        | Labels                                                                                                                                                         |
