@@ -259,15 +259,12 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 	}
 
 	// 3. Use the droplet data for the buildpack metric
-	apps, exists := objs.Apps[application.GUID]
-	if exists {
-		for _, bp := range apps.Lifecycle.Data.Buildpacks {
-			c.applicationBuildpackMetric.WithLabelValues(
-				application.GUID,
-				application.Name,
-				bp,
-			).Set(float64(1))
-		}
+	for _, bp := range application.Lifecycle.Data.Buildpacks {
+		c.applicationBuildpackMetric.WithLabelValues(
+			application.GUID,
+			application.Name,
+			bp,
+		).Set(float64(1))
 	}
 
 	c.applicationInfoMetric.WithLabelValues(
