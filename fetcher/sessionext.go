@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3"
-	"github.com/cloudfoundry/cf_exporter/models"
 	clients "github.com/cloudfoundry-community/go-cf-clients-helper/v2"
+	"github.com/cloudfoundry/cf_exporter/models"
 	log "github.com/sirupsen/logrus"
 )
 

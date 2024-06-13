@@ -1,4 +1,4 @@
-module github.com/cf-exporter/cf_exporter
+module github.com/cloudfoundry/cf_exporter
 
 go 1.21
 
