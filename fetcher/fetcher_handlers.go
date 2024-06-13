@@ -97,7 +97,6 @@ func (c *Fetcher) fetchDomains(session *SessionExt, entry *models.CFObjects) err
 	return err
 }
 
-
 func (c *Fetcher) fetchProcesses(session *SessionExt, entry *models.CFObjects) error {
 	processes, _, err := session.V3().GetProcesses(LargeQuery)
 	if err != nil {
