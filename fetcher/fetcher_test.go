@@ -4,7 +4,7 @@ import (
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 
-	"github.com/bosh-prometheus/cf_exporter/filters"
+	"github.com/cloudfoundry/cf_exporter/filters"
 )
 
 var _ = ginkgo.Describe("Fetcher", func() {

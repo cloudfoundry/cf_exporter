@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bosh-prometheus/cf_exporter/collectors"
-	"github.com/bosh-prometheus/cf_exporter/fetcher"
-	"github.com/bosh-prometheus/cf_exporter/filters"
+	"github.com/cloudfoundry/cf_exporter/collectors"
+	"github.com/cloudfoundry/cf_exporter/fetcher"
+	"github.com/cloudfoundry/cf_exporter/filters"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"

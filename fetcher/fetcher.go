@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3"
-	"github.com/bosh-prometheus/cf_exporter/filters"
-	"github.com/bosh-prometheus/cf_exporter/models"
+	"github.com/cloudfoundry/cf_exporter/filters"
+	"github.com/cloudfoundry/cf_exporter/models"
 	log "github.com/sirupsen/logrus"
 )
 
