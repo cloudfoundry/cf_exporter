@@ -47,7 +47,6 @@ func NewCollector(
 	if filter.Enabled(filters.Domains) {
 		collector := NewDomainsCollector(namespace, environment, deployment)
 		res.collectors = append(res.collectors, collector)
-	
 	}
 
 	if filter.Enabled(filters.IsolationSegments) {
