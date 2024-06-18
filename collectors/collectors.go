@@ -74,6 +74,11 @@ func NewCollector(
 		res.collectors = append(res.collectors, collector)
 	}
 
+	if filter.Enabled(filters.ServiceRouteBindings) {
+		collector := NewRouteBindingsCollector(namespace, environment, deployment)
+		res.collectors = append(res.collectors, collector)
+	}
+
 	if filter.Enabled(filters.ServiceInstances) {
 		collector := NewServiceInstancesCollector(namespace, environment, deployment)
 		res.collectors = append(res.collectors, collector)

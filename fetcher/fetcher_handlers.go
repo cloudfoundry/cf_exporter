@@ -203,6 +203,14 @@ func (c *Fetcher) fetchServiceBindings(session *SessionExt, entry *models.CFObje
 	return err
 }
 
+func (c *Fetcher) fetchServiceRouteBindings(session *SessionExt, entry *models.CFObjects) error {
+	routeBindings, _, _, err := session.V3().GetRouteBindings(LargeQuery)
+	if err == nil {
+		loadIndex(entry.ServiceRouteBindings, routeBindings, func(r resources.RouteBinding) string { return r.GUID })
+	}
+	return err
+}
+
 func (c *Fetcher) fetchIsolationSegments(session *SessionExt, entry *models.CFObjects) error {
 	segments, _, err := session.V3().GetIsolationSegments()
 	if err == nil {

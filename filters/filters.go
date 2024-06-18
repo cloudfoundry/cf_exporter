@@ -6,21 +6,22 @@ import (
 )
 
 const (
-	Applications      = "applications"
-	Buildpacks        = "buildpacks"
-	Domains           = "domains"
-	Events            = "events"
-	IsolationSegments = "isolationsegments"
-	Organizations     = "organizations"
-	Routes            = "routes"
-	SecurityGroups    = "securitygroups"
-	ServiceBindings   = "servicebindings"
-	ServiceInstances  = "serviceinstances"
-	ServicePlans      = "serviceplans"
-	Services          = "services"
-	Spaces            = "spaces"
-	Stacks            = "stacks"
-	Tasks             = "tasks"
+	Applications         = "applications"
+	Buildpacks           = "buildpacks"
+	Domains              = "domains"
+	Events               = "events"
+	IsolationSegments    = "isolationsegments"
+	Organizations        = "organizations"
+	Routes               = "routes"
+	SecurityGroups       = "securitygroups"
+	ServiceBindings      = "servicebindings"
+	ServiceRouteBindings = "service_route_bindings"
+	ServiceInstances     = "serviceinstances"
+	ServicePlans         = "serviceplans"
+	Services             = "services"
+	Spaces               = "spaces"
+	Stacks               = "stacks"
+	Tasks                = "tasks"
 )
 
 var (
@@ -34,6 +35,7 @@ var (
 		Routes,
 		SecurityGroups,
 		ServiceBindings,
+		ServiceRouteBindings,
 		ServiceInstances,
 		ServicePlans,
 		Services,
@@ -50,21 +52,22 @@ type Filter struct {
 func NewFilter(active ...string) (*Filter, error) {
 	filter := &Filter{
 		activated: map[string]bool{
-			Applications:      true,
-			Buildpacks:        true,
-			Domains:           true,
-			IsolationSegments: true,
-			Organizations:     true,
-			Routes:            true,
-			SecurityGroups:    true,
-			ServiceBindings:   true,
-			ServiceInstances:  true,
-			ServicePlans:      true,
-			Services:          true,
-			Spaces:            true,
-			Stacks:            true,
-			Tasks:             false,
-			Events:            false,
+			Applications:         true,
+			Buildpacks:           true,
+			Domains:              true,
+			IsolationSegments:    true,
+			Organizations:        true,
+			Routes:               true,
+			SecurityGroups:       true,
+			ServiceBindings:      true,
+			ServiceRouteBindings: true,
+			ServiceInstances:     true,
+			ServicePlans:         true,
+			Services:             true,
+			Spaces:               true,
+			Stacks:               true,
+			Tasks:                false,
+			Events:               false,
 		},
 	}
 
@@ -80,21 +83,22 @@ func NewFilter(active ...string) (*Filter, error) {
 func (f *Filter) setActive(active []string) error {
 	// override default states with all disabled
 	f.activated = map[string]bool{
-		Applications:      false,
-		Buildpacks:        false,
-		Domains:           false,
-		IsolationSegments: false,
-		Organizations:     false,
-		Routes:            false,
-		SecurityGroups:    false,
-		ServiceBindings:   false,
-		ServiceInstances:  false,
-		ServicePlans:      false,
-		Services:          false,
-		Spaces:            false,
-		Stacks:            false,
-		Tasks:             false,
-		Events:            false,
+		Applications:         false,
+		Buildpacks:           false,
+		Domains:              false,
+		IsolationSegments:    false,
+		Organizations:        false,
+		Routes:               false,
+		SecurityGroups:       false,
+		ServiceBindings:      false,
+		ServiceRouteBindings: false,
+		ServiceInstances:     false,
+		ServicePlans:         false,
+		Services:             false,
+		Spaces:               false,
+		Stacks:               false,
+		Tasks:                false,
+		Events:               false,
 	}
 
 	// enable only given filters

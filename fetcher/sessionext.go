@@ -48,7 +48,6 @@ func (s SessionExt) GetInfo() (models.Info, error) {
 		return responseBody, err
 	}
 	defer httpres.Body.Close()
-
 	if httpres.StatusCode != http.StatusOK {
 		return responseBody, fmt.Errorf("http error")
 	}
