@@ -52,6 +52,7 @@ var _ = ginkgo.Describe("Fetcher", func() {
 					"service_instances",
 					"service_plans",
 					"service_bindings",
+					"service_route_bindings",
 					"segments",
 				}
 			})
@@ -83,6 +84,7 @@ var _ = ginkgo.Describe("Fetcher", func() {
 					"service_instances",
 					"service_plans",
 					"service_bindings",
+					"service_route_bindings",
 					"segments",
 					"users",
 					"events",
