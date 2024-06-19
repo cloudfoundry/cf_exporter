@@ -1,4 +1,4 @@
-module github.com/bosh-prometheus/cf_exporter
+module github.com/cloudfoundry/cf_exporter
 
 go 1.21
 

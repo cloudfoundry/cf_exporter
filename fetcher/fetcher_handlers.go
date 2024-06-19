@@ -6,8 +6,8 @@ import (
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3"
 	"code.cloudfoundry.org/cli/resources"
-	"github.com/bosh-prometheus/cf_exporter/filters"
-	"github.com/bosh-prometheus/cf_exporter/models"
+	"github.com/cloudfoundry/cf_exporter/filters"
+	"github.com/cloudfoundry/cf_exporter/models"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -41,7 +41,7 @@ func (c *Fetcher) fetchOrgQuotas(session *SessionExt, entry *models.CFObjects) e
 
 // fetchSpaces
 //  1. silent fail because space may have been deleted between listing and
-//     summary fetching attempt. See bosh-prometheus/cf_exporter#85
+//     summary fetching attempt. See cloudfoundry/cf_exporter#85
 func (c *Fetcher) fetchSpaces(session *SessionExt, entry *models.CFObjects) error {
 	spaces, _, _, err := session.V3().GetSpaces(LargeQuery)
 	if err != nil {

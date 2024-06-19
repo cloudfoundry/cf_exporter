@@ -1,11 +1,11 @@
-# Cloud Foundry Prometheus Exporter ![Build Status](https://github.com/bosh-prometheus/cf_exporter/workflows/main.yml/badge.svg)
+# Cloud Foundry Prometheus Exporter ![Build Status](https://github.com/cloudfoundry/cf_exporter/workflows/main.yml/badge.svg)
 
 A [Prometheus][prometheus] exporter for [Cloud Foundry][cloudfoundry] administrative information.
 Please refer to the [FAQ][faq] for general questions about this exporter.
 
 ## Architecture overview
 
-![](https://cdn.rawgit.com/bosh-prometheus/cf_exporter/master/docs/architecture.svg)
+![](https://cdn.rawgit.com/cloudfoundry/cf_exporter/master/docs/architecture.svg)
 
 ## Installation
 
@@ -22,7 +22,7 @@ $ ./cf_exporter <flags>
 Using the standard `go install` (you must have [Go][golang] already installed in your local machine):
 
 ```bash
-$ go install github.com/bosh-prometheus/cf_exporter
+$ go install github.com/cloudfoundry/cf_exporter
 $ cf_exporter <flags>
 ```
 
@@ -39,7 +39,7 @@ $ docker run -p 9193:9193 boshprometheus/cf-exporter <flags>
 The exporter can be deployed to an already existing [Cloud Foundry][cloudfoundry] environment:
 
 ```bash
-$ git clone https://github.com/bosh-prometheus/cf_exporter.git
+$ git clone https://github.com/cloudfoundry/cf_exporter.git
 $ cd cf_exporter
 ```
 
@@ -326,7 +326,7 @@ Refer to the [contributing guidelines][contributing].
 
 Apache License 2.0, see [LICENSE][license].
 
-[binaries]: https://github.com/bosh-prometheus/cf_exporter/releases
+[binaries]: https://github.com/cloudfoundry/cf_exporter/releases
 [cf_api]: https://apidocs.cloudfoundry.org/
 [cf_api_v3]: https://v3-apidocs.cloudfoundry.org/
 [cloudfoundry]: https://www.cloudfoundry.org/
@@ -336,4 +336,4 @@ Apache License 2.0, see [LICENSE][license].
 [license]: ./LICENSE
 [manifest]: ./packages/cf/manifest.yml
 [prometheus]: https://prometheus.io/
-[prometheus-boshrelease]: https://github.com/bosh-prometheus/prometheus-boshrelease
+[prometheus-boshrelease]: https://github.com/cloudfoundry/prometheus-boshrelease

@@ -16,7 +16,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/bosh-prometheus/cf_exporter/models"
+	"github.com/cloudfoundry/cf_exporter/models"
 )
 
 const (

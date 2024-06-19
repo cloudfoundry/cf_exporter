@@ -3,7 +3,7 @@ package collectors
 import (
 	"time"
 
-	"github.com/bosh-prometheus/cf_exporter/models"
+	"github.com/cloudfoundry/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
