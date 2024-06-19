@@ -99,7 +99,3 @@ func (c *Fetcher) fetch() *models.CFObjects {
 	result.Error = c.worker.Do(session, result)
 	return result
 }
-
-// Local Variables:
-// ispell-local-dictionary: "american"
-// End:

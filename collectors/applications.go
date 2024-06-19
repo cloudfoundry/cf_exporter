@@ -1,3 +1,5 @@
+// collectors/applications.go
+
 package collectors
 
 import (
@@ -15,6 +17,7 @@ type ApplicationsCollector struct {
 	environment                                 string
 	deployment                                  string
 	applicationInfoMetric                       *prometheus.GaugeVec
+	applicationBuildpackMetric                  *prometheus.GaugeVec
 	applicationInstancesMetric                  *prometheus.GaugeVec
 	applicationInstancesRunningMetric           *prometheus.GaugeVec
 	applicationMemoryMbMetric                   *prometheus.GaugeVec
@@ -40,6 +43,17 @@ func NewApplicationsCollector(
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
 		[]string{"application_id", "application_name", "detected_buildpack", "buildpack", "organization_id", "organization_name", "space_id", "space_name", "stack_id", "state"},
+	)
+
+	applicationBuildpackMetric := prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace:   namespace,
+			Subsystem:   "application",
+			Name:        "buildpack",
+			Help:        "Buildpack used by an Application.",
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
+		},
+		[]string{"application_id", "application_name", "buildpack_name"},
 	)
 
 	applicationInstancesMetric := prometheus.NewGaugeVec(
@@ -141,6 +155,7 @@ func NewApplicationsCollector(
 		environment:                                 environment,
 		deployment:                                  deployment,
 		applicationInfoMetric:                       applicationInfoMetric,
+		applicationBuildpackMetric:                  applicationBuildpackMetric,
 		applicationInstancesMetric:                  applicationInstancesMetric,
 		applicationInstancesRunningMetric:           applicationInstancesRunningMetric,
 		applicationMemoryMbMetric:                   applicationMemoryMbMetric,
@@ -185,6 +200,7 @@ func (c ApplicationsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.applicationDiskQuotaMbMetric.Describe(ch)
 	c.applicationsScrapesTotalMetric.Describe(ch)
 	c.applicationsScrapeErrorsTotalMetric.Describe(ch)
+	c.applicationBuildpackMetric.Describe(ch)
 	c.lastApplicationsScrapeErrorMetric.Describe(ch)
 	c.lastApplicationsScrapeTimestampMetric.Describe(ch)
 	c.lastApplicationsScrapeDurationSecondsMetric.Describe(ch)
@@ -240,6 +256,15 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 	buildpack := appSum.Buildpack
 	if len(buildpack) == 0 {
 		buildpack = appSum.DetectedBuildpack
+	}
+
+	// 3. Use the droplet data for the buildpack metric
+	for _, bp := range application.Lifecycle.Data.Buildpacks {
+		c.applicationBuildpackMetric.WithLabelValues(
+			application.GUID,
+			application.Name,
+			bp,
+		).Set(float64(1))
 	}
 
 	c.applicationInfoMetric.WithLabelValues(
@@ -305,6 +330,7 @@ func (c ApplicationsCollector) reportApplicationsMetrics(objs *models.CFObjects,
 	c.applicationInstancesRunningMetric.Reset()
 	c.applicationMemoryMbMetric.Reset()
 	c.applicationDiskQuotaMbMetric.Reset()
+	c.applicationBuildpackMetric.Reset()
 
 	for _, application := range objs.Apps {
 		err := c.reportApp(application, objs)
@@ -320,5 +346,6 @@ func (c ApplicationsCollector) reportApplicationsMetrics(objs *models.CFObjects,
 	c.applicationInstancesRunningMetric.Collect(ch)
 	c.applicationMemoryMbMetric.Collect(ch)
 	c.applicationDiskQuotaMbMetric.Collect(ch)
+	c.applicationBuildpackMetric.Collect(ch)
 	return res
 }
