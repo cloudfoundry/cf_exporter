@@ -10,6 +10,7 @@ import (
 	"github.com/cloudfoundry/cf_exporter/fetcher"
 	"github.com/cloudfoundry/cf_exporter/filters"
 	"github.com/prometheus/client_golang/prometheus"
+	versionCollector "github.com/prometheus/client_golang/prometheus/collectors/version"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
 	log "github.com/sirupsen/logrus"
@@ -99,7 +100,7 @@ var (
 )
 
 func init() {
-	prometheus.MustRegister(version.NewCollector(*metricsNamespace))
+	prometheus.MustRegister(versionCollector.NewCollector(*metricsNamespace))
 }
 
 type basicAuthHandler struct {
