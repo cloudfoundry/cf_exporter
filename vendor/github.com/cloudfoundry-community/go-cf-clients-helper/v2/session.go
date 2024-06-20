@@ -85,32 +85,32 @@ func NewSession(c Config) (s *Session, err error) {
 	return s, nil
 }
 
-// Give access to api cf v3 (complete and always up to date, thanks to cli v7 team)
+// V3 Give access to api cf v3 (complete and always up to date, thanks to cli v7 team)
 func (s *Session) V3() *ccv3.Client {
 	return s.clientV3
 }
 
-// Give access to api uaa (incomplete)
+// UAA Give access to api uaa (incomplete)
 func (s *Session) UAA() *uaa.Client {
 	return s.clientUAA
 }
 
-// Give access to TCP Routing api
+// TCPRouter Give access to TCP Routing api
 func (s *Session) TCPRouter() *router.Client {
 	return s.routerClient
 }
 
-// Give access to networking policy api
+// Networking Give access to networking policy api
 func (s *Session) Networking() *cfnetv1.Client {
 	return s.netClient
 }
 
-// Give an http client which pass authorization header to call api(s) directly
+// Raw Give an http client which pass authorization header to call api(s) directly
 func (s *Session) Raw() *RawClient {
 	return s.rawClient
 }
 
-// Give config store for client which need access token
+// ConfigStore Give config store for client which need access token
 func (s *Session) ConfigStore() *configv3.Config {
 	return s.configStore
 }
@@ -146,8 +146,7 @@ func (s *Session) init(config *configv3.Config, configUaa *configv3.Config, conf
 	// create an uaa client with cf_username/cf_password or client_id/client secret
 	// to use it for authenticate requests
 	uaaClient := uaa.NewClient(config)
-	uaaClient.GetAPIVersion()
-
+	_, _ = uaaClient.GetAPIVersion()
 	uaaAuthWrapper := uaaWrapper.NewUAAAuthentication(nil, configUaa)
 	uaaClient.WrapConnection(uaaAuthWrapper)
 	uaaClient.WrapConnection(uaaWrapper.NewRetryRequest(config.RequestRetryCount()))

@@ -31,7 +31,7 @@ type RawClientConfig struct {
 	ApiEndpoint       string
 }
 
-// Raw http client has uaa client authentication to make raw request with golang native api.
+// RawClient Raw http client has uaa client authentication to make raw request with golang native api.
 type RawClient struct {
 	connection  cloudcontroller.Connection
 	apiEndpoint string
