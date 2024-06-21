@@ -8,7 +8,7 @@ code.cloudfoundry.org/cfnetworking-cli-api/cfnetworking/cfnetv1
 code.cloudfoundry.org/cfnetworking-cli-api/cfnetworking/cfnetv1/internal
 code.cloudfoundry.org/cfnetworking-cli-api/cfnetworking/networkerror
 code.cloudfoundry.org/cfnetworking-cli-api/cfnetworking/wrapper
-# code.cloudfoundry.org/cli v0.0.0-20240524142151-a2a685b5ea6e
+# code.cloudfoundry.org/cli v0.0.0-20240609151540-b78406a9b0ce
 ## explicit; go 1.22
 code.cloudfoundry.org/cli/actor/actionerror
 code.cloudfoundry.org/cli/actor/sharedaction
@@ -116,7 +116,7 @@ github.com/cespare/xxhash/v2
 # github.com/charlievieth/fs v0.0.3
 ## explicit; go 1.18
 github.com/charlievieth/fs
-# github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.6.2
+# github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.6.3
 ## explicit; go 1.22.3
 github.com/cloudfoundry-community/go-cf-clients-helper/v2
 # github.com/cloudfoundry/bosh-cli v6.4.1+incompatible
@@ -310,7 +310,7 @@ golang.org/x/sys/windows
 # golang.org/x/term v0.20.0
 ## explicit; go 1.18
 golang.org/x/term
-# golang.org/x/text v0.15.0
+# golang.org/x/text v0.16.0
 ## explicit; go 1.18
 golang.org/x/text/encoding
 golang.org/x/text/encoding/charmap

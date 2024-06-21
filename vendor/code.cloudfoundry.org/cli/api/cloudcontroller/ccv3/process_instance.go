@@ -14,7 +14,9 @@ import (
 // ProcessInstance represents a single process instance for a particular
 // application.
 type ProcessInstance struct {
-	// CPUEntitlement is the current CPU entitlement usage of the instance.
+	// CPU is the current CPU usage of the instance.
+	CPU float64
+	// CPU Entitlement is the current CPU entitlement usage of the instance.
 	CPUEntitlement types.NullFloat64
 	// Details is information about errors placing the instance.
 	Details string
@@ -57,6 +59,7 @@ func (instance *ProcessInstance) UnmarshalJSON(data []byte) error {
 		Type             string `json:"type"`
 		Uptime           int64  `json:"uptime"`
 		Usage            struct {
+			CPU            float64           `json:"cpu"`
 			CPUEntitlement types.NullFloat64 `json:"cpu_entitlement"`
 			Mem            uint64            `json:"mem"`
 			Disk           uint64            `json:"disk"`
@@ -69,6 +72,7 @@ func (instance *ProcessInstance) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
+	instance.CPU = inputInstance.Usage.CPU
 	instance.CPUEntitlement = inputInstance.Usage.CPUEntitlement
 	instance.Details = inputInstance.Details
 	instance.DiskQuota = inputInstance.DiskQuota

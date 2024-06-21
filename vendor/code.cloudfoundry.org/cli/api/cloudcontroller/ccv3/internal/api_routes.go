@@ -103,6 +103,7 @@ const (
 	GetSpaceStagingSecurityGroupsRequest                        = "GetSpaceStagingSecurityGroups"
 	GetSSHEnabled                                               = "GetSSHEnabled"
 	GetStacksRequest                                            = "GetStacks"
+	GetTasksRequest                                             = "GetTasks"
 	GetTaskRequest                                              = "GetTask"
 	GetUserRequest                                              = "GetUser"
 	GetUsersRequest                                             = "GetUsers"
@@ -346,6 +347,7 @@ var APIRoutes = map[string]Route{
 	PatchStackRequest:                                           {Path: "/v3/stacks/:stack_guid", Method: http.MethodPatch},
 	GetTaskRequest:                                              {Path: "/v3/tasks/:task_guid", Method: http.MethodGet},
 	PutTaskCancelRequest:                                        {Path: "/v3/tasks/:task_guid/cancel", Method: http.MethodPut},
+	GetTasksRequest:                                             {Path: "/v3/tasks", Method: http.MethodGet},
 	GetUsersRequest:                                             {Path: "/v3/users", Method: http.MethodGet},
 	GetUserRequest:                                              {Path: "/v3/users/:user_guid", Method: http.MethodGet},
 	PostUserRequest:                                             {Path: "/v3/users", Method: http.MethodPost},
