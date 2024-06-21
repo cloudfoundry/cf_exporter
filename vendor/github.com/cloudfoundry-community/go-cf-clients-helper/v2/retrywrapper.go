@@ -5,8 +5,8 @@ import (
 	"code.cloudfoundry.org/cli/api/cloudcontroller"
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccerror"
 	"code.cloudfoundry.org/cli/api/router"
+	"errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"reflect"
 )
@@ -46,7 +46,7 @@ func (retry *RetryRequest) Make(request *cloudcontroller.Request, passedResponse
 
 		// detect if body is ioutil.NopCloser(&bytes.Buffer)
 		// if so we reset the content the buffer to be able to redo request with same body
-		if reflect.TypeOf(request.Body) == reflect.TypeOf(ioutil.NopCloser) {
+		if reflect.TypeOf(request.Body) == reflect.TypeOf(io.NopCloser) {
 			reader := reflect.ValueOf(request.Body).FieldByName("Reader")
 			if buf, ok := reader.Interface().(*bytes.Buffer); ok {
 				data := buf.Bytes()
@@ -60,7 +60,8 @@ func (retry *RetryRequest) Make(request *cloudcontroller.Request, passedResponse
 		if reader, ok := request.Body.(io.ReadSeeker); ok {
 			_, resetErr := reader.Seek(0, 0)
 			if resetErr != nil {
-				if _, ok := resetErr.(ccerror.PipeSeekError); ok {
+				var pipeSeekError ccerror.PipeSeekError
+				if errors.As(resetErr, &pipeSeekError) {
 					return ccerror.PipeSeekError{Err: err}
 				}
 				return resetErr
@@ -117,7 +118,7 @@ func (retry *retryRequestRouter) Make(request *router.Request, passedResponse *r
 		}
 		// detect if body is ioutil.NopCloser(&bytes.Buffer)
 		// if so we reset the content the buffer to be able to redo request with same body
-		if reflect.TypeOf(request.Body) == reflect.TypeOf(ioutil.NopCloser) {
+		if reflect.TypeOf(request.Body) == reflect.TypeOf(io.NopCloser) {
 			reader := reflect.ValueOf(request.Body).FieldByName("Reader")
 			if buf, ok := reader.Interface().(*bytes.Buffer); ok {
 				data := buf.Bytes()
@@ -131,7 +132,8 @@ func (retry *retryRequestRouter) Make(request *router.Request, passedResponse *r
 		if reader, ok := request.Body.(io.ReadSeeker); ok {
 			_, resetErr := reader.Seek(0, 0)
 			if resetErr != nil {
-				if _, ok := resetErr.(ccerror.PipeSeekError); ok {
+				var pipeSeekError ccerror.PipeSeekError
+				if errors.As(resetErr, &pipeSeekError) {
 					return ccerror.PipeSeekError{Err: err}
 				}
 				return resetErr

@@ -1,6 +1,6 @@
 package clients
 
-// config -
+// Config -
 type Config struct {
 	// Cloud foundry api endoint
 	Endpoint string
