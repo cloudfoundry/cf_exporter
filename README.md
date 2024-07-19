@@ -327,7 +327,7 @@ Refer to the [contributing guidelines][contributing].
 Apache License 2.0, see [LICENSE][license].
 
 [binaries]: https://github.com/cloudfoundry/cf_exporter/releases
-[cf_api]: https://apidocs.cloudfoundry.org/
+[cf_api_v2]: https://v2-apidocs.cloudfoundry.org/
 [cf_api_v3]: https://v3-apidocs.cloudfoundry.org/
 [cloudfoundry]: https://www.cloudfoundry.org/
 [contributing]: ./CONTRIBUTING.md
