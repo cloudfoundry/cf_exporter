@@ -7,9 +7,9 @@ linters:
   disable-all: false
   enable:
   - bodyclose
+  - copyloopvar
   - dogsled
   - errcheck
-  - exportloopref
   - gocognit
   - goconst
   - gocritic

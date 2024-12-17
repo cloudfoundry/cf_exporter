@@ -41,8 +41,8 @@ func (c *Worker) Push(name string, handler WorkHandler) {
 	}
 }
 
-func (c *Worker) PushIf(name string, handler WorkHandler, any ...string) {
-	if c.filter.Any(any...) {
+func (c *Worker) PushIf(name string, handler WorkHandler, anyArgs ...string) {
+	if c.filter.Any(anyArgs...) {
 		c.Push(name, handler)
 	}
 }
