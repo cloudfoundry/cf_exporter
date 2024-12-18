@@ -1,6 +1,7 @@
 module github.com/cloudfoundry/cf_exporter
 
-go 1.22.4
+go 1.23.4
+
 require (
 	code.cloudfoundry.org/cli v0.0.0-20240609151540-b78406a9b0ce
 	github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.7.0
