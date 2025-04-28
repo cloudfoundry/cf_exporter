@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	kingpin "github.com/alecthomas/kingpin/v2"
 	"github.com/cloudfoundry/cf_exporter/collectors"
 	"github.com/cloudfoundry/cf_exporter/fetcher"
 	"github.com/cloudfoundry/cf_exporter/filters"
@@ -14,7 +15,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
 	log "github.com/sirupsen/logrus"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (

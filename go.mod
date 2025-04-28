@@ -4,13 +4,13 @@ go 1.23.4
 
 require (
 	code.cloudfoundry.org/cli v0.0.0-20240609151540-b78406a9b0ce
+	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.7.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.36.2
 	github.com/prometheus/client_golang v1.20.5
 	github.com/prometheus/common v0.61.0
 	github.com/sirupsen/logrus v1.9.3
-	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
 
 require (
@@ -24,7 +24,6 @@ require (
 	code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/SermoDigital/jose v0.9.2-0.20161205224733-f6df55f235c2 // indirect
-	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
@@ -64,6 +63,7 @@ require (
 	github.com/tedsuo/rata v1.0.1-0.20170830210128-07d200713958 // indirect
 	github.com/vito/go-interact v1.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
+	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/oauth2 v0.24.0 // indirect
