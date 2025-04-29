@@ -1,6 +1,7 @@
 module github.com/cloudfoundry/cf_exporter
 
-go 1.23.4
+go 1.24.1
+
 require (
 	code.cloudfoundry.org/cli v0.0.0-20240609151540-b78406a9b0ce
 	github.com/alecthomas/kingpin/v2 v2.4.0
