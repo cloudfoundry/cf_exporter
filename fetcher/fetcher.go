@@ -67,6 +67,7 @@ func (c *Fetcher) workInit() {
 	c.worker.PushIf("spaces", c.fetchSpaces, filters.Applications, filters.Spaces)
 	c.worker.PushIf("space_quotas", c.fetchSpaceQuotas, filters.Spaces)
 	c.worker.PushIf("applications", c.fetchApplications, filters.Applications)
+	c.worker.PushIf("droplets", c.fetchDroplets, filters.Droplets)
 	c.worker.PushIf("domains", c.fetchDomains, filters.Domains)
 	c.worker.PushIf("process", c.fetchProcesses, filters.Applications)
 	c.worker.PushIf("routes", c.fetchRoutes, filters.Routes)
