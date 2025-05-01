@@ -224,6 +224,7 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 			process = cProc
 		}
 	}
+
 	spaceRel, ok := application.Relationships[constant.RelationshipTypeSpace]
 	if !ok {
 		return fmt.Errorf("could not find space relation in application '%s'", application.GUID)
@@ -290,6 +291,19 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 		string(application.State),
 	).Set(float64(process.Instances.Value))
 
+	runningInstances := appSum.RunningInstances
+	// Use bbs data if available
+	if len(objs.ProcessActualLRPs) > 0 {
+		runningsInstances := 0
+		lrps, ok := objs.ProcessActualLRPs[process.GUID]
+		if ok {
+			for _, lrp := range lrps {
+				if lrp.State == "RUNNING" {
+					runningsInstances++
+				}
+			}
+		}
+	}
 	c.applicationInstancesRunningMetric.WithLabelValues(
 		application.GUID,
 		application.Name,
@@ -298,7 +312,7 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 		space.GUID,
 		space.Name,
 		string(application.State),
-	).Set(float64(appSum.RunningInstances))
+	).Set(float64(runningInstances))
 
 	c.applicationMemoryMbMetric.WithLabelValues(
 		application.GUID,
