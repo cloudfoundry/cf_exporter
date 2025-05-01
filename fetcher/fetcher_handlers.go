@@ -1,7 +1,6 @@
 package fetcher
 
 import (
-	"fmt"
 	"regexp"
 	"time"
 
@@ -9,7 +8,6 @@ import (
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3"
 	"code.cloudfoundry.org/cli/resources"
-	"github.com/cloudfoundry/cf_exporter/filters"
 	"github.com/cloudfoundry/cf_exporter/models"
 	log "github.com/sirupsen/logrus"
 )
@@ -74,33 +72,10 @@ func (c *Fetcher) fetchOrgQuotas(session *SessionExt, _ *BBSClient, entry *model
 //     summary fetching attempt. See cloudfoundry/cf_exporter#85
 func (c *Fetcher) fetchSpaces(session *SessionExt, _ *BBSClient, entry *models.CFObjects) error {
 	spaces, _, _, err := session.V3().GetSpaces(LargeQuery)
-	if err != nil {
-		return err
+	if err == nil {
+		loadIndex(entry.Spaces, spaces, func(r resources.Space) string { return r.GUID })
 	}
-
-	loadIndex(entry.Spaces, spaces, func(r resources.Space) string { return r.GUID })
-	total := len(spaces)
-	for idx := 0; idx < total; idx++ {
-		space := spaces[idx]
-		name := fmt.Sprintf("space_summaries %04d/%04d (%s)", idx, total, space.GUID)
-		c.worker.PushIf(name, func(session *SessionExt, bbs *BBSClient, entry *models.CFObjects) error {
-			spaceSum, err := session.GetSpaceSummary(space.GUID)
-			if err == nil {
-				c.Lock()
-				entry.SpaceSummaries[spaceSum.GUID] = *spaceSum
-				for _, app := range spaceSum.Apps {
-					entry.AppSummaries[app.GUID] = app
-				}
-				c.Unlock()
-			} else {
-				log.WithError(err).Warnf("could not fetch space '%s' summary", space.GUID)
-			}
-			// 1
-			return nil
-		}, filters.Applications)
-	}
-
-	return nil
+	return err
 }
 
 func (c *Fetcher) fetchSpaceQuotas(session *SessionExt, _ *BBSClient, entry *models.CFObjects) error {
@@ -165,6 +140,14 @@ func (c *Fetcher) fetchSecurityGroups(session *SessionExt, _ *BBSClient, entry *
 	securitygroups, _, err := session.V3().GetSecurityGroups(LargeQuery)
 	if err == nil {
 		loadIndex(entry.SecurityGroups, securitygroups, func(r resources.SecurityGroup) string { return r.GUID })
+	}
+	return err
+}
+
+func (c *Fetcher) fetchDroplets(session *SessionExt, _ *BBSClient, entry *models.CFObjects) error {
+	droplets, _, err := session.V3().GetDroplets(LargeQuery)
+	if err == nil {
+		loadIndex(entry.Droplets, droplets, func(r resources.Droplet) string { return r.GUID })
 	}
 	return err
 }
