@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"code.cloudfoundry.org/cli/resources"
-
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/constant"
 	"github.com/cloudfoundry/cf_exporter/models"
 	"github.com/prometheus/client_golang/prometheus"
@@ -251,7 +249,7 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 			break
 		}
 	}
-	detectedBuildpack, buildpack := c.collectAppBuildpacks(application, objs.Droplets)
+	detectedBuildpack, buildpack := c.collectAppBuildpacks(application, objs)
 
 	c.applicationInfoMetric.WithLabelValues(
 		application.GUID,
@@ -287,6 +285,10 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 				}
 			}
 		}
+	} else if len(objs.AppSummaries) > 0 {
+		if appSummary, ok := objs.AppSummaries[application.GUID]; ok {
+			runningInstances = appSummary.RunningInstances
+		}
 	}
 	c.applicationInstancesRunningMetric.WithLabelValues(
 		application.GUID,
@@ -318,11 +320,11 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 	return nil
 }
 
-func (c ApplicationsCollector) collectAppBuildpacks(application models.Application, droplets map[string]resources.Droplet) (detectedBuildpack string, buildpack string) {
+func (c ApplicationsCollector) collectAppBuildpacks(application models.Application, objs *models.CFObjects) (detectedBuildpack string, buildpack string) {
 	detectedBuildpack = ""
 	buildpack = ""
 	if dropletGUID := application.Relationships[constant.RelationshipTypeCurrentDroplet].GUID; dropletGUID != "" {
-		if droplet, ok := droplets[dropletGUID]; ok {
+		if droplet, ok := objs.Droplets[dropletGUID]; ok {
 			// 1.
 			detectedBuildpack = droplet.Buildpacks[0].DetectOutput
 			// 2.

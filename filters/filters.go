@@ -86,6 +86,14 @@ func NewFilter(active ...string) (*Filter, error) {
 	return filter, nil
 }
 
+func (f *Filter) Disable(deactivate []string) {
+	for _, val := range deactivate {
+		if _, ok := f.activated[val]; ok {
+			f.activated[val] = false
+		}
+	}
+}
+
 func (f *Filter) setActive(active []string) error {
 	// override default states with all disabled
 	f.activated = map[string]bool{
