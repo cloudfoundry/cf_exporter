@@ -53,7 +53,7 @@ func NewApplicationsCollector(
 			Help:        "Buildpack used by an Application.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"application_id", "application_name", "buildpack_name"},
+		[]string{"application_id", "application_name", "buildpack_name", "detected_buildpack"},
 	)
 
 	applicationInstancesMetric := prometheus.NewGaugeVec(
@@ -242,30 +242,37 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 		return fmt.Errorf("could not find org with guid '%s'", orgRel.GUID)
 	}
 
-	appSum, ok := objs.AppSummaries[application.GUID]
-	if !ok {
-		return fmt.Errorf("could not find app summary with guid '%s'", application.GUID)
+	detectedBuildpack := ""
+	buildpack := ""
+	stackGUID := ""
+	for _, stack := range objs.Stacks {
+		if stack.Name == application.Lifecycle.Data.Stack {
+			stackGUID = stack.GUID
+			break
+		}
 	}
-
-	// 1.
-	detectedBuildpack := appSum.DetectedBuildpack
-	if len(detectedBuildpack) == 0 {
-		detectedBuildpack = appSum.Buildpack
-	}
-
-	// 2.
-	buildpack := appSum.Buildpack
-	if len(buildpack) == 0 {
-		buildpack = appSum.DetectedBuildpack
-	}
-
-	// 3. Use the droplet data for the buildpack metric
-	for _, bp := range application.Lifecycle.Data.Buildpacks {
-		c.applicationBuildpackMetric.WithLabelValues(
-			application.GUID,
-			application.Name,
-			bp,
-		).Set(float64(1))
+	if dropletGUID := application.Relationships[constant.RelationshipTypeCurrentDroplet].GUID; dropletGUID != "" {
+		if droplet, ok := objs.Droplets[dropletGUID]; ok {
+			// 1.
+			detectedBuildpack = droplet.Buildpacks[0].DetectOutput
+			// 2.
+			buildpack = droplet.Buildpacks[0].BuildpackName
+			if len(detectedBuildpack) == 0 {
+				detectedBuildpack = buildpack
+			}
+			if len(buildpack) == 0 {
+				buildpack = detectedBuildpack
+			}
+			// 3.Use the droplet data for the buildpack metric
+			for _, bp := range droplet.Buildpacks {
+				c.applicationBuildpackMetric.WithLabelValues(
+					application.GUID,
+					application.Name,
+					bp.BuildpackName,
+					bp.DetectOutput,
+				).Set(float64(1))
+			}
+		}
 	}
 
 	c.applicationInfoMetric.WithLabelValues(
@@ -277,7 +284,7 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 		organization.Name,
 		space.GUID,
 		space.Name,
-		appSum.StackID,
+		stackGUID,
 		string(application.State),
 	).Set(float64(1))
 
@@ -291,15 +298,14 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 		string(application.State),
 	).Set(float64(process.Instances.Value))
 
-	runningInstances := appSum.RunningInstances
 	// Use bbs data if available
+	runningInstances := 0
 	if len(objs.ProcessActualLRPs) > 0 {
-		runningsInstances := 0
-		lrps, ok := objs.ProcessActualLRPs[process.GUID]
+		LRPs, ok := objs.ProcessActualLRPs[process.GUID]
 		if ok {
-			for _, lrp := range lrps {
+			for _, lrp := range LRPs {
 				if lrp.State == "RUNNING" {
-					runningsInstances++
+					runningInstances++
 				}
 			}
 		}

@@ -17,6 +17,7 @@ type CFObjects struct {
 	Spaces               map[string]resources.Space                    `json:"spaces"`
 	SpaceQuotas          map[string]Quota                              `json:"space_quotas"`
 	Apps                 map[string]Application                        `json:"apps"`
+	Droplets             map[string]resources.Droplet                  `json:"droplets"`
 	Processes            map[string]resources.Process                  `json:"process"`
 	Tasks                map[string]Task                               `json:"tasks"`
 	Routes               map[string]resources.Route                    `json:"routes"`
@@ -26,13 +27,12 @@ type CFObjects struct {
 	SecurityGroups       map[string]resources.SecurityGroup            `json:"security_groups"`
 	Stacks               map[string]resources.Stack                    `json:"stacks"`
 	Buildpacks           map[string]resources.Buildpack                `json:"buildpacks"`
+	BuildpacksByName     map[string]resources.Buildpack                `json:"builpacks_by_name"`
 	Domains              map[string]resources.Domain                   `json:"domains"`
 	ServiceBrokers       map[string]resources.ServiceBroker            `json:"service_brokers"`
 	ServiceOfferings     map[string]resources.ServiceOffering          `json:"service_offerings"`
 	ServicePlans         map[string]resources.ServicePlan              `json:"service_plans"`
 	ServiceBindings      map[string]resources.ServiceCredentialBinding `json:"service_bindings"`
-	SpaceSummaries       map[string]SpaceSummary                       `json:"space_summaries"`
-	AppSummaries         map[string]AppSummary                         `json:"app_summaries"`
 	AppProcesses         map[string][]resources.Process                `json:"app_processes"`
 	ProcessActualLRPs    map[string][]*models.ActualLRP                `json:"process_actual_lrps"`
 	Events               map[string]Event                              `json:"events"`
@@ -159,6 +159,7 @@ func NewCFObjects() *CFObjects {
 		Spaces:               map[string]resources.Space{},
 		SpaceQuotas:          map[string]Quota{},
 		Apps:                 map[string]Application{},
+		Droplets:             map[string]resources.Droplet{},
 		Processes:            map[string]resources.Process{},
 		Tasks:                map[string]Task{},
 		Routes:               map[string]resources.Route{},
@@ -173,8 +174,6 @@ func NewCFObjects() *CFObjects {
 		ServiceOfferings:     map[string]resources.ServiceOffering{},
 		ServicePlans:         map[string]resources.ServicePlan{},
 		ServiceBindings:      map[string]resources.ServiceCredentialBinding{},
-		SpaceSummaries:       map[string]SpaceSummary{},
-		AppSummaries:         map[string]AppSummary{},
 		AppProcesses:         map[string][]resources.Process{},
 		ProcessActualLRPs:    map[string][]*models.ActualLRP{},
 		Users:                map[string]resources.User{},

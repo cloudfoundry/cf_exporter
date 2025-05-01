@@ -195,9 +195,6 @@ func main() {
 		SkipCertVerify: *bbsSkipSSLValidation,
 	}
 
-	log.Infof("cfConfig: %+v", cfConfig)
-	log.Infof("bbsConfig: %+v", bbsConfig)
-
 	active := []string{}
 	if len(*filterCollectors) != 0 {
 		active = strings.Split(*filterCollectors, ",")
