@@ -138,6 +138,7 @@ const (
 	PostApplicationActionStartRequest                           = "PostApplicationActionStart"
 	PostApplicationActionStopRequest                            = "PostApplicationActionStop"
 	PostApplicationDeploymentActionCancelRequest                = "PostApplicationDeploymentActionCancel"
+	PostApplicationDeploymentActionContinueRequest              = "PostApplicationDeploymentActionContinue"
 	PostApplicationDeploymentRequest                            = "PostApplicationDeployment"
 	PostApplicationProcessActionScaleRequest                    = "PostApplicationProcessActionScale"
 	PostApplicationRequest                                      = "PostApplication"
@@ -178,6 +179,7 @@ const (
 	ShareRouteRequest                                           = "ShareRouteRequest"
 	UnmapRouteRequest                                           = "UnmapRoute"
 	UnshareRouteRequest                                         = "UnshareRoute"
+	UpdateRouteRequest                                          = "UpdateRoute"
 	WhoAmI                                                      = "WhoAmI"
 )
 
@@ -219,6 +221,7 @@ var APIRoutes = map[string]Route{
 	PostApplicationDeploymentRequest:                            {Path: "/v3/deployments", Method: http.MethodPost},
 	GetDeploymentRequest:                                        {Path: "/v3/deployments/:deployment_guid", Method: http.MethodGet},
 	PostApplicationDeploymentActionCancelRequest:                {Path: "/v3/deployments/:deployment_guid/actions/cancel", Method: http.MethodPost},
+	PostApplicationDeploymentActionContinueRequest:              {Path: "/v3/deployments/:deployment_guid/actions/continue", Method: http.MethodPost},
 	GetDomainsRequest:                                           {Path: "/v3/domains", Method: http.MethodGet},
 	PostDomainRequest:                                           {Path: "/v3/domains", Method: http.MethodPost},
 	DeleteDomainRequest:                                         {Path: "/v3/domains/:domain_guid", Method: http.MethodDelete},
@@ -280,6 +283,7 @@ var APIRoutes = map[string]Route{
 	PatchRouteRequest:                                           {Path: "/v3/routes/:route_guid", Method: http.MethodPatch},
 	GetRouteDestinationsRequest:                                 {Path: "/v3/routes/:route_guid/destinations", Method: http.MethodGet},
 	MapRouteRequest:                                             {Path: "/v3/routes/:route_guid/destinations", Method: http.MethodPost},
+	UpdateRouteRequest:                                          {Path: "/v3/routes/:route_guid", Method: http.MethodPatch},
 	UnmapRouteRequest:                                           {Path: "/v3/routes/:route_guid/destinations/:destination_guid", Method: http.MethodDelete},
 	PatchDestinationRequest:                                     {Path: "/v3/routes/:route_guid/destinations/:destination_guid", Method: http.MethodPatch},
 	ShareRouteRequest:                                           {Path: "/v3/routes/:route_guid/relationships/shared_spaces", Method: http.MethodPost},
