@@ -1,11 +1,8 @@
 package fetcher
 
 import (
-	"fmt"
 	"regexp"
 	"time"
-
-	"github.com/cloudfoundry/cf_exporter/filters"
 
 	models2 "code.cloudfoundry.org/bbs/models"
 
@@ -73,30 +70,10 @@ func (c *Fetcher) fetchOrgQuotas(session *SessionExt, _ *BBSClient, entry *model
 // fetchSpaces
 //  1. silent fail because space may have been deleted between listing and
 //     summary fetching attempt. See cloudfoundry/cf_exporter#85
-func (c *Fetcher) fetchSpaces(session *SessionExt, bbs *BBSClient, entry *models.CFObjects) error {
+func (c *Fetcher) fetchSpaces(session *SessionExt, _ *BBSClient, entry *models.CFObjects) error {
 	spaces, _, _, err := session.V3().GetSpaces(LargeQuery)
 	if err == nil {
 		loadIndex(entry.Spaces, spaces, func(r resources.Space) string { return r.GUID })
-		if bbs == nil {
-			total := len(spaces)
-			for idx := 0; idx < total; idx++ {
-				space := spaces[idx]
-				name := fmt.Sprintf("space_summaries %04d/%04d (%s)", idx, total, space.GUID)
-				c.worker.PushIf(name, func(session *SessionExt, _ *BBSClient, entry *models.CFObjects) error {
-					spaceSum, err := session.GetSpaceSummary(space.GUID)
-					if err == nil {
-						c.Lock()
-						for _, app := range spaceSum.Apps {
-							entry.AppSummaries[app.GUID] = app
-						}
-						c.Unlock()
-					} else {
-						log.WithError(err).Warnf("could not fetch space '%s' summary", space.GUID)
-					}
-					return nil
-				}, filters.Applications)
-			}
-		}
 	}
 	return err
 }
