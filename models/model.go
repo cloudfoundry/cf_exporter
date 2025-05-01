@@ -3,6 +3,8 @@ package models
 import (
 	"time"
 
+	"code.cloudfoundry.org/bbs/models"
+
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/constant"
 	"code.cloudfoundry.org/cli/resources"
 	"code.cloudfoundry.org/cli/types"
@@ -32,6 +34,7 @@ type CFObjects struct {
 	SpaceSummaries       map[string]SpaceSummary                       `json:"space_summaries"`
 	AppSummaries         map[string]AppSummary                         `json:"app_summaries"`
 	AppProcesses         map[string][]resources.Process                `json:"app_processes"`
+	ProcessActualLRPs    map[string][]*models.ActualLRP                `json:"process_actual_lrps"`
 	Events               map[string]Event                              `json:"events"`
 	Users                map[string]resources.User                     `json:"users"`
 	ServiceRouteBindings map[string]resources.RouteBinding             `json:"service_route_bindings"`
@@ -173,6 +176,7 @@ func NewCFObjects() *CFObjects {
 		SpaceSummaries:       map[string]SpaceSummary{},
 		AppSummaries:         map[string]AppSummary{},
 		AppProcesses:         map[string][]resources.Process{},
+		ProcessActualLRPs:    map[string][]*models.ActualLRP{},
 		Users:                map[string]resources.User{},
 		Events:               map[string]Event{},
 		ServiceRouteBindings: map[string]resources.RouteBinding{},

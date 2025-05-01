@@ -22,6 +22,7 @@ const (
 	Spaces               = "spaces"
 	Stacks               = "stacks"
 	Tasks                = "tasks"
+	InstancesRunning     = "instances_running"
 )
 
 var (
@@ -68,6 +69,7 @@ func NewFilter(active ...string) (*Filter, error) {
 			Stacks:               true,
 			Tasks:                false,
 			Events:               false,
+			InstancesRunning:     false,
 		},
 	}
 
@@ -99,6 +101,7 @@ func (f *Filter) setActive(active []string) error {
 		Stacks:               false,
 		Tasks:                false,
 		Events:               false,
+		InstancesRunning:     false,
 	}
 
 	// enable only given filters
@@ -115,7 +118,7 @@ func (f *Filter) setActive(active []string) error {
 
 func (f *Filter) Enabled(name string) bool {
 	status, ok := f.activated[name]
-	return (ok && status)
+	return ok && status
 }
 
 func (f *Filter) Any(names ...string) bool {
