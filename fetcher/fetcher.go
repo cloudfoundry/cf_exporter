@@ -39,12 +39,14 @@ type Fetcher struct {
 	cfConfig  *CFConfig
 	bbsConfig *BBSConfig
 	worker    *Worker
+	filters   *filters.Filter
 }
 
 func NewFetcher(threads int, config *CFConfig, bbsConfig *BBSConfig, filter *filters.Filter) *Fetcher {
 	return &Fetcher{
 		cfConfig:  config,
 		bbsConfig: bbsConfig,
+		filters:   filter,
 		worker:    NewWorker(threads, filter),
 	}
 }
@@ -97,11 +99,14 @@ func (c *Fetcher) fetch() *models.CFObjects {
 		result.Error = err
 		return result
 	}
-	bbs, err := NewBBSClient(c.bbsConfig)
-	if err != nil {
-		log.WithError(err).Error("unable to initialize bbs client")
-		result.Error = err
-		return result
+
+	var bbs *BBSClient
+	if c.bbsConfig.URL != "" {
+		bbs, err = NewBBSClient(c.bbsConfig)
+		if err != nil {
+			log.WithError(err).Error("unable to initialize bbs client")
+			c.filters.Disable([]string{filters.ActualLRPs})
+		}
 	}
 
 	c.workInit()

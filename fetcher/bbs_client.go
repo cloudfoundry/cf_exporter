@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -51,7 +52,13 @@ func NewBBSClient(config *BBSConfig) (*BBSClient, error) {
 		bbsClientConfig.MaxIdleConnsPerHost = maxIdleConnsPerHost
 	}
 	bbsClient.client, err = bbs.NewClientWithConfig(bbsClientConfig)
-	return &bbsClient, err
+	if err != nil {
+		return nil, err
+	}
+	if bbsClient.client.Ping(bbsClient.logger, trace.GenerateTraceID()) {
+		return &bbsClient, nil
+	}
+	return nil, fmt.Errorf("failed to ping BBS")
 }
 
 func (b *BBSClient) GetActualLRPs() ([]*models.ActualLRP, error) {
@@ -59,4 +66,12 @@ func (b *BBSClient) GetActualLRPs() ([]*models.ActualLRP, error) {
 	actualLRPs, err := b.client.ActualLRPs(b.logger, traceID, models.ActualLRPFilter{})
 
 	return actualLRPs, err
+}
+
+func (b *BBSClient) TestConnection() error {
+	traceID := trace.GenerateTraceID()
+	if b.client.Ping(b.logger, traceID) {
+		return nil
+	}
+	return fmt.Errorf("failed to ping BBS")
 }
