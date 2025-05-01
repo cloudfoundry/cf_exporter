@@ -40,6 +40,7 @@ var _ = ginkgo.Describe("Fetcher", func() {
 					"spaces",
 					"space_quotas",
 					"applications",
+					"droplets",
 					"domains",
 					"process",
 					"routes",
@@ -54,6 +55,7 @@ var _ = ginkgo.Describe("Fetcher", func() {
 					"service_bindings",
 					"service_route_bindings",
 					"segments",
+					"actual_lrps",
 				}
 			})
 			ginkgo.It("plans all jobs", func() {
@@ -71,6 +73,7 @@ var _ = ginkgo.Describe("Fetcher", func() {
 					"spaces",
 					"space_quotas",
 					"applications",
+					"droplets",
 					"domains",
 					"process",
 					"routes",
@@ -88,6 +91,7 @@ var _ = ginkgo.Describe("Fetcher", func() {
 					"segments",
 					"users",
 					"events",
+					"actual_lrps",
 				}
 			})
 			ginkgo.It("plans all jobs", func() {
@@ -219,6 +223,26 @@ var _ = ginkgo.Describe("Fetcher", func() {
 			ginkgo.BeforeEach(func() {
 				active = []string{filters.Events}
 				expected = []string{"info", "users", "events"}
+			})
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
+			})
+		})
+
+		ginkgo.When("droplets filter is set", func() {
+			ginkgo.BeforeEach(func() {
+				active = []string{filters.Droplets}
+				expected = []string{"info", "droplets"}
+			})
+			ginkgo.It("plans only specific jobs", func() {
+				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
+			})
+		})
+
+		ginkgo.When("actual_lrps filter is set", func() {
+			ginkgo.BeforeEach(func() {
+				active = []string{filters.ActualLRPs}
+				expected = []string{"info", "actual_lrps"}
 			})
 			ginkgo.It("plans only specific jobs", func() {
 				gomega.Ω(jobs).Should(gomega.ConsistOf(expected))
