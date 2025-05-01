@@ -285,20 +285,16 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 				}
 			}
 		}
-	} else if len(objs.AppSummaries) > 0 {
-		if appSummary, ok := objs.AppSummaries[application.GUID]; ok {
-			runningInstances = appSummary.RunningInstances
-		}
+		c.applicationInstancesRunningMetric.WithLabelValues(
+			application.GUID,
+			application.Name,
+			organization.GUID,
+			organization.Name,
+			space.GUID,
+			space.Name,
+			string(application.State),
+		).Set(float64(runningInstances))
 	}
-	c.applicationInstancesRunningMetric.WithLabelValues(
-		application.GUID,
-		application.Name,
-		organization.GUID,
-		organization.Name,
-		space.GUID,
-		space.Name,
-		string(application.State),
-	).Set(float64(runningInstances))
 
 	c.applicationMemoryMbMetric.WithLabelValues(
 		application.GUID,
