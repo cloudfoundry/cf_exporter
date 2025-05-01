@@ -79,6 +79,14 @@ usage: cf_exporter --cf.api_url=CF.API_URL --cf.deployment-name=CF.DEPLOYMENT-NA
 
 Flags:
   -h, --help                     Show context-sensitive help (also try --help-long and --help-man).
+      --bbs.api_url=BBS.API_URL  BBS API URL ($CF_EXPORTER_BBS_API_URL)
+      --bbs.ca_file=BBS.CA_FILE  BBS CA File ($CF_EXPORTER_BBS_CA_FILE)
+      --bbs.cert_file=BBS.CERT_FILE
+                                 BBS Cert File ($CF_EXPORTER_BBS_CERT_FILE)
+      --bbs.key_file=BBS.KEY_FILE
+                                 BBS Key File ($CF_EXPORTER_BBS_KEY_FILE)
+      --bbs.skip_ssl_verify      Disable SSL Verify for BBS ($CF_EXPORTER_BBS_SKIP_SSL_VERIFY)
+      --bbs.timeout=5            BBS API Timeout ($CF_EXPORTER_BBS_TIMEOUT)
       --cf.api_url=CF.API_URL    Cloud Foundry API URL ($CF_EXPORTER_CF_API_URL)
       --cf.username=CF.USERNAME  Cloud Foundry Username ($CF_EXPORTER_CF_USERNAME)
       --cf.password=CF.PASSWORD  Cloud Foundry Password ($CF_EXPORTER_CF_PASSWORD)

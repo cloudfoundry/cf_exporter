@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	ActualLRPs           = "actual_lrps"
 	Applications         = "applications"
 	Droplets             = "droplets"
 	Buildpacks           = "buildpacks"
@@ -27,6 +28,7 @@ const (
 
 var (
 	All = []string{
+		ActualLRPs,
 		Applications,
 		Droplets,
 		Buildpacks,
@@ -54,6 +56,7 @@ type Filter struct {
 func NewFilter(active ...string) (*Filter, error) {
 	filter := &Filter{
 		activated: map[string]bool{
+			ActualLRPs:           true,
 			Applications:         true,
 			Droplets:             true,
 			Buildpacks:           true,
@@ -86,6 +89,7 @@ func NewFilter(active ...string) (*Filter, error) {
 func (f *Filter) setActive(active []string) error {
 	// override default states with all disabled
 	f.activated = map[string]bool{
+		ActualLRPs:           false,
 		Applications:         false,
 		Droplets:             false,
 		Buildpacks:           false,
