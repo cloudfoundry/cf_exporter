@@ -54,8 +54,8 @@ var _ = ginkgo.Describe("Extensions", func() {
 		server.AppendHandlers(
 			ghttp.CombineHandlers(
 				ghttp.VerifyRequest("GET", "/"),
-				ghttp.RespondWith(http.StatusOK, serialize(ccv3.Info{
-					Links: ccv3.InfoLinks{
+				ghttp.RespondWith(http.StatusOK, serialize(ccv3.Root{
+					Links: ccv3.RootLinks{
 						Login: resources.APILink{HREF: server.URL()},
 						UAA:   resources.APILink{HREF: server.URL()},
 					},
