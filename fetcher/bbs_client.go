@@ -70,8 +70,9 @@ func (b *BBSClient) GetActualLRPs() ([]*models.ActualLRP, error) {
 
 func (b *BBSClient) TestConnection() error {
 	traceID := trace.GenerateTraceID()
-	if b.client.Ping(b.logger, traceID) {
-		return nil
+	_, err := b.client.ActualLRPs(b.logger, traceID, models.ActualLRPFilter{})
+	if err != nil {
+		return fmt.Errorf("error connecting to BBS: %s", err)
 	}
-	return fmt.Errorf("failed to ping BBS")
+	return nil
 }
