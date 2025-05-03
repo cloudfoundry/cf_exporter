@@ -55,10 +55,10 @@ func NewBBSClient(config *BBSConfig) (*BBSClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	if bbsClient.client.Ping(bbsClient.logger, trace.GenerateTraceID()) {
-		return &bbsClient, nil
+	if err = bbsClient.TestConnection(); err != nil {
+		return nil, fmt.Errorf("error connecting to BBS: %s", err)
 	}
-	return nil, fmt.Errorf("failed to ping BBS")
+	return &bbsClient, nil
 }
 
 func (b *BBSClient) GetActualLRPs() ([]*models.ActualLRP, error) {
