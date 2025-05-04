@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/constant"
-	"github.com/cloudfoundry/cf_exporter/models"
+	"github.com/cloudfoundry/cf_exporter/v2/models"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 )

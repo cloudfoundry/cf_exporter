@@ -22,7 +22,7 @@ $ ./cf_exporter <flags>
 Using the standard `go install` (you must have [Go][golang] already installed in your local machine):
 
 ```bash
-$ go install github.com/cloudfoundry/cf_exporter
+$ go install github.com/cloudfoundry/cf_exporter/v2
 $ cf_exporter <flags>
 ```
 
