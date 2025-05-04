@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cloudfoundry/cf_exporter/filters"
-	"github.com/cloudfoundry/cf_exporter/models"
+	"github.com/cloudfoundry/cf_exporter/v2/filters"
+	"github.com/cloudfoundry/cf_exporter/v2/models"
 	log "github.com/sirupsen/logrus"
 )
 

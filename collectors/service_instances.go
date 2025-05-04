@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/cli/resources"
-	"github.com/cloudfoundry/cf_exporter/models"
+	"github.com/cloudfoundry/cf_exporter/v2/models"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
