@@ -8,7 +8,7 @@ import (
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3"
 	"code.cloudfoundry.org/cli/resources"
-	"github.com/cloudfoundry/cf_exporter/models"
+	"github.com/cloudfoundry/cf_exporter/v2/models"
 	log "github.com/sirupsen/logrus"
 )
 

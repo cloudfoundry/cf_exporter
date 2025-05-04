@@ -7,9 +7,9 @@ import (
 	"time"
 
 	kingpin "github.com/alecthomas/kingpin/v2"
-	"github.com/cloudfoundry/cf_exporter/collectors"
-	"github.com/cloudfoundry/cf_exporter/fetcher"
-	"github.com/cloudfoundry/cf_exporter/filters"
+	"github.com/cloudfoundry/cf_exporter/v2/collectors"
+	"github.com/cloudfoundry/cf_exporter/v2/fetcher"
+	"github.com/cloudfoundry/cf_exporter/v2/filters"
 	"github.com/prometheus/client_golang/prometheus"
 	versionCollector "github.com/prometheus/client_golang/prometheus/collectors/version"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

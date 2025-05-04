@@ -1,9 +1,9 @@
 package collectors
 
 import (
-	"github.com/cloudfoundry/cf_exporter/fetcher"
-	"github.com/cloudfoundry/cf_exporter/filters"
-	"github.com/cloudfoundry/cf_exporter/models"
+	"github.com/cloudfoundry/cf_exporter/v2/fetcher"
+	"github.com/cloudfoundry/cf_exporter/v2/filters"
+	"github.com/cloudfoundry/cf_exporter/v2/models"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
