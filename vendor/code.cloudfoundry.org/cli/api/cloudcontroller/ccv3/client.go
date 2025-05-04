@@ -7,7 +7,7 @@
 // may include features and endpoints of later API versions.
 //
 // For more information on the Cloud Controller API see
-// https://apidocs.cloudfoundry.org/
+// https://v2-apidocs.cloudfoundry.org/
 //
 // # Method Naming Conventions
 //
@@ -86,7 +86,7 @@ type Warnings []string
 
 // Client can be used to talk to a Cloud Controller's V3 Endpoints.
 type Client struct {
-	Info
+	Root
 	CloudControllerURL string
 
 	Requester

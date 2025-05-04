@@ -1,9 +1,12 @@
 package configv3
 
 import (
+	"encoding/json"
 	"strconv"
 	"strings"
 	"time"
+
+	"code.cloudfoundry.org/cli/util/trace"
 )
 
 // EnvOverride represents all the environment variables read by the CF CLI
@@ -19,7 +22,9 @@ type EnvOverride struct {
 	CFStartupTimeout string
 	CFTrace          string
 	CFUsername       string
+	CFB3TraceID      string
 	DockerPassword   string
+	CNBCredentials   string
 	Experimental     string
 	ForceTTY         string
 	HTTPSProxy       string
@@ -59,6 +64,21 @@ func (config *Config) DialTimeout() time.Duration {
 // DockerPassword returns the docker password from the environment.
 func (config *Config) DockerPassword() string {
 	return config.ENV.DockerPassword
+}
+
+// CNBCredentials retrurns CNB credentials from the environment
+func (config *Config) CNBCredentials() (map[string]interface{}, error) {
+	if config.ENV.CNBCredentials == "" {
+		return nil, nil
+	}
+
+	creds := map[string]interface{}{}
+
+	if err := json.Unmarshal([]byte(config.ENV.CNBCredentials), &creds); err != nil {
+		return nil, err
+	}
+
+	return creds, nil
 }
 
 // Experimental returns whether or not to run experimental CLI commands. This
@@ -142,4 +162,11 @@ func (config *Config) StartupTimeout() time.Duration {
 	}
 
 	return DefaultStartupTimeout
+}
+
+func (config *Config) B3TraceID() string {
+	if config.ENV.CFB3TraceID == "" {
+		config.ENV.CFB3TraceID = trace.GenerateUUIDTraceID()
+	}
+	return config.ENV.CFB3TraceID
 }

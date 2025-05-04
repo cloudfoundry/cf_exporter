@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/constant"
-	"github.com/cloudfoundry/cf_exporter/models"
+	"github.com/cloudfoundry/cf_exporter/v2/models"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 )
@@ -53,7 +53,7 @@ func NewApplicationsCollector(
 			Help:        "Buildpack used by an Application.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"application_id", "application_name", "buildpack_name"},
+		[]string{"application_id", "application_name", "buildpack_name", "detected_buildpack"},
 	)
 
 	applicationInstancesMetric := prometheus.NewGaugeVec(
@@ -224,6 +224,7 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 			process = cProc
 		}
 	}
+
 	spaceRel, ok := application.Relationships[constant.RelationshipTypeSpace]
 	if !ok {
 		return fmt.Errorf("could not find space relation in application '%s'", application.GUID)
@@ -241,31 +242,14 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 		return fmt.Errorf("could not find org with guid '%s'", orgRel.GUID)
 	}
 
-	appSum, ok := objs.AppSummaries[application.GUID]
-	if !ok {
-		return fmt.Errorf("could not find app summary with guid '%s'", application.GUID)
+	stackGUID := ""
+	for _, stack := range objs.Stacks {
+		if stack.Name == application.Lifecycle.Data.Stack {
+			stackGUID = stack.GUID
+			break
+		}
 	}
-
-	// 1.
-	detectedBuildpack := appSum.DetectedBuildpack
-	if len(detectedBuildpack) == 0 {
-		detectedBuildpack = appSum.Buildpack
-	}
-
-	// 2.
-	buildpack := appSum.Buildpack
-	if len(buildpack) == 0 {
-		buildpack = appSum.DetectedBuildpack
-	}
-
-	// 3. Use the droplet data for the buildpack metric
-	for _, bp := range application.Lifecycle.Data.Buildpacks {
-		c.applicationBuildpackMetric.WithLabelValues(
-			application.GUID,
-			application.Name,
-			bp,
-		).Set(float64(1))
-	}
+	detectedBuildpack, buildpack := c.collectAppBuildpacks(application, objs)
 
 	c.applicationInfoMetric.WithLabelValues(
 		application.GUID,
@@ -276,7 +260,7 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 		organization.Name,
 		space.GUID,
 		space.Name,
-		appSum.StackID,
+		stackGUID,
 		string(application.State),
 	).Set(float64(1))
 
@@ -290,15 +274,27 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 		string(application.State),
 	).Set(float64(process.Instances.Value))
 
-	c.applicationInstancesRunningMetric.WithLabelValues(
-		application.GUID,
-		application.Name,
-		organization.GUID,
-		organization.Name,
-		space.GUID,
-		space.Name,
-		string(application.State),
-	).Set(float64(appSum.RunningInstances))
+	// Use bbs data if available
+	runningInstances := 0
+	if len(objs.ProcessActualLRPs) > 0 {
+		LRPs, ok := objs.ProcessActualLRPs[process.GUID]
+		if ok {
+			for _, lrp := range LRPs {
+				if lrp.State == "RUNNING" {
+					runningInstances++
+				}
+			}
+		}
+		c.applicationInstancesRunningMetric.WithLabelValues(
+			application.GUID,
+			application.Name,
+			organization.GUID,
+			organization.Name,
+			space.GUID,
+			space.Name,
+			string(application.State),
+		).Set(float64(runningInstances))
+	}
 
 	c.applicationMemoryMbMetric.WithLabelValues(
 		application.GUID,
@@ -318,6 +314,35 @@ func (c ApplicationsCollector) reportApp(application models.Application, objs *m
 		space.Name,
 	).Set(float64(process.DiskInMB.Value))
 	return nil
+}
+
+func (c ApplicationsCollector) collectAppBuildpacks(application models.Application, objs *models.CFObjects) (detectedBuildpack string, buildpack string) {
+	detectedBuildpack = ""
+	buildpack = ""
+	if dropletGUID := application.Relationships[constant.RelationshipTypeCurrentDroplet].GUID; dropletGUID != "" {
+		if droplet, ok := objs.Droplets[dropletGUID]; ok {
+			// 1.
+			detectedBuildpack = droplet.Buildpacks[0].DetectOutput
+			// 2.
+			buildpack = droplet.Buildpacks[0].BuildpackName
+			if len(detectedBuildpack) == 0 {
+				detectedBuildpack = buildpack
+			}
+			if len(buildpack) == 0 {
+				buildpack = detectedBuildpack
+			}
+			// 3.Use the droplet data for the buildpack metric
+			for _, bp := range droplet.Buildpacks {
+				c.applicationBuildpackMetric.WithLabelValues(
+					application.GUID,
+					application.Name,
+					bp.BuildpackName,
+					bp.DetectOutput,
+				).Set(float64(1))
+			}
+		}
+	}
+	return detectedBuildpack, buildpack
 }
 
 // reportApplicationsMetrics

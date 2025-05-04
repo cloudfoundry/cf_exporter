@@ -7,9 +7,9 @@ import (
 	"time"
 
 	kingpin "github.com/alecthomas/kingpin/v2"
-	"github.com/cloudfoundry/cf_exporter/collectors"
-	"github.com/cloudfoundry/cf_exporter/fetcher"
-	"github.com/cloudfoundry/cf_exporter/filters"
+	"github.com/cloudfoundry/cf_exporter/v2/collectors"
+	"github.com/cloudfoundry/cf_exporter/v2/fetcher"
+	"github.com/cloudfoundry/cf_exporter/v2/filters"
 	"github.com/prometheus/client_golang/prometheus"
 	versionCollector "github.com/prometheus/client_golang/prometheus/collectors/version"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -18,6 +18,30 @@ import (
 )
 
 var (
+	bbsAPIUrl = kingpin.Flag(
+		"bbs.api_url", "BBS API URL ($CF_EXPORTER_BBS_API_URL)",
+	).Envar("CF_EXPORTER_BBS_API_URL").String()
+
+	bbsTimeout = kingpin.Flag(
+		"bbs.timeout", "BBS API Timeout ($CF_EXPORTER_BBS_TIMEOUT)",
+	).Envar("CF_EXPORTER_BBS_TIMEOUT").Default("10").Int()
+
+	bbsCAFile = kingpin.Flag(
+		"bbs.ca_file", "BBS CA File ($CF_EXPORTER_BBS_CA_FILE)",
+	).Envar("CF_EXPORTER_BBS_CA_FILE").Default("").String()
+
+	bbsCertFile = kingpin.Flag(
+		"bbs.cert_file", "BBS Cert File ($CF_EXPORTER_BBS_CERT_FILE)",
+	).Envar("CF_EXPORTER_BBS_CERT_FILE").Default("").String()
+
+	bbsKeyFile = kingpin.Flag(
+		"bbs.key_file", "BBS Key File ($CF_EXPORTER_BBS_KEY_FILE)",
+	).Envar("CF_EXPORTER_BBS_KEY_FILE").String()
+
+	bbsSkipSSLValidation = kingpin.Flag(
+		"bbs.skip_ssl_verify", "Disable SSL Verify for BBS ($CF_EXPORTER_BBS_SKIP_SSL_VERIFY)",
+	).Envar("CF_EXPORTER_BBS_SKIP_SSL_VERIFY").Default("false").Bool()
+
 	cfAPIUrl = kingpin.Flag(
 		"cf.api_url", "Cloud Foundry API URL ($CF_EXPORTER_CF_API_URL)",
 	).Envar("CF_EXPORTER_CF_API_URL").String()
@@ -43,7 +67,7 @@ var (
 	).Envar("CF_EXPORTER_CF_DEPLOYMENT_NAME").Required().String()
 
 	filterCollectors = kingpin.Flag(
-		"filter.collectors", "Comma separated collectors to filter (Applications,Buildpacks,Events,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks,Tasks). If not set, all collectors except Events and Tasks are enabled ($CF_EXPORTER_FILTER_COLLECTORS)",
+		"filter.collectors", "Comma separated collectors to filter (ActualLRPs,Applications,Buildpacks,Events,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks,Tasks,ActualLRPs). If not set, all collectors except Events and Tasks are enabled ($CF_EXPORTER_FILTER_COLLECTORS)",
 	).Envar("CF_EXPORTER_FILTER_COLLECTORS").Default("").String()
 
 	metricsNamespace = kingpin.Flag(
@@ -153,13 +177,22 @@ func main() {
 	}
 	log.SetLevel(lvl)
 
-	config := &fetcher.CFConfig{
+	cfConfig := &fetcher.CFConfig{
 		URL:               *cfAPIUrl,
 		Username:          *cfUsername,
 		Password:          *cfPassword,
 		ClientID:          *cfClientID,
 		ClientSecret:      *cfClientSecret,
 		SkipSSLValidation: *skipSSLValidation,
+	}
+
+	bbsConfig := &fetcher.BBSConfig{
+		URL:            *bbsAPIUrl,
+		Timeout:        *bbsTimeout,
+		CAFile:         *bbsCAFile,
+		CertFile:       *bbsCertFile,
+		KeyFile:        *bbsKeyFile,
+		SkipCertVerify: *bbsSkipSSLValidation,
 	}
 
 	active := []string{}
@@ -172,7 +205,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	c, err := collectors.NewCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, *workers, config, filter)
+	c, err := collectors.NewCollector(*metricsNamespace, *metricsEnvironment, *cfDeploymentName, *workers, cfConfig, bbsConfig, filter)
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
