@@ -25,6 +25,10 @@ type Application struct {
 	SpaceGUID string
 	// State is the desired state of the application.
 	State constant.ApplicationState
+	// Credentials are used by Cloud Native Buildpacks lifecycle to pull buildpacks
+	Credentials map[string]interface{}
+	// CurrentDropletGUID is the unique identifier of the droplet currently attached to the application.
+	CurrentDropletGUID string
 }
 
 // ApplicationNameOnly represents only the name field of a Cloud Controller V3 Application
@@ -40,15 +44,19 @@ func (a Application) MarshalJSON() ([]byte, error) {
 		Metadata: a.Metadata,
 	}
 
+	ccApp.Relationships = Relationships{}
+
 	if a.SpaceGUID != "" {
-		ccApp.Relationships = Relationships{
-			constant.RelationshipTypeSpace: Relationship{GUID: a.SpaceGUID},
-		}
+		ccApp.Relationships[constant.RelationshipTypeSpace] = Relationship{GUID: a.SpaceGUID}
+	}
+
+	if a.CurrentDropletGUID != "" {
+		ccApp.Relationships[constant.RelationshipTypeCurrentDroplet] = Relationship{GUID: a.CurrentDropletGUID}
 	}
 
 	if a.LifecycleType == constant.AppLifecycleTypeDocker {
 		ccApp.setDockerLifecycle()
-	} else if a.LifecycleType == constant.AppLifecycleTypeBuildpack {
+	} else if a.LifecycleType == constant.AppLifecycleTypeBuildpack || a.LifecycleType == constant.AppLifecycleTypeCNB {
 		if len(a.LifecycleBuildpacks) > 0 || a.StackName != "" {
 			if a.hasAutodetectedBuildpack() {
 				ccApp.setAutodetectedBuildpackLifecycle(a)
@@ -79,6 +87,9 @@ func (a *Application) UnmarshalJSON(data []byte) error {
 	a.LifecycleType = lifecycle.Type
 	a.Name = ccApp.Name
 	a.SpaceGUID = ccApp.Relationships[constant.RelationshipTypeSpace].GUID
+	if _, ok := ccApp.Relationships[constant.RelationshipTypeCurrentDroplet]; ok {
+		a.CurrentDropletGUID = ccApp.Relationships[constant.RelationshipTypeCurrentDroplet].GUID
+	}
 	a.State = ccApp.State
 	a.Metadata = ccApp.Metadata
 
@@ -100,11 +111,18 @@ func (a Application) hasAutodetectedBuildpack() bool {
 	return a.LifecycleBuildpacks[0] == constant.AutodetectBuildpackValueDefault || a.LifecycleBuildpacks[0] == constant.AutodetectBuildpackValueNull
 }
 
+type ccCredentials map[string]interface{}
+
+func (ccCredentials) UnmarshalJSON(data []byte) error {
+	return nil
+}
+
 type ccLifecycle struct {
 	Type constant.AppLifecycleType `json:"type,omitempty"`
 	Data struct {
-		Buildpacks []string `json:"buildpacks,omitempty"`
-		Stack      string   `json:"stack,omitempty"`
+		Buildpacks  []string      `json:"buildpacks,omitempty"`
+		Stack       string        `json:"stack,omitempty"`
+		Credentials ccCredentials `json:"credentials,omitempty"`
 	} `json:"data"`
 }
 
@@ -135,6 +153,7 @@ func (ccApp *ccApplication) setBuildpackLifecycle(a Application) {
 	lifecycle.Type = a.LifecycleType
 	lifecycle.Data.Buildpacks = a.LifecycleBuildpacks
 	lifecycle.Data.Stack = a.StackName
+	lifecycle.Data.Credentials = a.Credentials
 	ccApp.Lifecycle = lifecycle
 }
 
