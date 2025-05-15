@@ -15,6 +15,7 @@ type Config interface {
 	AddPluginRepository(name string, url string)
 	AuthorizationEndpoint() string
 	APIVersion() string
+	B3TraceID() string
 	BinaryName() string
 	BinaryVersion() string
 	CFPassword() string
@@ -24,6 +25,7 @@ type Config interface {
 	CurrentUserName() (string, error)
 	DialTimeout() time.Duration
 	DockerPassword() string
+	CNBCredentials() (map[string]interface{}, error)
 	Experimental() bool
 	GetPlugin(pluginName string) (configv3.Plugin, bool)
 	GetPluginCaseInsensitive(pluginName string) (configv3.Plugin, bool)

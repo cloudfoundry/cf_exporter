@@ -138,9 +138,9 @@ func (s *Session) init(config *configv3.Config, configUaa *configv3.Config, conf
 		SkipSSLValidation: config.SkipSSLValidation(),
 		DialTimeout:       config.DialTimeout(),
 	})
-	info, _, err := ccClientV3.GetInfo()
+	root, _, err := ccClientV3.GetRoot()
 	if err != nil {
-		return fmt.Errorf("could not fetch api root informations: %s", err)
+		return fmt.Errorf("could not fetch api root information: %s", err)
 	}
 
 	// create an uaa client with cf_username/cf_password or client_id/client secret
@@ -150,7 +150,7 @@ func (s *Session) init(config *configv3.Config, configUaa *configv3.Config, conf
 	uaaAuthWrapper := uaaWrapper.NewUAAAuthentication(nil, configUaa)
 	uaaClient.WrapConnection(uaaAuthWrapper)
 	uaaClient.WrapConnection(uaaWrapper.NewRetryRequest(config.RequestRetryCount()))
-	err = uaaClient.SetupResources(info.UAA(), info.Login())
+	err = uaaClient.SetupResources(root.UAA(), root.Login())
 	if err != nil {
 		return fmt.Errorf("error setup resource uaa: %s", err)
 	}
@@ -200,7 +200,7 @@ func (s *Session) init(config *configv3.Config, configUaa *configv3.Config, conf
 		uaaAuthWrapperSess := uaaWrapper.NewUAAAuthentication(nil, configUaa)
 		uaaClientSess.WrapConnection(uaaAuthWrapperSess)
 		uaaClientSess.WrapConnection(uaaWrapper.NewRetryRequest(config.RequestRetryCount()))
-		err = uaaClientSess.SetupResources(info.UAA(), info.Login())
+		err = uaaClientSess.SetupResources(root.UAA(), root.Login())
 		if err != nil {
 			return fmt.Errorf("error setup resource uaa: %s", err)
 		}
@@ -282,7 +282,7 @@ func (s *Session) init(config *configv3.Config, configUaa *configv3.Config, conf
 			DialTimeout:       config.DialTimeout(),
 			SkipSSLValidation: config.SkipSSLValidation(),
 		},
-		RoutingEndpoint: info.Routing(),
+		RoutingEndpoint: root.Routing(),
 	}
 
 	routerWrappers := []router.ConnectionWrapper{}
