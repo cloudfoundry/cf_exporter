@@ -7,7 +7,7 @@ require (
 	code.cloudfoundry.org/cli v0.0.0-20250410033454-7ef8a48b9bb3
 	code.cloudfoundry.org/lager/v3 v3.32.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
-	github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.9.0
+	github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.10.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.37.0
 	github.com/prometheus/client_golang v1.22.0
