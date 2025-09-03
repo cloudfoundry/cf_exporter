@@ -5,11 +5,11 @@ go 1.24.1
 require (
 	code.cloudfoundry.org/bbs v0.0.0-20250414163106-a163a3b524d2
 	code.cloudfoundry.org/cli v0.0.0-20250410033454-7ef8a48b9bb3
-	code.cloudfoundry.org/lager/v3 v3.45.0
+	code.cloudfoundry.org/lager/v3 v3.46.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.10.0
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.38.1
+	github.com/onsi/gomega v1.38.2
 	github.com/prometheus/client_golang v1.23.0
 	github.com/prometheus/common v0.65.0
 	github.com/sirupsen/logrus v1.9.3
@@ -49,7 +49,7 @@ require (
 	github.com/go-test/deep v1.1.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20250820193118-f64d9cf942d6 // indirect
+	github.com/google/pprof v0.0.0-20250830080959-101d87ff5bc3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3 // indirect
 	github.com/jackc/pgx/v5 v5.7.4 // indirect
@@ -64,7 +64,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
-	github.com/onsi/ginkgo/v2 v2.25.1 // indirect
+	github.com/onsi/ginkgo/v2 v2.25.2 // indirect
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
