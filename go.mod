@@ -5,7 +5,7 @@ go 1.24.1
 require (
 	code.cloudfoundry.org/bbs v0.0.0-20250414163106-a163a3b524d2
 	code.cloudfoundry.org/cli v0.0.0-20250410033454-7ef8a48b9bb3
-	code.cloudfoundry.org/lager/v3 v3.47.0
+	code.cloudfoundry.org/lager/v3 v3.48.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.10.0
 	github.com/onsi/ginkgo v1.16.5
@@ -79,14 +79,14 @@ require (
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.41.0 // indirect
-	golang.org/x/net v0.43.0 // indirect
+	golang.org/x/crypto v0.42.0 // indirect
+	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/term v0.34.0 // indirect
+	golang.org/x/term v0.35.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
+	golang.org/x/tools v0.37.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250428153025-10db94c68c34 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250428153025-10db94c68c34 // indirect
 	google.golang.org/grpc v1.72.0 // indirect
