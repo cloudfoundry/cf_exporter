@@ -329,9 +329,9 @@ func (c ApplicationsCollector) collectAppBuildpacks(application models.Applicati
 				if len(detectedBuildpack) == 0 {
 					detectedBuildpack = buildpack
 				}
-			}
-			if len(buildpack) == 0 {
-				buildpack = detectedBuildpack
+				if len(buildpack) == 0 {
+					buildpack = detectedBuildpack
+				}
 			}
 			// 3.Use the droplet data for the buildpack metric
 			for _, bp := range droplet.Buildpacks {
