@@ -321,12 +321,14 @@ func (c ApplicationsCollector) collectAppBuildpacks(application models.Applicati
 	buildpack = ""
 	if dropletGUID := application.Relationships[constant.RelationshipTypeCurrentDroplet].GUID; dropletGUID != "" {
 		if droplet, ok := objs.Droplets[dropletGUID]; ok {
-			// 1.
-			detectedBuildpack = droplet.Buildpacks[0].DetectOutput
-			// 2.
-			buildpack = droplet.Buildpacks[0].BuildpackName
-			if len(detectedBuildpack) == 0 {
-				detectedBuildpack = buildpack
+			if len(droplet.Buildpacks) > 0 {
+				// 1.
+				detectedBuildpack = droplet.Buildpacks[0].DetectOutput
+				// 2.
+				buildpack = droplet.Buildpacks[0].BuildpackName
+				if len(detectedBuildpack) == 0 {
+					detectedBuildpack = buildpack
+				}
 			}
 			if len(buildpack) == 0 {
 				buildpack = detectedBuildpack
