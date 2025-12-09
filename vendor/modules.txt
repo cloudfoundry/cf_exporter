@@ -6,72 +6,77 @@ code.cloudfoundry.org/bbs/events
 code.cloudfoundry.org/bbs/format
 code.cloudfoundry.org/bbs/models
 code.cloudfoundry.org/bbs/trace
-# code.cloudfoundry.org/bytefmt v0.39.0
-## explicit; go 1.23.0
+# code.cloudfoundry.org/bytefmt v0.58.0
+## explicit; go 1.24.0
 code.cloudfoundry.org/bytefmt
 # code.cloudfoundry.org/cfhttp/v2 v2.44.0
 ## explicit; go 1.23.0
 code.cloudfoundry.org/cfhttp/v2
-# code.cloudfoundry.org/cfnetworking-cli-api v0.0.0-20190103195135-4b04f26287a6
-## explicit
-code.cloudfoundry.org/cfnetworking-cli-api/cfnetworking
-code.cloudfoundry.org/cfnetworking-cli-api/cfnetworking/cfnetv1
-code.cloudfoundry.org/cfnetworking-cli-api/cfnetworking/cfnetv1/internal
-code.cloudfoundry.org/cfnetworking-cli-api/cfnetworking/networkerror
-code.cloudfoundry.org/cfnetworking-cli-api/cfnetworking/wrapper
 # code.cloudfoundry.org/cli v0.0.0-20250410033454-7ef8a48b9bb3
 ## explicit; go 1.23.6
-code.cloudfoundry.org/cli/actor/actionerror
-code.cloudfoundry.org/cli/actor/sharedaction
-code.cloudfoundry.org/cli/actor/v7action
-code.cloudfoundry.org/cli/actor/versioncheck
 code.cloudfoundry.org/cli/api/cloudcontroller
 code.cloudfoundry.org/cli/api/cloudcontroller/ccerror
 code.cloudfoundry.org/cli/api/cloudcontroller/ccv3
 code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/constant
 code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/internal
-code.cloudfoundry.org/cli/api/cloudcontroller/ccversion
 code.cloudfoundry.org/cli/api/cloudcontroller/uploads
-code.cloudfoundry.org/cli/api/cloudcontroller/wrapper
-code.cloudfoundry.org/cli/api/plugin/pluginerror
-code.cloudfoundry.org/cli/api/router
-code.cloudfoundry.org/cli/api/router/internal
-code.cloudfoundry.org/cli/api/router/routererror
-code.cloudfoundry.org/cli/api/router/wrapper
-code.cloudfoundry.org/cli/api/shared
-code.cloudfoundry.org/cli/api/uaa
-code.cloudfoundry.org/cli/api/uaa/constant
-code.cloudfoundry.org/cli/api/uaa/internal
-code.cloudfoundry.org/cli/api/uaa/wrapper
-code.cloudfoundry.org/cli/cf/configuration
-code.cloudfoundry.org/cli/cf/configuration/coreconfig
-code.cloudfoundry.org/cli/cf/formatters
-code.cloudfoundry.org/cli/cf/i18n
-code.cloudfoundry.org/cli/cf/models
-code.cloudfoundry.org/cli/cf/ssh/sigwinch
-code.cloudfoundry.org/cli/command
-code.cloudfoundry.org/cli/command/translatableerror
-code.cloudfoundry.org/cli/i18n/resources
 code.cloudfoundry.org/cli/resources
 code.cloudfoundry.org/cli/types
 code.cloudfoundry.org/cli/util
-code.cloudfoundry.org/cli/util/batcher
-code.cloudfoundry.org/cli/util/clissh
-code.cloudfoundry.org/cli/util/clissh/ssherror
-code.cloudfoundry.org/cli/util/configv3
-code.cloudfoundry.org/cli/util/download
-code.cloudfoundry.org/cli/util/extract
-code.cloudfoundry.org/cli/util/generic
 code.cloudfoundry.org/cli/util/lookuptable
-code.cloudfoundry.org/cli/util/manifest
-code.cloudfoundry.org/cli/util/railway
-code.cloudfoundry.org/cli/util/sorting
-code.cloudfoundry.org/cli/util/trace
-code.cloudfoundry.org/cli/util/ui
-code.cloudfoundry.org/cli/util/unique
-code.cloudfoundry.org/cli/version
-# code.cloudfoundry.org/clock v1.37.0
-## explicit; go 1.23.0
+# code.cloudfoundry.org/cli/v8 v8.17.0
+## explicit; go 1.25.4
+code.cloudfoundry.org/cli/v8/actor/actionerror
+code.cloudfoundry.org/cli/v8/actor/sharedaction
+code.cloudfoundry.org/cli/v8/actor/v7action
+code.cloudfoundry.org/cli/v8/actor/versioncheck
+code.cloudfoundry.org/cli/v8/api/cloudcontroller
+code.cloudfoundry.org/cli/v8/api/cloudcontroller/ccerror
+code.cloudfoundry.org/cli/v8/api/cloudcontroller/ccv3
+code.cloudfoundry.org/cli/v8/api/cloudcontroller/ccv3/constant
+code.cloudfoundry.org/cli/v8/api/cloudcontroller/ccv3/internal
+code.cloudfoundry.org/cli/v8/api/cloudcontroller/ccversion
+code.cloudfoundry.org/cli/v8/api/cloudcontroller/uploads
+code.cloudfoundry.org/cli/v8/api/cloudcontroller/wrapper
+code.cloudfoundry.org/cli/v8/api/plugin/pluginerror
+code.cloudfoundry.org/cli/v8/api/router
+code.cloudfoundry.org/cli/v8/api/router/internal
+code.cloudfoundry.org/cli/v8/api/router/routererror
+code.cloudfoundry.org/cli/v8/api/router/wrapper
+code.cloudfoundry.org/cli/v8/api/shared
+code.cloudfoundry.org/cli/v8/api/uaa
+code.cloudfoundry.org/cli/v8/api/uaa/constant
+code.cloudfoundry.org/cli/v8/api/uaa/internal
+code.cloudfoundry.org/cli/v8/api/uaa/wrapper
+code.cloudfoundry.org/cli/v8/cf/configuration
+code.cloudfoundry.org/cli/v8/cf/configuration/coreconfig
+code.cloudfoundry.org/cli/v8/cf/formatters
+code.cloudfoundry.org/cli/v8/cf/i18n
+code.cloudfoundry.org/cli/v8/cf/models
+code.cloudfoundry.org/cli/v8/cf/ssh/sigwinch
+code.cloudfoundry.org/cli/v8/command
+code.cloudfoundry.org/cli/v8/command/translatableerror
+code.cloudfoundry.org/cli/v8/i18n/resources
+code.cloudfoundry.org/cli/v8/resources
+code.cloudfoundry.org/cli/v8/types
+code.cloudfoundry.org/cli/v8/util
+code.cloudfoundry.org/cli/v8/util/batcher
+code.cloudfoundry.org/cli/v8/util/clissh
+code.cloudfoundry.org/cli/v8/util/clissh/ssherror
+code.cloudfoundry.org/cli/v8/util/configv3
+code.cloudfoundry.org/cli/v8/util/download
+code.cloudfoundry.org/cli/v8/util/extract
+code.cloudfoundry.org/cli/v8/util/generic
+code.cloudfoundry.org/cli/v8/util/lookuptable
+code.cloudfoundry.org/cli/v8/util/manifest
+code.cloudfoundry.org/cli/v8/util/railway
+code.cloudfoundry.org/cli/v8/util/sorting
+code.cloudfoundry.org/cli/v8/util/trace
+code.cloudfoundry.org/cli/v8/util/ui
+code.cloudfoundry.org/cli/v8/util/unique
+code.cloudfoundry.org/cli/v8/version
+# code.cloudfoundry.org/clock v1.55.0
+## explicit; go 1.24.0
 code.cloudfoundry.org/clock
 # code.cloudfoundry.org/go-log-cache/v2 v2.0.7
 ## explicit; go 1.21
@@ -93,8 +98,8 @@ code.cloudfoundry.org/lager/v3
 code.cloudfoundry.org/lager/v3/internal/truncate
 # code.cloudfoundry.org/locket v0.0.0-20250423181647-b2b48694f201
 ## explicit
-# code.cloudfoundry.org/tlsconfig v0.26.0
-## explicit; go 1.23.0
+# code.cloudfoundry.org/tlsconfig v0.41.0
+## explicit; go 1.24.0
 code.cloudfoundry.org/tlsconfig
 # code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d
 ## explicit
@@ -136,14 +141,21 @@ github.com/cespare/xxhash/v2
 # github.com/charlievieth/fs v0.0.3
 ## explicit; go 1.18
 github.com/charlievieth/fs
-# github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.10.0
-## explicit; go 1.24.1
+# github.com/clipperhouse/stringish v0.1.1
+## explicit; go 1.18
+github.com/clipperhouse/stringish
+# github.com/clipperhouse/uax29/v2 v2.3.0
+## explicit; go 1.18
+github.com/clipperhouse/uax29/v2/graphemes
+github.com/clipperhouse/uax29/v2/internal/iterators
+# github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.12.1
+## explicit; go 1.25.4
 github.com/cloudfoundry-community/go-cf-clients-helper/v2
 # github.com/cloudfoundry/bosh-cli v6.4.1+incompatible
 ## explicit
 github.com/cloudfoundry/bosh-cli/director/template
-# github.com/cloudfoundry/bosh-utils v0.0.538
-## explicit; go 1.23.0
+# github.com/cloudfoundry/bosh-utils v0.0.573
+## explicit; go 1.24.0
 github.com/cloudfoundry/bosh-utils/errors
 github.com/cloudfoundry/bosh-utils/logger
 github.com/cloudfoundry/bosh-utils/system
@@ -159,7 +171,7 @@ github.com/fatih/color
 # github.com/fsnotify/fsnotify v1.6.0
 ## explicit; go 1.16
 github.com/fsnotify/fsnotify
-# github.com/fxamacker/cbor/v2 v2.8.0
+# github.com/fxamacker/cbor/v2 v2.9.0
 ## explicit; go 1.20
 github.com/fxamacker/cbor/v2
 # github.com/go-logr/logr v1.4.3
@@ -191,8 +203,8 @@ github.com/google/pprof/profile
 # github.com/google/uuid v1.6.0
 ## explicit
 github.com/google/uuid
-# github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
-## explicit; go 1.23.0
+# github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
+## explicit; go 1.24.0
 github.com/grpc-ecosystem/grpc-gateway/v2/internal/httprule
 github.com/grpc-ecosystem/grpc-gateway/v2/runtime
 github.com/grpc-ecosystem/grpc-gateway/v2/utilities
@@ -213,8 +225,8 @@ github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.20
 ## explicit; go 1.15
 github.com/mattn/go-isatty
-# github.com/mattn/go-runewidth v0.0.16
-## explicit; go 1.9
+# github.com/mattn/go-runewidth v0.0.19
+## explicit; go 1.20
 github.com/mattn/go-runewidth
 # github.com/moby/term v0.5.2
 ## explicit; go 1.18
@@ -223,7 +235,7 @@ github.com/moby/term/windows
 # github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
 ## explicit
 github.com/modern-go/concurrent
-# github.com/modern-go/reflect2 v1.0.2
+# github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee
 ## explicit; go 1.12
 github.com/modern-go/reflect2
 # github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822
@@ -318,16 +330,13 @@ github.com/prometheus/common/version
 github.com/prometheus/procfs
 github.com/prometheus/procfs/internal/fs
 github.com/prometheus/procfs/internal/util
-# github.com/rivo/uniseg v0.4.7
-## explicit; go 1.18
-github.com/rivo/uniseg
 # github.com/sabhiram/go-gitignore v0.0.0-20180611051255-d3107576ba94
 ## explicit
 github.com/sabhiram/go-gitignore
 # github.com/sirupsen/logrus v1.9.3
 ## explicit; go 1.13
 github.com/sirupsen/logrus
-# github.com/spf13/pflag v1.0.6
+# github.com/spf13/pflag v1.0.10
 ## explicit; go 1.12
 github.com/spf13/pflag
 # github.com/tedsuo/rata v1.0.1-0.20170830210128-07d200713958
@@ -379,7 +388,7 @@ golang.org/x/net/internal/socks
 golang.org/x/net/internal/timeseries
 golang.org/x/net/proxy
 golang.org/x/net/trace
-# golang.org/x/oauth2 v0.32.0
+# golang.org/x/oauth2 v0.33.0
 ## explicit; go 1.24.0
 golang.org/x/oauth2
 golang.org/x/oauth2/internal
@@ -417,8 +426,8 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# golang.org/x/time v0.11.0
-## explicit; go 1.23.0
+# golang.org/x/time v0.14.0
+## explicit; go 1.24.0
 golang.org/x/time/rate
 # golang.org/x/tools v0.39.0
 ## explicit; go 1.24.0
@@ -442,16 +451,16 @@ golang.org/x/tools/internal/stdlib
 golang.org/x/tools/internal/typeparams
 golang.org/x/tools/internal/typesinternal
 golang.org/x/tools/internal/versions
-# google.golang.org/genproto/googleapis/api v0.0.0-20250428153025-10db94c68c34
-## explicit; go 1.23.0
+# google.golang.org/genproto/googleapis/api v0.0.0-20251124214823-79d6a2a48846
+## explicit; go 1.24.0
 google.golang.org/genproto/googleapis/api
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/api/httpbody
-# google.golang.org/genproto/googleapis/rpc v0.0.0-20250428153025-10db94c68c34
-## explicit; go 1.23.0
+# google.golang.org/genproto/googleapis/rpc v0.0.0-20251124214823-79d6a2a48846
+## explicit; go 1.24.0
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.72.0
-## explicit; go 1.23
+# google.golang.org/grpc v1.77.0
+## explicit; go 1.24.0
 google.golang.org/grpc
 google.golang.org/grpc/attributes
 google.golang.org/grpc/backoff
@@ -461,7 +470,6 @@ google.golang.org/grpc/balancer/endpointsharding
 google.golang.org/grpc/balancer/grpclb/state
 google.golang.org/grpc/balancer/pickfirst
 google.golang.org/grpc/balancer/pickfirst/internal
-google.golang.org/grpc/balancer/pickfirst/pickfirstleaf
 google.golang.org/grpc/balancer/roundrobin
 google.golang.org/grpc/binarylog/grpc_binarylog_v1
 google.golang.org/grpc/channelz
@@ -470,6 +478,7 @@ google.golang.org/grpc/connectivity
 google.golang.org/grpc/credentials
 google.golang.org/grpc/credentials/insecure
 google.golang.org/grpc/encoding
+google.golang.org/grpc/encoding/internal
 google.golang.org/grpc/encoding/proto
 google.golang.org/grpc/experimental/stats
 google.golang.org/grpc/grpclog
@@ -565,7 +574,7 @@ gopkg.in/tomb.v1
 # gopkg.in/yaml.v2 v2.4.0
 ## explicit; go 1.15
 gopkg.in/yaml.v2
-# k8s.io/apimachinery v0.33.0
+# k8s.io/apimachinery v0.34.2
 ## explicit; go 1.24.0
 k8s.io/apimachinery/pkg/api/errors
 k8s.io/apimachinery/pkg/api/meta
@@ -606,7 +615,7 @@ k8s.io/apimachinery/pkg/util/yaml
 k8s.io/apimachinery/pkg/version
 k8s.io/apimachinery/pkg/watch
 k8s.io/apimachinery/third_party/forked/golang/reflect
-# k8s.io/client-go v0.33.0
+# k8s.io/client-go v0.34.2
 ## explicit; go 1.24.0
 k8s.io/client-go/features
 k8s.io/client-go/pkg/apis/clientauthentication
@@ -642,13 +651,13 @@ k8s.io/klog/v2/internal/dbg
 k8s.io/klog/v2/internal/serialize
 k8s.io/klog/v2/internal/severity
 k8s.io/klog/v2/internal/sloghandler
-# k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979
+# k8s.io/utils v0.0.0-20251002143259-bc988d571ff4
 ## explicit; go 1.18
 k8s.io/utils/clock
 k8s.io/utils/internal/third_party/forked/golang/net
 k8s.io/utils/net
 k8s.io/utils/ptr
-# sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8
+# sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730
 ## explicit; go 1.23
 sigs.k8s.io/json
 sigs.k8s.io/json/internal/golang/encoding/json
@@ -656,10 +665,9 @@ sigs.k8s.io/json/internal/golang/encoding/json
 ## explicit; go 1.18
 sigs.k8s.io/randfill
 sigs.k8s.io/randfill/bytesource
-# sigs.k8s.io/structured-merge-diff/v4 v4.7.0
-## explicit; go 1.13
-sigs.k8s.io/structured-merge-diff/v4/value
-# sigs.k8s.io/yaml v1.4.0
-## explicit; go 1.12
+# sigs.k8s.io/structured-merge-diff/v6 v6.3.1
+## explicit; go 1.23
+sigs.k8s.io/structured-merge-diff/v6/value
+# sigs.k8s.io/yaml v1.6.0
+## explicit; go 1.22
 sigs.k8s.io/yaml
-sigs.k8s.io/yaml/goyaml.v2
