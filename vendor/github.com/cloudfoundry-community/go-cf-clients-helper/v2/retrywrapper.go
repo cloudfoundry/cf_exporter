@@ -2,9 +2,9 @@ package clients
 
 import (
 	"bytes"
-	"code.cloudfoundry.org/cli/api/cloudcontroller"
-	"code.cloudfoundry.org/cli/api/cloudcontroller/ccerror"
-	"code.cloudfoundry.org/cli/api/router"
+	"code.cloudfoundry.org/cli/v8/api/cloudcontroller"
+	"code.cloudfoundry.org/cli/v8/api/cloudcontroller/ccerror"
+	"code.cloudfoundry.org/cli/v8/api/router"
 	"errors"
 	"io"
 	"net/http"

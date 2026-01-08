@@ -1,8 +1,8 @@
 package clients
 
 import (
-	"code.cloudfoundry.org/cli/api/cloudcontroller"
-	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3"
+	"code.cloudfoundry.org/cli/v8/api/cloudcontroller"
+	"code.cloudfoundry.org/cli/v8/api/cloudcontroller/ccv3"
 	"crypto/tls"
 	"io"
 	"net"
