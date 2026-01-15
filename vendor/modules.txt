@@ -324,8 +324,8 @@ github.com/rivo/uniseg
 # github.com/sabhiram/go-gitignore v0.0.0-20180611051255-d3107576ba94
 ## explicit
 github.com/sabhiram/go-gitignore
-# github.com/sirupsen/logrus v1.9.3
-## explicit; go 1.13
+# github.com/sirupsen/logrus v1.9.4
+## explicit; go 1.17
 github.com/sirupsen/logrus
 # github.com/spf13/pflag v1.0.6
 ## explicit; go 1.12
