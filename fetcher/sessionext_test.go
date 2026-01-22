@@ -138,13 +138,32 @@ var _ = ginkgo.Describe("Extensions", func() {
 					)),
 				),
 			)
-			objs, err := target.GetTasks()
+			objs, err := target.GetTasks(nil)
 			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
 			gomega.Ω(objs).Should(gomega.HaveLen(2))
 			gomega.Ω(objs[0].GUID).Should(gomega.Equal("guid1"))
 			gomega.Ω(objs[0].State).Should(gomega.Equal(constant.TaskPending))
 			gomega.Ω(objs[1].GUID).Should(gomega.Equal("guid2"))
 			gomega.Ω(objs[1].State).Should(gomega.Equal(constant.TaskCanceling))
+		})
+
+		ginkgo.It("uses custom task states", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/v3/tasks", "per_page=5000&states=SUCCEEDED,FAILED"),
+					ghttp.RespondWith(http.StatusOK, serializeList(
+						models.Task{
+							GUID:  "guid3",
+							State: constant.TaskSucceeded,
+						},
+					)),
+				),
+			)
+			objs, err := target.GetTasks([]string{"succeeded", "FAILED"})
+			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
+			gomega.Ω(objs).Should(gomega.HaveLen(1))
+			gomega.Ω(objs[0].GUID).Should(gomega.Equal("guid3"))
+			gomega.Ω(objs[0].State).Should(gomega.Equal(constant.TaskSucceeded))
 		})
 	})
 
