@@ -169,7 +169,7 @@ func (c *Fetcher) fetchBuildpacks(session *SessionExt, _ *BBSClient, entry *mode
 }
 
 func (c *Fetcher) fetchTasks(session *SessionExt, _ *BBSClient, entry *models.CFObjects) error {
-	tasks, err := session.GetTasks()
+	tasks, err := session.GetTasks(c.cfConfig.TaskStates)
 	if err == nil {
 		loadIndex(entry.Tasks, tasks, func(r models.Task) string { return r.GUID })
 	}
