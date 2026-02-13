@@ -3,43 +3,4 @@ output:
   formats:
     text:
       path: stdout
-      colors: false
-linters:
-  enable:
-    - bodyclose
-    - copyloopvar
-    - dogsled
-    - gocognit
-    - goconst
-    - gocritic
-    - godox
-    - gosec
-    - misspell
-    - nakedret
-    - reassign
-    - revive
-    - staticcheck
-    - unconvert
-    - unparam
-    - whitespace
-  exclusions:
-    generated: lax
-    presets:
-      - comments
-      - common-false-positives
-      - legacy
-      - std-error-handling
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
-formatters:
-  enable:
-    - gofmt
-    - goimports
-  exclusions:
-    generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
+      colors: true

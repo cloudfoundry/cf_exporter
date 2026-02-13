@@ -47,7 +47,9 @@ func (s SessionExt) GetInfo() (models.Info, error) {
 	if err != nil {
 		return responseBody, err
 	}
-	defer httpres.Body.Close()
+	if err := httpres.Body.Close(); err != nil {
+		log.Errorf("failed to close httpres body: %v", err)
+	}
 	if httpres.StatusCode != http.StatusOK {
 		return responseBody, fmt.Errorf("http error")
 	}
@@ -139,7 +141,9 @@ func (s SessionExt) GetSpaceSummary(guid string) (*models.SpaceSummary, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	if err := resp.Body.Close(); err != nil {
+		log.Errorf("failed to close httpres body: %v", err)
+	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code %d on request %s", resp.StatusCode, url)
 	}
