@@ -70,6 +70,10 @@ var (
 		"filter.collectors", "Comma separated collectors to filter (ActualLRPs,Applications,Buildpacks,Events,IsolationSegments,Organizations,Routes,SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks,Tasks,ActualLRPs). If not set, all collectors except Events and Tasks are enabled ($CF_EXPORTER_FILTER_COLLECTORS)",
 	).Envar("CF_EXPORTER_FILTER_COLLECTORS").Default("").String()
 
+	filterTaskStates = kingpin.Flag(
+		"filter.task-states", "Comma separated task states to filter (PENDING,RUNNING,CANCELING,SUCCEEDED,FAILED). If not set, tasks are filtered by PENDING,RUNNING,CANCELING ($CF_EXPORTER_FILTER_TASK_STATES)",
+	).Envar("CF_EXPORTER_FILTER_TASK_STATES").Default("").String()
+
 	metricsNamespace = kingpin.Flag(
 		"metrics.namespace", "Metrics Namespace ($CF_EXPORTER_METRICS_NAMESPACE)",
 	).Envar("CF_EXPORTER_METRICS_NAMESPACE").Default("cf").String()
@@ -184,6 +188,7 @@ func main() {
 		ClientID:          *cfClientID,
 		ClientSecret:      *cfClientSecret,
 		SkipSSLValidation: *skipSSLValidation,
+		TaskStates:        nil,
 	}
 
 	bbsConfig := &fetcher.BBSConfig{
@@ -199,6 +204,12 @@ func main() {
 	if len(*filterCollectors) != 0 {
 		active = strings.Split(*filterCollectors, ",")
 	}
+
+	taskStates := append([]string{}, fetcher.DefaultTaskStates...)
+	if len(*filterTaskStates) != 0 {
+		taskStates = strings.Split(*filterTaskStates, ",")
+	}
+	cfConfig.TaskStates = taskStates
 	filter, err := filters.NewFilter(active...)
 	if err != nil {
 		log.Error(err)

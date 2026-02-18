@@ -104,6 +104,10 @@ Flags:
                                  (Applications,Buildpacks,Events,IsolationSegments,Organizations,Routes,
                                  SecurityGroups,ServiceBindings,ServiceInstances,ServicePlans,Services,Spaces,Stacks).
                                  If not set, all collectors except Events is enabled ($CF_EXPORTER_FILTER_COLLECTORS)
+      --filter.task-states=""    Comma separated task states to filter (PENDING,RUNNING,CANCELING,SUCCEEDED,FAILED).
+                                 If not set, tasks are filtered by PENDING,RUNNING,CANCELING
+                                 ($CF_EXPORTER_FILTER_TASK_STATES)
+                                 Note: this applies only when the Tasks collector is enabled
       --metrics.namespace="cf"   Metrics Namespace ($CF_EXPORTER_METRICS_NAMESPACE)
       --metrics.environment=METRICS.ENVIRONMENT
                                  Environment label to be attached to metrics ($CF_EXPORTER_METRICS_ENVIRONMENT)

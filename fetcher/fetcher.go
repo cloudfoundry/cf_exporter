@@ -19,10 +19,7 @@ var (
 		Key:    ccv3.OrderBy,
 		Values: []string{"-created_at"},
 	}
-	TaskActiveStates = ccv3.Query{
-		Key:    ccv3.StatesFilter,
-		Values: []string{"PENDING", "RUNNING", "CANCELING"},
-	}
+	DefaultTaskStates = []string{"PENDING", "RUNNING", "CANCELING"}
 )
 
 type CFConfig struct {
@@ -32,6 +29,7 @@ type CFConfig struct {
 	ClientSecret      string `yaml:"client_secret"`
 	Username          string `yaml:"username"`
 	Password          string `yaml:"password"`
+	TaskStates        []string
 }
 
 type Fetcher struct {

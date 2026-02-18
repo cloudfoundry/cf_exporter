@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3"
 	clients "github.com/cloudfoundry-community/go-cf-clients-helper/v2"
@@ -76,11 +77,37 @@ func (s SessionExt) GetApplications() ([]models.Application, error) {
 	return res, err
 }
 
-func (s SessionExt) GetTasks() ([]models.Task, error) {
+func TaskStatesQuery(states []string) ccv3.Query {
+	normalized := normalizeTaskStates(states)
+	return ccv3.Query{
+		Key:    ccv3.StatesFilter,
+		Values: normalized,
+	}
+}
+
+func normalizeTaskStates(states []string) []string {
+	if len(states) == 0 {
+		return append([]string{}, DefaultTaskStates...)
+	}
+	normalized := make([]string, 0, len(states))
+	for _, state := range states {
+		trimmed := strings.TrimSpace(state)
+		if trimmed == "" {
+			continue
+		}
+		normalized = append(normalized, strings.ToUpper(trimmed))
+	}
+	if len(normalized) == 0 {
+		return append([]string{}, DefaultTaskStates...)
+	}
+	return normalized
+}
+
+func (s SessionExt) GetTasks(states []string) ([]models.Task, error) {
 	res := []models.Task{}
 	_, _, err := s.V3().MakeListRequest(ccv3.RequestParams{
 		RequestName:  "GetTasks",
-		Query:        []ccv3.Query{LargeQuery, TaskActiveStates},
+		Query:        []ccv3.Query{LargeQuery, TaskStatesQuery(states)},
 		ResponseBody: models.Task{},
 		AppendToList: func(item interface{}) error {
 			res = append(res, item.(models.Task))
