@@ -11,19 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get latest Go version
-        id: latest-go
-        run: |
-          LATEST=$(curl -s https://go.dev/dl/?mode=json | jq -r '.[0].version' | sed 's/go//')
-          echo "version=$LATEST" >> $GITHUB_OUTPUT
-
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ steps.latest-go.outputs.version }}
+          go-version: stable
 
       - name: Bump go directive in go.mod
-        run: go mod edit -go=${{ steps.latest-go.outputs.version }}
+        run: go mod edit -go=${{ steps.setup-go.outputs.go-version }}
 
       - name: Tidy dependencies
         run: go mod tidy
@@ -31,7 +25,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: "chore: bump Go version to ${{ steps.latest-go.outputs.version }}"
+          commit-message: "chore: bump Go version to ${{ steps.latest-go.outputs.version }} + go mod tidy"
           title: "chore: bump Go version to ${{ steps.latest-go.outputs.version }}"
           branch: bump-go-version
-          body: "Automated PR to bump Go version to `${{ steps.latest-go.outputs.version }}`"
+          body: "Automated PR to bump Go version to `${{ steps.latest-go.outputs.version }}` + go mod tidy"
