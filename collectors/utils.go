@@ -1,7 +1,7 @@
 package collectors
 
 import (
-	"code.cloudfoundry.org/cli/types"
+	"code.cloudfoundry.org/cli/v8/types"
 )
 
 func BoolToFloat(val *bool) float64 {

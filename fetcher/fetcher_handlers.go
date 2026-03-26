@@ -6,8 +6,8 @@ import (
 
 	models2 "code.cloudfoundry.org/bbs/models"
 
-	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3"
-	"code.cloudfoundry.org/cli/resources"
+	"code.cloudfoundry.org/cli/v8/api/cloudcontroller/ccv3"
+	"code.cloudfoundry.org/cli/v8/resources"
 	"github.com/cloudfoundry/cf_exporter/v2/models"
 	log "github.com/sirupsen/logrus"
 )
