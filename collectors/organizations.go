@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"code.cloudfoundry.org/cli/resources"
+	"code.cloudfoundry.org/cli/v8/resources"
 	"github.com/cloudfoundry/cf_exporter/v2/models"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
