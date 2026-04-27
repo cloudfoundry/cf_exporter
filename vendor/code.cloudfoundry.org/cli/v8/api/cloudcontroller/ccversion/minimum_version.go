@@ -22,4 +22,10 @@ const (
 	MinVersionPerRouteOpts = "3.183.0"
 
 	MinVersionCanarySteps = "3.189.0"
+
+	MinVersionServiceBindingStrategy = "3.205.0"
+
+	MinVersionEmbeddedProcessInstances = "3.211.0"
+
+	MinVersionUpdateStack = "3.211.0"
 )
