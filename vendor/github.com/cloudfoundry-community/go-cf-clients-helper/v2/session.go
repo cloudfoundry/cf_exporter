@@ -4,16 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"code.cloudfoundry.org/cfnetworking-cli-api/cfnetworking/cfnetv1"
-	netWrapper "code.cloudfoundry.org/cfnetworking-cli-api/cfnetworking/wrapper"
-	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3"
-	ccWrapper "code.cloudfoundry.org/cli/api/cloudcontroller/wrapper"
-	"code.cloudfoundry.org/cli/api/router"
-	routerWrapper "code.cloudfoundry.org/cli/api/router/wrapper"
-	"code.cloudfoundry.org/cli/api/uaa"
-	"code.cloudfoundry.org/cli/api/uaa/constant"
-	uaaWrapper "code.cloudfoundry.org/cli/api/uaa/wrapper"
-	"code.cloudfoundry.org/cli/util/configv3"
+	"code.cloudfoundry.org/cli/v8/api/cloudcontroller/ccv3"
+	ccWrapper "code.cloudfoundry.org/cli/v8/api/cloudcontroller/wrapper"
+	"code.cloudfoundry.org/cli/v8/api/router"
+	routerWrapper "code.cloudfoundry.org/cli/v8/api/router/wrapper"
+	"code.cloudfoundry.org/cli/v8/api/uaa"
+	"code.cloudfoundry.org/cli/v8/api/uaa/constant"
+	uaaWrapper "code.cloudfoundry.org/cli/v8/api/uaa/wrapper"
+	"code.cloudfoundry.org/cli/v8/util/configv3"
 )
 
 // Session - wraps the available clients from CF cli
@@ -26,7 +24,8 @@ type Session struct {
 	routerClient *router.Client
 
 	// netClient permit to access to networking policy api
-	netClient *cfnetv1.Client
+	// Deprecated: cfnetworking-cli-api is deprecated, use Raw() client instead
+	netClient *RawClient
 
 	config      Config
 	configStore *configv3.Config
@@ -101,7 +100,9 @@ func (s *Session) TCPRouter() *router.Client {
 }
 
 // Networking Give access to networking policy api
-func (s *Session) Networking() *cfnetv1.Client {
+// Deprecated: cfnetworking-cli-api is deprecated. Use Raw() client with V3().NetworkPolicyV1() endpoint
+// Example: session.Raw().Get(session.V3().NetworkPolicyV1() + "/networking/v1/external/policies")
+func (s *Session) Networking() *RawClient {
 	return s.netClient
 }
 
@@ -235,24 +236,22 @@ func (s *Session) init(config *configv3.Config, configUaa *configv3.Config, conf
 	// -------------------------
 
 	// -------------------------
-	// Create cfnetworking client with uaa client authentication to call network policies
-	netUaaAuthWrapper := netWrapper.NewUAAAuthentication(nil, config)
-	netWrappers := []cfnetv1.ConnectionWrapper{
-		netUaaAuthWrapper,
-		netWrapper.NewRetryRequest(config.RequestRetryCount()),
+	// Create networking policy client using raw client (cfnetworking-cli-api is deprecated)
+	// The netClient now points to a configured raw client for network policy API calls
+	authWrapperNet := ccWrapper.NewUAAAuthentication(nil, config)
+	authWrapperNet.SetClient(uaaClient)
+	netWrappers := []ccv3.ConnectionWrapper{
+		authWrapperNet,
+		NewRetryRequest(config.RequestRetryCount()),
 	}
-	netUaaAuthWrapper.SetClient(uaaClient)
 	if s.IsDebugMode() {
-		netWrappers = append(netWrappers, netWrapper.NewRequestLogger(NewRequestLogger()))
+		netWrappers = append(netWrappers, ccWrapper.NewRequestLogger(NewRequestLogger()))
 	}
-	s.netClient = cfnetv1.NewClient(cfnetv1.Config{
+	s.netClient = NewRawClient(RawClientConfig{
+		ApiEndpoint:       s.clientV3.NetworkPolicyV1(),
 		SkipSSLValidation: config.SkipSSLValidation(),
 		DialTimeout:       config.DialTimeout(),
-		AppName:           config.BinaryName(),
-		AppVersion:        config.BinaryVersion(),
-		URL:               s.clientV3.NetworkPolicyV1(),
-		Wrappers:          netWrappers,
-	})
+	}, netWrappers...)
 	// -------------------------
 
 	// -------------------------
