@@ -80,7 +80,7 @@ code.cloudfoundry.org/jsonry
 code.cloudfoundry.org/jsonry/internal/errorcontext
 code.cloudfoundry.org/jsonry/internal/path
 code.cloudfoundry.org/jsonry/internal/tree
-# code.cloudfoundry.org/lager/v3 v3.66.0
+# code.cloudfoundry.org/lager/v3 v3.67.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/lager/v3
 code.cloudfoundry.org/lager/v3/internal/truncate
@@ -258,7 +258,7 @@ github.com/onsi/ginkgo/reporters/stenographer
 github.com/onsi/ginkgo/reporters/stenographer/support/go-colorable
 github.com/onsi/ginkgo/reporters/stenographer/support/go-isatty
 github.com/onsi/ginkgo/types
-# github.com/onsi/ginkgo/v2 v2.28.1
+# github.com/onsi/ginkgo/v2 v2.28.2
 ## explicit; go 1.24.0
 github.com/onsi/ginkgo/v2/config
 github.com/onsi/ginkgo/v2/formatter
