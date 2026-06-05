@@ -20,8 +20,8 @@ code.cloudfoundry.org/gofileutils v0.0.0-20170111115228-4d0c80011a0f h1:UrKzEwTg
 code.cloudfoundry.org/gofileutils v0.0.0-20170111115228-4d0c80011a0f/go.mod h1:sk5LnIjB/nIEU7yP5sDQExVm62wu0pBh3yrElngUisI=
 code.cloudfoundry.org/jsonry v1.1.4 h1:P9N7IlH1/4aRCLcXLgLFj1hkcBmV7muijJzY+K6U4hE=
 code.cloudfoundry.org/jsonry v1.1.4/go.mod h1:6aKilShQP7w/Ez76h1El2/n9y2OkHuU56nKSBB9Gp0A=
-code.cloudfoundry.org/lager/v3 v3.71.0 h1:Jm2vkbp2daadOwWrDWmdRqFN0lPy6fkEicAEP1lsPZo=
-code.cloudfoundry.org/lager/v3 v3.71.0/go.mod h1:4ZEDdXpEDs64bd5kTxQwQMCNeWSFd+5bnL9UeDObNug=
+code.cloudfoundry.org/lager/v3 v3.72.0 h1:RgVZB62Axo97i+Yf3evoE3Vbu5zohN27ks+q8osqZjI=
+code.cloudfoundry.org/lager/v3 v3.72.0/go.mod h1:4ZEDdXpEDs64bd5kTxQwQMCNeWSFd+5bnL9UeDObNug=
 code.cloudfoundry.org/locket v0.0.0-20250423181647-b2b48694f201 h1:m6Zwwr6HjmdXS/EGwIhar0N6ExQZvmqYSC23MNE+5jc=
 code.cloudfoundry.org/locket v0.0.0-20250423181647-b2b48694f201/go.mod h1:AwHLRkdXtttLXNB8RHgLfErJ2kKafH62AR2OClhy6xI=
 code.cloudfoundry.org/tlsconfig v0.50.0 h1:HzbNSzYcM+c8V1ql1pYaXZGGUGsk6XgLjWSVidHvEIc=
