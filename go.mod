@@ -3,7 +3,8 @@ module github.com/cloudfoundry/cf_exporter/v2
 go 1.26.4
 
 require (
-	code.cloudfoundry.org/bbs v0.0.0-20250414163106-a163a3b524d2
+	code.cloudfoundry.org/bbs v1.2.0
+	code.cloudfoundry.org/bbs/models v0.0.0-20260618205254-dc4b9f8d5bc9
 	code.cloudfoundry.org/cli/v8 v8.18.3
 	code.cloudfoundry.org/lager/v3 v3.74.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
@@ -17,13 +18,12 @@ require (
 
 require (
 	code.cloudfoundry.org/bytefmt v0.67.0 // indirect
-	code.cloudfoundry.org/cfhttp/v2 v2.44.0 // indirect
-	code.cloudfoundry.org/clock v1.64.0 // indirect
+	code.cloudfoundry.org/cfhttp/v2 v2.82.0 // indirect
+	code.cloudfoundry.org/clock v1.75.0 // indirect
 	code.cloudfoundry.org/go-log-cache/v2 v2.0.7 // indirect
 	code.cloudfoundry.org/go-loggregator/v9 v9.2.1 // indirect
 	code.cloudfoundry.org/jsonry v1.1.4 // indirect
-	code.cloudfoundry.org/locket v0.0.0-20250423181647-b2b48694f201 // indirect
-	code.cloudfoundry.org/tlsconfig v0.50.0 // indirect
+	code.cloudfoundry.org/tlsconfig v0.60.0 // indirect
 	code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
@@ -45,15 +45,12 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
-	github.com/go-sql-driver/mysql v1.9.2 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
-	github.com/go-test/deep v1.1.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/pprof v0.0.0-20260604005048-7023385849c0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
-	github.com/jackc/pgx/v5 v5.9.2 // indirect
 	github.com/jessevdk/go-flags v1.6.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/lunixbochs/vtclean v1.0.0 // indirect
@@ -88,9 +85,9 @@ require (
 	golang.org/x/text v0.38.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.46.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260120221211-b8f7ae30c516 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260120221211-b8f7ae30c516 // indirect
-	google.golang.org/grpc v1.80.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260226221140-a57be14db171 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260618152121-87f3d3e198d3 // indirect
+	google.golang.org/grpc v1.81.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect

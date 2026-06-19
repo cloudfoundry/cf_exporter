@@ -13,6 +13,7 @@ import (
 
 const PreloadedRootFSScheme = "preloaded"
 const PreloadedOCIRootFSScheme = "preloaded+layer"
+const ExtraRootFSScheme = "extra"
 
 const volumeMountedFilesMaxAllowedSize = 1 * 1024 * 1024 // 1MB in bytes
 
@@ -26,6 +27,7 @@ type DesiredLRPChange struct {
 type DesiredLRPFilter struct {
 	Domain       string
 	ProcessGuids []string
+	AppGuids     []string
 }
 
 func PreloadedRootFS(stack string) string {
@@ -35,7 +37,7 @@ func PreloadedRootFS(stack string) string {
 	}).String()
 }
 
-func NewDesiredLRP(schedInfo DesiredLRPSchedulingInfo, runInfo DesiredLRPRunInfo, metricTags map[string]*MetricTagValue) DesiredLRP {
+func NewDesiredLRP(schedInfo DesiredLRPSchedulingInfo, runInfo DesiredLRPRunInfo, metricTags map[string]*MetricTagValue, updateStrategy DesiredLRP_UpdateStrategy) DesiredLRP {
 	environmentVariables := make([]*EnvironmentVariable, len(runInfo.EnvironmentVariables))
 	for i := range runInfo.EnvironmentVariables {
 		environmentVariables[i] = &runInfo.EnvironmentVariables[i]
@@ -87,6 +89,7 @@ func NewDesiredLRP(schedInfo DesiredLRPSchedulingInfo, runInfo DesiredLRPRunInfo
 		Sidecars:                      runInfo.Sidecars,
 		LogRateLimit:                  runInfo.LogRateLimit,
 		VolumeMountedFiles:            volumeMountedFiles,
+		UpdateStrategy:                updateStrategy,
 	}
 }
 
@@ -426,6 +429,16 @@ func (desired *DesiredLRPUpdate) Validate() error {
 		validationError = validationError.Append(err)
 	}
 
+	// Validate that image_username and image_password are provided together
+	usernameExists := desired.ImageUsernameExists()
+	passwordExists := desired.ImagePasswordExists()
+	if usernameExists && !passwordExists {
+		validationError = validationError.Append(ErrInvalidField{"image_password"})
+	}
+	if !usernameExists && passwordExists {
+		validationError = validationError.Append(ErrInvalidField{"image_username"})
+	}
+
 	return validationError.ToError()
 }
 
@@ -492,11 +505,53 @@ func (desired DesiredLRPUpdate) IsMetricTagsUpdated(existingTags map[string]*Met
 	return false
 }
 
+func (desired *DesiredLRPUpdate) SetImageUsername(imageUsername string) {
+	desired.OptionalImageUsername = &DesiredLRPUpdate_ImageUsername{
+		ImageUsername: imageUsername,
+	}
+}
+
+func (desired DesiredLRPUpdate) ImageUsernameExists() bool {
+	_, ok := desired.GetOptionalImageUsername().(*DesiredLRPUpdate_ImageUsername)
+	return ok
+}
+
+func (desired *DesiredLRPUpdate) SetImagePassword(imagePassword string) {
+	desired.OptionalImagePassword = &DesiredLRPUpdate_ImagePassword{
+		ImagePassword: imagePassword,
+	}
+}
+
+func (desired DesiredLRPUpdate) ImagePasswordExists() bool {
+	_, ok := desired.GetOptionalImagePassword().(*DesiredLRPUpdate_ImagePassword)
+	return ok
+}
+
+func (desired DesiredLRPUpdate) IsImageCredentialsUpdated(existingLRP *DesiredLRP) bool {
+	updateUsername := desired.ImageUsernameExists()
+	updatePassword := desired.ImagePasswordExists()
+
+	if !updateUsername && !updatePassword {
+		return false
+	}
+
+	existingUsername := existingLRP.GetImageUsername()
+	existingPassword := existingLRP.GetImagePassword()
+
+	if updateUsername && updatePassword {
+		return desired.GetImageUsername() != existingUsername || desired.GetImagePassword() != existingPassword
+	}
+
+	return false
+}
+
 type internalDesiredLRPUpdate struct {
-	Instances  *int32                     `json:"instances,omitempty"`
-	Routes     *Routes                    `json:"routes,omitempty"`
-	Annotation *string                    `json:"annotation,omitempty"`
-	MetricTags map[string]*MetricTagValue `json:"metric_tags,omitempty"`
+	Instances     *int32                     `json:"instances,omitempty"`
+	Routes        *Routes                    `json:"routes,omitempty"`
+	Annotation    *string                    `json:"annotation,omitempty"`
+	MetricTags    map[string]*MetricTagValue `json:"metric_tags,omitempty"`
+	ImageUsername *string                    `json:"image_username,omitempty"`
+	ImagePassword *string                    `json:"image_password,omitempty"`
 }
 
 func (desired *DesiredLRPUpdate) UnmarshalJSON(data []byte) error {
@@ -513,6 +568,12 @@ func (desired *DesiredLRPUpdate) UnmarshalJSON(data []byte) error {
 		desired.SetAnnotation(*update.Annotation)
 	}
 	desired.MetricTags = update.MetricTags
+	if update.ImageUsername != nil {
+		desired.SetImageUsername(*update.ImageUsername)
+	}
+	if update.ImagePassword != nil {
+		desired.SetImagePassword(*update.ImagePassword)
+	}
 
 	return nil
 }
@@ -529,6 +590,14 @@ func (desired DesiredLRPUpdate) MarshalJSON() ([]byte, error) {
 		update.Annotation = &a
 	}
 	update.MetricTags = desired.MetricTags
+	if desired.ImageUsernameExists() {
+		username := desired.GetImageUsername()
+		update.ImageUsername = &username
+	}
+	if desired.ImagePasswordExists() {
+		password := desired.GetImagePassword()
+		update.ImagePassword = &password
+	}
 	return json.Marshal(update)
 }
 
