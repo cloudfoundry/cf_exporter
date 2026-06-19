@@ -1,16 +1,18 @@
-# code.cloudfoundry.org/bbs v0.0.0-20250414163106-a163a3b524d2
-## explicit
+# code.cloudfoundry.org/bbs v1.2.0
+## explicit; go 1.26.0
 code.cloudfoundry.org/bbs
 code.cloudfoundry.org/bbs/encryption
 code.cloudfoundry.org/bbs/events
 code.cloudfoundry.org/bbs/format
-code.cloudfoundry.org/bbs/models
 code.cloudfoundry.org/bbs/trace
+# code.cloudfoundry.org/bbs/models v0.0.0-20260618205254-dc4b9f8d5bc9
+## explicit; go 1.26.0
+code.cloudfoundry.org/bbs/models
 # code.cloudfoundry.org/bytefmt v0.67.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/bytefmt
-# code.cloudfoundry.org/cfhttp/v2 v2.44.0
-## explicit; go 1.23.0
+# code.cloudfoundry.org/cfhttp/v2 v2.82.0
+## explicit; go 1.25.0
 code.cloudfoundry.org/cfhttp/v2
 # code.cloudfoundry.org/cli/v8 v8.18.3
 ## explicit; go 1.26.2
@@ -63,7 +65,7 @@ code.cloudfoundry.org/cli/v8/util/trace
 code.cloudfoundry.org/cli/v8/util/ui
 code.cloudfoundry.org/cli/v8/util/unique
 code.cloudfoundry.org/cli/v8/version
-# code.cloudfoundry.org/clock v1.64.0
+# code.cloudfoundry.org/clock v1.75.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/clock
 # code.cloudfoundry.org/go-log-cache/v2 v2.0.7
@@ -84,10 +86,8 @@ code.cloudfoundry.org/jsonry/internal/tree
 ## explicit; go 1.25.0
 code.cloudfoundry.org/lager/v3
 code.cloudfoundry.org/lager/v3/internal/truncate
-# code.cloudfoundry.org/locket v0.0.0-20250423181647-b2b48694f201
-## explicit
-# code.cloudfoundry.org/tlsconfig v0.50.0
-## explicit; go 1.25.0
+# code.cloudfoundry.org/tlsconfig v0.60.0
+## explicit; go 1.25.8
 code.cloudfoundry.org/tlsconfig
 # code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d
 ## explicit
@@ -165,13 +165,9 @@ github.com/fxamacker/cbor/v2
 # github.com/go-logr/logr v1.4.3
 ## explicit; go 1.18
 github.com/go-logr/logr
-# github.com/go-sql-driver/mysql v1.9.2
-## explicit; go 1.21.0
 # github.com/go-task/slim-sprig/v3 v3.0.0
 ## explicit; go 1.20
 github.com/go-task/slim-sprig/v3
-# github.com/go-test/deep v1.1.1
-## explicit; go 1.16
 # github.com/gogo/protobuf v1.3.2
 ## explicit; go 1.15
 github.com/gogo/protobuf/gogoproto
@@ -196,8 +192,6 @@ github.com/google/uuid
 github.com/grpc-ecosystem/grpc-gateway/v2/internal/httprule
 github.com/grpc-ecosystem/grpc-gateway/v2/runtime
 github.com/grpc-ecosystem/grpc-gateway/v2/utilities
-# github.com/jackc/pgx/v5 v5.9.2
-## explicit; go 1.25.0
 # github.com/jessevdk/go-flags v1.6.1
 ## explicit; go 1.20
 github.com/jessevdk/go-flags
@@ -442,16 +436,16 @@ golang.org/x/tools/internal/stdlib
 golang.org/x/tools/internal/typeparams
 golang.org/x/tools/internal/typesinternal
 golang.org/x/tools/internal/versions
-# google.golang.org/genproto/googleapis/api v0.0.0-20260120221211-b8f7ae30c516
-## explicit; go 1.24.0
+# google.golang.org/genproto/googleapis/api v0.0.0-20260226221140-a57be14db171
+## explicit; go 1.25.0
 google.golang.org/genproto/googleapis/api
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/api/httpbody
-# google.golang.org/genproto/googleapis/rpc v0.0.0-20260120221211-b8f7ae30c516
-## explicit; go 1.24.0
+# google.golang.org/genproto/googleapis/rpc v0.0.0-20260618152121-87f3d3e198d3
+## explicit; go 1.25.0
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.80.0
-## explicit; go 1.24.0
+# google.golang.org/grpc v1.81.1
+## explicit; go 1.25.0
 google.golang.org/grpc
 google.golang.org/grpc/attributes
 google.golang.org/grpc/backoff
@@ -505,6 +499,7 @@ google.golang.org/grpc/internal/status
 google.golang.org/grpc/internal/syscall
 google.golang.org/grpc/internal/transport
 google.golang.org/grpc/internal/transport/networktype
+google.golang.org/grpc/internal/transport/readyreader
 google.golang.org/grpc/keepalive
 google.golang.org/grpc/mem
 google.golang.org/grpc/metadata
