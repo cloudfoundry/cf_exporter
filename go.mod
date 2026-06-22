@@ -4,7 +4,7 @@ go 1.26.4
 
 require (
 	code.cloudfoundry.org/bbs v1.2.0
-	code.cloudfoundry.org/bbs/models v0.0.0-20260618205254-dc4b9f8d5bc9
+	code.cloudfoundry.org/bbs/models v1.4.0
 	code.cloudfoundry.org/cli/v8 v8.18.3
 	code.cloudfoundry.org/lager/v3 v3.74.0
 	github.com/alecthomas/kingpin/v2 v2.4.0

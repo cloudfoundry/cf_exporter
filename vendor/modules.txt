@@ -5,8 +5,8 @@ code.cloudfoundry.org/bbs/encryption
 code.cloudfoundry.org/bbs/events
 code.cloudfoundry.org/bbs/format
 code.cloudfoundry.org/bbs/trace
-# code.cloudfoundry.org/bbs/models v0.0.0-20260618205254-dc4b9f8d5bc9
-## explicit; go 1.26.0
+# code.cloudfoundry.org/bbs/models v1.4.0
+## explicit; go 1.26.2
 code.cloudfoundry.org/bbs/models
 # code.cloudfoundry.org/bytefmt v0.67.0
 ## explicit; go 1.25.0
