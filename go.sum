@@ -1,7 +1,7 @@
 code.cloudfoundry.org/bbs v1.2.0 h1:+rBlSogiqz4bH0J4Rpvwfjweo5E70nLAi+5wGGw5E+c=
 code.cloudfoundry.org/bbs v1.2.0/go.mod h1:UsPjKnObp2ahylweF8B0cWtPuRJAJEfGQwiQ8AslBEE=
-code.cloudfoundry.org/bbs/models v0.0.0-20260618205254-dc4b9f8d5bc9 h1:a9ADcSvpkZe80hSa4JHQJy3C+qe+b2LNvuRw9uUz9ew=
-code.cloudfoundry.org/bbs/models v0.0.0-20260618205254-dc4b9f8d5bc9/go.mod h1:W3q+deVTv2UDi80ZnpJdIonlV/yg+6vh4A8/FZ/GYAI=
+code.cloudfoundry.org/bbs/models v1.4.0 h1:bAq/2WTXUd2eChoQTy1XLhRi7p/wKWgX8Btm57I/ivc=
+code.cloudfoundry.org/bbs/models v1.4.0/go.mod h1:UJoMBzvtdidrcZTj+TbN2z5suALgXnesYE06kbQv+rc=
 code.cloudfoundry.org/bytefmt v0.67.0 h1:5zOnQBHYlHQMXXs42nzUJHUVTlhni0Kdlaxzwguxudg=
 code.cloudfoundry.org/bytefmt v0.67.0/go.mod h1:JT2/SZbghzGk207djL8l4a1IMsxG/48vf+RbqTa/SBA=
 code.cloudfoundry.org/cfhttp/v2 v2.82.0 h1:BVUG+3m1kOFPnJdHRlO29NDDFAHzbvuo+kyLRRnyqMc=
@@ -12,8 +12,8 @@ code.cloudfoundry.org/cli/v8 v8.18.3 h1:Wn+OQCaI/TFsqwnX3thlIMyJTU18qKRQHPNFwt2N
 code.cloudfoundry.org/cli/v8 v8.18.3/go.mod h1:ya/3zPf67R6Ee0fkdDEQMSg81hSdkw0aObfsVazip4A=
 code.cloudfoundry.org/clock v1.75.0 h1:3j+bs2xW5d/MRbzICzzaXYnlWTSczbFXmczPYRrXrtg=
 code.cloudfoundry.org/clock v1.75.0/go.mod h1:pM1eBumw5K6fXZCY2QhZz7B6qrPz33qus1OM4cd98X8=
-code.cloudfoundry.org/diego-db-helpers v0.3.0 h1:LPVZ47sOr4e3MLbTUbBX7pTDWhP2XWIvT7EUlYW729A=
-code.cloudfoundry.org/diego-db-helpers v0.3.0/go.mod h1:eFhaHV7SOqZWV+lV9ZSjPTXfq3AO3e55lsAnfKvUozg=
+code.cloudfoundry.org/diego-db-helpers v0.4.0 h1:SOwFzXMaBxuCMfJy6bY6Ys0e+LIuSMr0v+g8vVXbQkA=
+code.cloudfoundry.org/diego-db-helpers v0.4.0/go.mod h1:M/DOUQdCB4i/oTm5w+NIbdfXlR8v2PysYignJduTudI=
 code.cloudfoundry.org/diego-ssh v0.0.0-20230810200140-af9d79fe9c82 h1:Bns1y0jSlcvfP0u8ael+TUlnyNHsNX808zuo58bf5so=
 code.cloudfoundry.org/diego-ssh v0.0.0-20230810200140-af9d79fe9c82/go.mod h1:L2/glHnSK+wKnsG8oZZqdV2sgYY9NDo/I1aDJGhcWaM=
 code.cloudfoundry.org/go-log-cache/v2 v2.0.7 h1:yR/JjQ/RscO1n4xVAT9HDYcpx5ET/3Cq2/RhpJml6ZU=
@@ -26,8 +26,8 @@ code.cloudfoundry.org/jsonry v1.1.4 h1:P9N7IlH1/4aRCLcXLgLFj1hkcBmV7muijJzY+K6U4
 code.cloudfoundry.org/jsonry v1.1.4/go.mod h1:6aKilShQP7w/Ez76h1El2/n9y2OkHuU56nKSBB9Gp0A=
 code.cloudfoundry.org/lager/v3 v3.74.0 h1:gRJj1CAI4hjfPYmynLKADvVTnlIbAz0W+YGRQqPQuRs=
 code.cloudfoundry.org/lager/v3 v3.74.0/go.mod h1:LXtRzpY16oMUJ46zxyRgB/touvG7Ltklt1tWbV4VwzI=
-code.cloudfoundry.org/locket v1.1.0 h1:UW1NmuPzDHNNOuYnZ0tyLanL7aQHXnto1Ej3BCp7uS4=
-code.cloudfoundry.org/locket v1.1.0/go.mod h1:uHOC1u/FKBvYHW0wTzFjI3WT85O2jGxz1I4+2nrjWLk=
+code.cloudfoundry.org/locket v1.2.0 h1:/pn0IWr3Mnz7YUr/HlKkBXcsRZZ4hwfjqoA4IxuWWIw=
+code.cloudfoundry.org/locket v1.2.0/go.mod h1:uHOC1u/FKBvYHW0wTzFjI3WT85O2jGxz1I4+2nrjWLk=
 code.cloudfoundry.org/tlsconfig v0.60.0 h1:bB+VlWZ1Y3RTHJBNMnUx0pnkSN0DrzmJI3A0g1YSnVw=
 code.cloudfoundry.org/tlsconfig v0.60.0/go.mod h1:twyxlqwOBbnU5uMc+GoS04cNuJvG7uXHC+gNAIkk81s=
 code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d h1:M+zXqtXJqcsmpL76aU0tdl1ho23eYa4axYoM4gD62UA=
