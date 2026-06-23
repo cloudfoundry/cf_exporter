@@ -1,7 +1,11 @@
-code.cloudfoundry.org/bbs v1.2.0 h1:+rBlSogiqz4bH0J4Rpvwfjweo5E70nLAi+5wGGw5E+c=
-code.cloudfoundry.org/bbs v1.2.0/go.mod h1:UsPjKnObp2ahylweF8B0cWtPuRJAJEfGQwiQ8AslBEE=
-code.cloudfoundry.org/bbs/models v1.4.0 h1:bAq/2WTXUd2eChoQTy1XLhRi7p/wKWgX8Btm57I/ivc=
-code.cloudfoundry.org/bbs/models v1.4.0/go.mod h1:UJoMBzvtdidrcZTj+TbN2z5suALgXnesYE06kbQv+rc=
+code.cloudfoundry.org/bbs v1.7.0 h1:VIlO10hg4qPjXs3zTdjNefVbFoqqFKDfXSJf98VhHHU=
+code.cloudfoundry.org/bbs v1.7.0/go.mod h1:YLdF8PmIcntMyw1Z595ga76FrQRHkVZn+p+TJCDVVBc=
+code.cloudfoundry.org/bbs/encryption v1.8.0 h1:IoWTXUR0w9Tb2lQ9i/tcXJTyQ3LpSayCffVBWTXPMNM=
+code.cloudfoundry.org/bbs/encryption v1.8.0/go.mod h1:4o0NH8H9O19jmxSe7bV032LR7crwgZOfjPYwU8sSsAM=
+code.cloudfoundry.org/bbs/format v1.8.0 h1:6jtMHocAHrNZfpH8C/cNa0QT0sSMhEA9BHlQZ+Plj9Y=
+code.cloudfoundry.org/bbs/format v1.8.0/go.mod h1:dVVDqoVI9tbHDgkTlaIupoU3Kx07o5iaZK7+tHK1hQM=
+code.cloudfoundry.org/bbs/models v1.6.0 h1:RF1md0/mAEQHuZwcy9KtYEnijRic47rfpbo5TcLMZm4=
+code.cloudfoundry.org/bbs/models v1.6.0/go.mod h1:MZg7u8Y+CkPwcO7LENtx6vdp3PIhP9g3H/fZdQgcx5Q=
 code.cloudfoundry.org/bytefmt v0.67.0 h1:5zOnQBHYlHQMXXs42nzUJHUVTlhni0Kdlaxzwguxudg=
 code.cloudfoundry.org/bytefmt v0.67.0/go.mod h1:JT2/SZbghzGk207djL8l4a1IMsxG/48vf+RbqTa/SBA=
 code.cloudfoundry.org/cfhttp/v2 v2.82.0 h1:BVUG+3m1kOFPnJdHRlO29NDDFAHzbvuo+kyLRRnyqMc=
@@ -12,8 +16,6 @@ code.cloudfoundry.org/cli/v8 v8.18.3 h1:Wn+OQCaI/TFsqwnX3thlIMyJTU18qKRQHPNFwt2N
 code.cloudfoundry.org/cli/v8 v8.18.3/go.mod h1:ya/3zPf67R6Ee0fkdDEQMSg81hSdkw0aObfsVazip4A=
 code.cloudfoundry.org/clock v1.75.0 h1:3j+bs2xW5d/MRbzICzzaXYnlWTSczbFXmczPYRrXrtg=
 code.cloudfoundry.org/clock v1.75.0/go.mod h1:pM1eBumw5K6fXZCY2QhZz7B6qrPz33qus1OM4cd98X8=
-code.cloudfoundry.org/diego-db-helpers v0.4.0 h1:SOwFzXMaBxuCMfJy6bY6Ys0e+LIuSMr0v+g8vVXbQkA=
-code.cloudfoundry.org/diego-db-helpers v0.4.0/go.mod h1:M/DOUQdCB4i/oTm5w+NIbdfXlR8v2PysYignJduTudI=
 code.cloudfoundry.org/diego-ssh v0.0.0-20230810200140-af9d79fe9c82 h1:Bns1y0jSlcvfP0u8ael+TUlnyNHsNX808zuo58bf5so=
 code.cloudfoundry.org/diego-ssh v0.0.0-20230810200140-af9d79fe9c82/go.mod h1:L2/glHnSK+wKnsG8oZZqdV2sgYY9NDo/I1aDJGhcWaM=
 code.cloudfoundry.org/go-log-cache/v2 v2.0.7 h1:yR/JjQ/RscO1n4xVAT9HDYcpx5ET/3Cq2/RhpJml6ZU=
@@ -26,8 +28,6 @@ code.cloudfoundry.org/jsonry v1.1.4 h1:P9N7IlH1/4aRCLcXLgLFj1hkcBmV7muijJzY+K6U4
 code.cloudfoundry.org/jsonry v1.1.4/go.mod h1:6aKilShQP7w/Ez76h1El2/n9y2OkHuU56nKSBB9Gp0A=
 code.cloudfoundry.org/lager/v3 v3.75.0 h1:Q9L1/hvs6ZF+5CWVDU9Aom+x3AAYxSweFsRLWM/XvUo=
 code.cloudfoundry.org/lager/v3 v3.75.0/go.mod h1:sPIue4zrU2aGOxIGhEgcWkAgjIjeOH+QkInOpQnfYgE=
-code.cloudfoundry.org/locket v1.2.0 h1:/pn0IWr3Mnz7YUr/HlKkBXcsRZZ4hwfjqoA4IxuWWIw=
-code.cloudfoundry.org/locket v1.2.0/go.mod h1:uHOC1u/FKBvYHW0wTzFjI3WT85O2jGxz1I4+2nrjWLk=
 code.cloudfoundry.org/tlsconfig v0.60.0 h1:bB+VlWZ1Y3RTHJBNMnUx0pnkSN0DrzmJI3A0g1YSnVw=
 code.cloudfoundry.org/tlsconfig v0.60.0/go.mod h1:twyxlqwOBbnU5uMc+GoS04cNuJvG7uXHC+gNAIkk81s=
 code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d h1:M+zXqtXJqcsmpL76aU0tdl1ho23eYa4axYoM4gD62UA=
@@ -106,8 +106,6 @@ github.com/go-openapi/jsonreference v0.20.2 h1:3sVjiK66+uXK/6oQ8xgcRKcFgQ5KXa2Kv
 github.com/go-openapi/jsonreference v0.20.2/go.mod h1:Bl1zwGIM8/wsvqjsOQLJ/SH+En5Ap4rVB5KVcIDZG2k=
 github.com/go-openapi/swag v0.23.0 h1:vsEVJDUo2hPJ2tu0/Xc+4noaxyEffXNIs3cOULZ+GrE=
 github.com/go-openapi/swag v0.23.0/go.mod h1:esZ8ITTYEsH1V2trKHjAN8Ai7xHb8RV+YSZ577vPjgQ=
-github.com/go-sql-driver/mysql v1.10.0 h1:Q+1LV8DkHJvSYAdR83XzuhDaTykuDx0l6fkXxoWCWfw=
-github.com/go-sql-driver/mysql v1.10.0/go.mod h1:M+cqaI7+xxXGG9swrdeUIoPG3Y3KCkF0pZej+SK+nWk=
 github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0/go.mod h1:fyg7847qk6SyHyPtNmDHnmrv/HOrqktSC+C9fM+CJOE=
 github.com/go-task/slim-sprig/v3 v3.0.0 h1:sUs3vkvUymDpBKi3qH1YSqBQk9+9D/8M2mN1vB6EwHI=
 github.com/go-task/slim-sprig/v3 v3.0.0/go.mod h1:W848ghGpv3Qj3dhTPRyJypKRiqCdHZiAzKg9hl15HA8=
@@ -149,14 +147,6 @@ github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 h1:NmZ1PKzSTQbuGHw9DGPFomqkkLW
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3/go.mod h1:zQrxl1YP88HQlA6i9c63DSVPFklWpGX4OWAc9bFuaH4=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
-github.com/jackc/pgpassfile v1.0.0 h1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=
-github.com/jackc/pgpassfile v1.0.0/go.mod h1:CEx0iS5ambNFdcRtxPj5JhEz+xB6uRky5eyVu/W2HEg=
-github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 h1:iCEnooe7UlwOQYpKFhBabPMi4aNAfoODPEFNiAnClxo=
-github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761/go.mod h1:5TJZWKEWniPve33vlWYSoGYefn3gLQRzjfDlhSJ9ZKM=
-github.com/jackc/pgx/v5 v5.10.0 h1:VhSvgU2jSli8o3AqIEOTJr7rZwAEUVo4E4XhR94Zfr0=
-github.com/jackc/pgx/v5 v5.10.0/go.mod h1:mal1tBGAFfLHvZzaYh77YS/eC6IX9OWbRV1QIIM0Jn4=
-github.com/jackc/puddle/v2 v2.2.2 h1:PR8nw+E/1w0GLuRFSmiioY6UooMp6KJv0/61nB7icHo=
-github.com/jackc/puddle/v2 v2.2.2/go.mod h1:vriiEXHvEE654aYKXXjOvZM39qJ0q+azkZFrfEOc3H4=
 github.com/jessevdk/go-flags v1.6.1 h1:Cvu5U8UGrLay1rZfv/zP7iLpSHGUZ/Ou68T0iX1bBK4=
 github.com/jessevdk/go-flags v1.6.1/go.mod h1:Mk8T1hIAWpOiJiHa9rJASDK2UGWji0EuPGBnNLMooyc=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
@@ -262,8 +252,6 @@ github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXl
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
-github.com/tedsuo/ifrit v0.0.0-20260418191334-846868129986 h1:etGVMUNp4ZYI0EoO7MxUKTG187RK8tbwIijDcXtSeL4=
-github.com/tedsuo/ifrit v0.0.0-20260418191334-846868129986/go.mod h1:b0WkuWMdITecmKiTvZnmIffiXD+P1TUysIxv8Mm4m/s=
 github.com/tedsuo/rata v1.0.1-0.20170830210128-07d200713958 h1:mueRRuRjR35dEOkHdhpoRcruNgBz0ohG659HxxmcAwA=
 github.com/tedsuo/rata v1.0.1-0.20170830210128-07d200713958/go.mod h1:X47ELzhOoLbfFIY0Cql9P6yo3Cdwf2CMX3FVZxRzJPc=
 github.com/tidwall/gjson v1.18.0 h1:FIDeeyB800efLX89e5a8Y0BNH+LOngJyGrIWxG2FKQY=

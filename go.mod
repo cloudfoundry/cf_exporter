@@ -3,8 +3,8 @@ module github.com/cloudfoundry/cf_exporter/v2
 go 1.26.4
 
 require (
-	code.cloudfoundry.org/bbs v1.2.0
-	code.cloudfoundry.org/bbs/models v1.4.0
+	code.cloudfoundry.org/bbs v1.7.0
+	code.cloudfoundry.org/bbs/models v1.6.0
 	code.cloudfoundry.org/cli/v8 v8.18.3
 	code.cloudfoundry.org/lager/v3 v3.75.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
@@ -17,6 +17,8 @@ require (
 )
 
 require (
+	code.cloudfoundry.org/bbs/encryption v1.8.0 // indirect
+	code.cloudfoundry.org/bbs/format v1.8.0 // indirect
 	code.cloudfoundry.org/bytefmt v0.67.0 // indirect
 	code.cloudfoundry.org/cfhttp/v2 v2.82.0 // indirect
 	code.cloudfoundry.org/clock v1.75.0 // indirect
