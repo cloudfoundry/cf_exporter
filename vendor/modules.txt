@@ -1,4 +1,4 @@
-# code.cloudfoundry.org/bbs v1.10.0
+# code.cloudfoundry.org/bbs v1.11.0
 ## explicit; go 1.26.2
 code.cloudfoundry.org/bbs
 code.cloudfoundry.org/bbs/events
@@ -15,7 +15,7 @@ code.cloudfoundry.org/bbs/models
 # code.cloudfoundry.org/bytefmt v0.67.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/bytefmt
-# code.cloudfoundry.org/cfhttp/v2 v2.82.0
+# code.cloudfoundry.org/cfhttp/v2 v2.83.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/cfhttp/v2
 # code.cloudfoundry.org/cli/v8 v8.18.3
@@ -69,7 +69,7 @@ code.cloudfoundry.org/cli/v8/util/trace
 code.cloudfoundry.org/cli/v8/util/ui
 code.cloudfoundry.org/cli/v8/util/unique
 code.cloudfoundry.org/cli/v8/version
-# code.cloudfoundry.org/clock v1.75.0
+# code.cloudfoundry.org/clock v1.76.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/clock
 # code.cloudfoundry.org/go-log-cache/v2 v2.0.7
@@ -160,8 +160,8 @@ github.com/davecgh/go-spew/spew
 # github.com/fatih/color v1.19.0
 ## explicit; go 1.25.0
 github.com/fatih/color
-# github.com/fsnotify/fsnotify v1.6.0
-## explicit; go 1.16
+# github.com/fsnotify/fsnotify v1.7.0
+## explicit; go 1.17
 github.com/fsnotify/fsnotify
 # github.com/fxamacker/cbor/v2 v2.9.0
 ## explicit; go 1.20
@@ -445,7 +445,7 @@ golang.org/x/tools/internal/versions
 google.golang.org/genproto/googleapis/api
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/api/httpbody
-# google.golang.org/genproto/googleapis/rpc v0.0.0-20260618152121-87f3d3e198d3
+# google.golang.org/genproto/googleapis/rpc v0.0.0-20260622175928-b703f567277d
 ## explicit; go 1.25.0
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.81.1

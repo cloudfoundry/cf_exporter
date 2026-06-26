@@ -3,7 +3,7 @@ module github.com/cloudfoundry/cf_exporter/v2
 go 1.26.4
 
 require (
-	code.cloudfoundry.org/bbs v1.10.0
+	code.cloudfoundry.org/bbs v1.11.0
 	code.cloudfoundry.org/bbs/models v1.7.0
 	code.cloudfoundry.org/cli/v8 v8.18.3
 	code.cloudfoundry.org/lager/v3 v3.75.0
@@ -20,8 +20,8 @@ require (
 	code.cloudfoundry.org/bbs/encryption v1.9.0 // indirect
 	code.cloudfoundry.org/bbs/format v1.9.0 // indirect
 	code.cloudfoundry.org/bytefmt v0.67.0 // indirect
-	code.cloudfoundry.org/cfhttp/v2 v2.82.0 // indirect
-	code.cloudfoundry.org/clock v1.75.0 // indirect
+	code.cloudfoundry.org/cfhttp/v2 v2.83.0 // indirect
+	code.cloudfoundry.org/clock v1.76.0 // indirect
 	code.cloudfoundry.org/go-log-cache/v2 v2.0.7 // indirect
 	code.cloudfoundry.org/go-loggregator/v9 v9.2.1 // indirect
 	code.cloudfoundry.org/jsonry v1.1.4 // indirect
@@ -44,7 +44,7 @@ require (
 	github.com/cppforlife/go-patch v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fatih/color v1.19.0 // indirect
-	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
@@ -88,7 +88,7 @@ require (
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.46.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260226221140-a57be14db171 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260618152121-87f3d3e198d3 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260622175928-b703f567277d // indirect
 	google.golang.org/grpc v1.81.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28 // indirect
