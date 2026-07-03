@@ -5,7 +5,7 @@ go 1.26.4
 require (
 	code.cloudfoundry.org/bbs v1.11.0
 	code.cloudfoundry.org/bbs/models v1.8.0
-	code.cloudfoundry.org/cli/v8 v8.18.3
+	code.cloudfoundry.org/cli/v8 v8.18.4
 	code.cloudfoundry.org/lager/v3 v3.76.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.14.0
