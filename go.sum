@@ -12,8 +12,8 @@ code.cloudfoundry.org/cfhttp/v2 v2.83.0 h1:XP43/VVeA8+3He1Qp4yqXwAwZkgBM2tx3VIX9
 code.cloudfoundry.org/cfhttp/v2 v2.83.0/go.mod h1:OAYoWcMpQzzkMrqGNrL4Lj1u07jelqdtNT56CRu/X8I=
 code.cloudfoundry.org/cli-plugin-repo v0.0.0-20240520170503-e7ed9c7432a0 h1:AqfPzPhykvxSpxMkDdZMSJrCbxMQ0rugvDB3BuqD0DE=
 code.cloudfoundry.org/cli-plugin-repo v0.0.0-20240520170503-e7ed9c7432a0/go.mod h1:R1EiyOAr7lW0l/YkZNqItUNZ01Q/dYUfbTn4X4Z+82M=
-code.cloudfoundry.org/cli/v8 v8.18.3 h1:Wn+OQCaI/TFsqwnX3thlIMyJTU18qKRQHPNFwt2NA9c=
-code.cloudfoundry.org/cli/v8 v8.18.3/go.mod h1:ya/3zPf67R6Ee0fkdDEQMSg81hSdkw0aObfsVazip4A=
+code.cloudfoundry.org/cli/v8 v8.18.4 h1:KMmVIlVxiYO4NRg/KfKuKxlmKj1mQaP4Y4Ht771MuSE=
+code.cloudfoundry.org/cli/v8 v8.18.4/go.mod h1:IZvqeNxbLUvCQC5NfA354+CKKTg5rjYucfcE/ffprCI=
 code.cloudfoundry.org/clock v1.76.0 h1:guwRh0ZjP7g/dj+j2CITvh9/0gMa8bNaw7WMAjd78dU=
 code.cloudfoundry.org/clock v1.76.0/go.mod h1:1hr8418A6RkZpIz103qhsqiRSfbIKovz5sct6lkJ0VY=
 code.cloudfoundry.org/diego-ssh v0.0.0-20230810200140-af9d79fe9c82 h1:Bns1y0jSlcvfP0u8ael+TUlnyNHsNX808zuo58bf5so=
@@ -70,8 +70,8 @@ github.com/cppforlife/go-patch v0.2.0 h1:Y14MnCQjDlbw7WXT4k+u6DPAA9XnygN4BfrSpI/
 github.com/cppforlife/go-patch v0.2.0/go.mod h1:67a7aIi94FHDZdoeGSJRRFDp66l9MhaAG1yGxpUoFD8=
 github.com/creack/pty v1.1.24 h1:bJrF4RRfyJnbTJqzRLHzcGaZK1NeM5kTC9jGgovnR1s=
 github.com/creack/pty v1.1.24/go.mod h1:08sCNb52WyoAwi2QDyzUCTgcvVFhUzewun7wtTfvcwE=
-github.com/cyphar/filepath-securejoin v0.6.1 h1:5CeZ1jPXEiYt3+Z6zqprSAgSWiggmpVyciv8syjIpVE=
-github.com/cyphar/filepath-securejoin v0.6.1/go.mod h1:A8hd4EnAeyujCJRrICiOWqjS1AX0a9kM5XL+NwKoYSc=
+github.com/cyphar/filepath-securejoin v0.7.0 h1:s0Y3ITPy6sQn5xt54DuYvTF8hu134ooYLUb58DX/HjE=
+github.com/cyphar/filepath-securejoin v0.7.0/go.mod h1:ymLGms/u3BYaviIiuKFnUx8EkQEZeK6cInNoAPJA3o4=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=

@@ -18,8 +18,8 @@ code.cloudfoundry.org/bytefmt
 # code.cloudfoundry.org/cfhttp/v2 v2.83.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/cfhttp/v2
-# code.cloudfoundry.org/cli/v8 v8.18.3
-## explicit; go 1.26.2
+# code.cloudfoundry.org/cli/v8 v8.18.4
+## explicit; go 1.26.4
 code.cloudfoundry.org/cli/v8/actor/actionerror
 code.cloudfoundry.org/cli/v8/actor/sharedaction
 code.cloudfoundry.org/cli/v8/actor/v7action
