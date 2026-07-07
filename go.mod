@@ -6,7 +6,7 @@ require (
 	code.cloudfoundry.org/bbs v1.11.0
 	code.cloudfoundry.org/bbs/models v1.8.0
 	code.cloudfoundry.org/cli/v8 v8.18.4
-	code.cloudfoundry.org/lager/v3 v3.76.0
+	code.cloudfoundry.org/lager/v3 v3.77.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.14.0
 	github.com/onsi/ginkgo v1.16.5
@@ -82,7 +82,7 @@ require (
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/term v0.44.0 // indirect
-	golang.org/x/text v0.38.0 // indirect
+	golang.org/x/text v0.39.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.47.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260622175928-b703f567277d // indirect
