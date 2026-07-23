@@ -1,6 +1,7 @@
 package collectors
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/cloudfoundry/cf_exporter/v2/models"
@@ -12,6 +13,7 @@ type EventsCollector struct {
 	environment                           string
 	deployment                            string
 	eventsInfoMetric                      *prometheus.GaugeVec
+	applicationCrashesTotalMetric         *prometheus.CounterVec
 	eventsScrapesTotalMetric              prometheus.Counter
 	eventsScrapeErrorsTotalMetric         prometheus.Counter
 	lastEventsScrapeErrorMetric           prometheus.Gauge
@@ -19,6 +21,7 @@ type EventsCollector struct {
 	lastEventsScrapeDurationSecondsMetric prometheus.Gauge
 	lastCheckFilter                       time.Time
 	timeLocation                          *time.Location
+	countedCrashEvents                    map[string]struct{}
 }
 
 func NewEventsCollector(
@@ -35,6 +38,17 @@ func NewEventsCollector(
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
 		[]string{"type", "actor", "actor_type", "actor_name", "actor_username", "actee", "actee_type", "actee_name", "space_id", "organization_id"},
+	)
+
+	applicationCrashesTotalMetric := prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace:   namespace,
+			Subsystem:   "application",
+			Name:        "crashes_total",
+			Help:        "Total number of Cloud Foundry Application instance crashes.",
+			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
+		},
+		[]string{"application_id", "application_name", "organization_id", "organization_name", "space_id", "space_name", "instance"},
 	)
 
 	eventsScrapesTotalMetric := prometheus.NewCounter(
@@ -95,6 +109,7 @@ func NewEventsCollector(
 		environment:                           environment,
 		deployment:                            deployment,
 		eventsInfoMetric:                      eventsInfoMetric,
+		applicationCrashesTotalMetric:         applicationCrashesTotalMetric,
 		eventsScrapesTotalMetric:              eventsScrapesTotalMetric,
 		eventsScrapeErrorsTotalMetric:         eventsScrapeErrorsTotalMetric,
 		lastEventsScrapeErrorMetric:           lastEventsScrapeErrorMetric,
@@ -102,6 +117,7 @@ func NewEventsCollector(
 		lastEventsScrapeDurationSecondsMetric: lastEventsScrapeDurationSecondsMetric,
 		lastCheckFilter:                       now,
 		timeLocation:                          timeLocation,
+		countedCrashEvents:                    map[string]struct{}{},
 	}
 }
 
@@ -112,8 +128,10 @@ func (c *EventsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.M
 		c.eventsScrapeErrorsTotalMetric.Inc()
 	} else {
 		c.reportEventsMetrics(objs, ch)
+		c.reportCrashMetrics(objs)
 	}
 
+	c.applicationCrashesTotalMetric.Collect(ch)
 	c.eventsScrapeErrorsTotalMetric.Collect(ch)
 	c.eventsScrapesTotalMetric.Inc()
 	c.eventsScrapesTotalMetric.Collect(ch)
@@ -127,6 +145,7 @@ func (c *EventsCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.M
 
 func (c *EventsCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.eventsInfoMetric.Describe(ch)
+	c.applicationCrashesTotalMetric.Describe(ch)
 	c.eventsScrapesTotalMetric.Describe(ch)
 	c.eventsScrapeErrorsTotalMetric.Describe(ch)
 	c.lastEventsScrapeErrorMetric.Describe(ch)
@@ -167,4 +186,59 @@ func (c *EventsCollector) reportEventsMetrics(objs *models.CFObjects, ch chan<- 
 	timeLocation, _ := time.LoadLocation("UTC")
 	c.lastCheckFilter = time.Now().In(timeLocation)
 	c.eventsInfoMetric.Collect(ch)
+}
+
+// reportCrashMetrics
+// 1. iterate application crash events, incrementing the counter once per unique event
+// 2. resolve names from the fetched objects when available
+func (c *EventsCollector) reportCrashMetrics(objs *models.CFObjects) {
+	stillPresent := make(map[string]struct{})
+
+	for guid, event := range objs.Events {
+		if event.Type != "app.crash" {
+			continue
+		}
+
+		stillPresent[guid] = struct{}{}
+		if _, counted := c.countedCrashEvents[guid]; counted {
+			continue
+		}
+
+		applicationID := event.Target.GUID
+		applicationName := event.Target.Name
+		if app, ok := objs.Apps[applicationID]; ok {
+			applicationName = app.Name
+		}
+
+		organizationID := event.Org.GUID
+		organizationName := ""
+		if org, ok := objs.Orgs[organizationID]; ok {
+			organizationName = org.Name
+		}
+
+		spaceID := event.Space.GUID
+		spaceName := ""
+		if space, ok := objs.Spaces[spaceID]; ok {
+			spaceName = space.Name
+		}
+
+		instance := ""
+		if raw, ok := event.Data["index"]; ok {
+			if index, ok := raw.(float64); ok {
+				instance = strconv.FormatInt(int64(index), 10)
+			}
+		}
+
+		c.applicationCrashesTotalMetric.WithLabelValues(
+			applicationID,
+			applicationName,
+			organizationID,
+			organizationName,
+			spaceID,
+			spaceName,
+			instance,
+		).Inc()
+	}
+
+	c.countedCrashEvents = stillPresent
 }
