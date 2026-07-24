@@ -44,7 +44,7 @@ func NewFetcher(threads int, config *CFConfig, bbsConfig *BBSConfig, filter *fil
 	return &Fetcher{
 		cfConfig:  config,
 		bbsConfig: bbsConfig,
-		filters:   filter,
+		filters:   filter.Clone(),
 		worker:    NewWorker(threads, filter),
 	}
 }
