@@ -1,8 +1,16 @@
 package fetcher
 
 import (
+	"fmt"
+	"net"
+	"net/http"
+
+	"code.cloudfoundry.org/cli/v8/api/cloudcontroller/ccv3"
+	"code.cloudfoundry.org/cli/v8/resources"
+	"github.com/cloudfoundry/cf_exporter/v2/models"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
+	"github.com/onsi/gomega/ghttp"
 
 	"github.com/cloudfoundry/cf_exporter/v2/filters"
 )
@@ -249,5 +257,98 @@ var _ = ginkgo.Describe("Fetcher", func() {
 			})
 		})
 
+	})
+
+	ginkgo.Context("disabling filters during a scrape", func() {
+		ginkgo.It("does not mutate the original filter used for future scrapes", func() {
+			filter, err := filters.NewFilter()
+			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
+
+			fetcher := NewFetcher(10, &CFConfig{}, &BBSConfig{}, filter)
+			fetcher.filters.Disable([]string{filters.ActualLRPs})
+
+			gomega.Ω(fetcher.filters.Enabled(filters.ActualLRPs)).Should(gomega.BeFalse())
+			gomega.Ω(filter.Enabled(filters.ActualLRPs)).Should(gomega.BeTrue())
+		})
+	})
+
+	ginkgo.Context("when BBS client initialization fails", func() {
+		var server *ghttp.Server
+
+		ginkgo.BeforeEach(func() {
+			tokenResponse := fmt.Sprintf(`{"access_token": "%s", "refresh_token": "value"}`, fakeToken)
+			server = ghttp.NewServer()
+
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/"),
+					ghttp.RespondWith(http.StatusOK, serialize(ccv3.Root{
+						Links: ccv3.RootLinks{
+							Login: resources.APILink{HREF: server.URL()},
+							UAA:   resources.APILink{HREF: server.URL()},
+						},
+					})),
+				),
+			)
+
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("POST", "/oauth/token"),
+					ghttp.RespondWith(http.StatusOK, tokenResponse),
+				),
+			)
+
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("POST", "/oauth/token"),
+					ghttp.RespondWith(http.StatusOK, tokenResponse),
+				),
+			)
+
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("POST", "/oauth/token"),
+					ghttp.RespondWith(http.StatusOK, tokenResponse),
+				),
+			)
+
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/v3/info"),
+					ghttp.RespondWith(http.StatusOK, serialize(models.Info{Name: "test-foundation"})),
+				),
+			)
+		})
+
+		ginkgo.AfterEach(func() {
+			server.Close()
+		})
+
+		ginkgo.It("disables actual lrps only for the current scrape", func() {
+			listener, err := net.Listen("tcp", "127.0.0.1:0")
+			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
+			refusedURL := fmt.Sprintf("http://%s", listener.Addr().String())
+			gomega.Ω(listener.Close()).Should(gomega.Succeed())
+
+			filter, err := filters.NewFilter(filters.ActualLRPs)
+			gomega.Ω(err).ShouldNot(gomega.HaveOccurred())
+
+			fetcher := NewFetcher(1, &CFConfig{
+				URL:          server.URL(),
+				ClientID:     "fake",
+				ClientSecret: "fake",
+			}, &BBSConfig{
+				URL:     refusedURL,
+				Timeout: 1,
+			}, filter)
+
+			objs := fetcher.GetObjects()
+
+			gomega.Ω(objs.Error).ShouldNot(gomega.HaveOccurred())
+			gomega.Ω(objs.Info.Name).Should(gomega.Equal("test-foundation"))
+			gomega.Ω(objs.ProcessActualLRPs).Should(gomega.BeEmpty())
+			gomega.Ω(fetcher.filters.Enabled(filters.ActualLRPs)).Should(gomega.BeFalse())
+			gomega.Ω(filter.Enabled(filters.ActualLRPs)).Should(gomega.BeTrue())
+		})
 	})
 })
