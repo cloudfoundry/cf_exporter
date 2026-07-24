@@ -41,11 +41,12 @@ type Fetcher struct {
 }
 
 func NewFetcher(threads int, config *CFConfig, bbsConfig *BBSConfig, filter *filters.Filter) *Fetcher {
+	clonedFilter := filter.Clone()
 	return &Fetcher{
 		cfConfig:  config,
 		bbsConfig: bbsConfig,
-		filters:   filter.Clone(),
-		worker:    NewWorker(threads, filter),
+		filters:   clonedFilter,
+		worker:    NewWorker(threads, clonedFilter),
 	}
 }
 
