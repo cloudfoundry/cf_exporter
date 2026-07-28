@@ -1,6 +1,8 @@
 package collectors
 
 import (
+	"strings"
+
 	"github.com/cloudfoundry/cf_exporter/v2/fetcher"
 	"github.com/cloudfoundry/cf_exporter/v2/filters"
 	"github.com/cloudfoundry/cf_exporter/v2/models"
@@ -117,7 +119,7 @@ func NewCollector(
 		res.collectors = append(res.collectors, collector)
 	}
 
-	if filter.Enabled(filters.ActualLRPs) {
+	if filter.Enabled(filters.ActualLRPs) && bbsConfig != nil && strings.TrimSpace(bbsConfig.URL) != "" {
 		collector := NewBBSCollector(namespace, environment, deployment)
 		res.collectors = append(res.collectors, collector)
 	}
