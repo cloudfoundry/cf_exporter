@@ -87,7 +87,7 @@ func NewBBSCollector(
 
 func (c BBSCollector) Collect(objs *models.CFObjects, ch chan<- prometheus.Metric) {
 	errorMetric := float64(0)
-	if objs.BBSActualLRPsError != nil {
+	if objs.Error != nil || objs.BBSActualLRPsError != nil {
 		errorMetric = float64(1)
 		c.bbsActualLRPsScrapeErrorsTotalMetric.Inc()
 	}
