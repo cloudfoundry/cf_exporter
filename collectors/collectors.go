@@ -117,6 +117,11 @@ func NewCollector(
 		res.collectors = append(res.collectors, collector)
 	}
 
+	if filter.Enabled(filters.ActualLRPs) {
+		collector := NewBBSCollector(namespace, environment, deployment)
+		res.collectors = append(res.collectors, collector)
+	}
+
 	return res, nil
 }
 

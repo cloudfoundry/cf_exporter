@@ -39,6 +39,7 @@ type CFObjects struct {
 	Users                map[string]resources.User                     `json:"users"`
 	ServiceRouteBindings map[string]resources.RouteBinding             `json:"service_route_bindings"`
 	Took                 float64
+	BBSActualLRPsError   error
 	Error                error
 }
 
@@ -180,6 +181,7 @@ func NewCFObjects() *CFObjects {
 		Events:               map[string]Event{},
 		ServiceRouteBindings: map[string]resources.RouteBinding{},
 		Took:                 0,
+		BBSActualLRPsError:   nil,
 		Error:                nil,
 	}
 }

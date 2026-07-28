@@ -41,8 +41,10 @@ func (c *Fetcher) fetchActualLRPs(_ *SessionExt, bbs *BBSClient, entry *models.C
 		}
 	} else {
 		log.Errorf("could not fetch actual lrps: %s", err)
+		entry.BBSActualLRPsError = err
+		return nil
 	}
-	return err
+	return nil
 }
 
 func (c *Fetcher) fetchInfo(session *SessionExt, _ *BBSClient, entry *models.CFObjects) error {

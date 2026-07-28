@@ -104,6 +104,7 @@ func (c *Fetcher) fetch() *models.CFObjects {
 		bbs, err = NewBBSClient(c.bbsConfig)
 		if err != nil {
 			log.WithError(err).Error("unable to initialize bbs client")
+			result.BBSActualLRPsError = err
 			c.filters.Disable([]string{filters.ActualLRPs})
 		}
 	}

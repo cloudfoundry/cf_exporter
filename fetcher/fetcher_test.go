@@ -345,6 +345,7 @@ var _ = ginkgo.Describe("Fetcher", func() {
 			objs := fetcher.GetObjects()
 
 			gomega.Ω(objs.Error).ShouldNot(gomega.HaveOccurred())
+			gomega.Ω(objs.BBSActualLRPsError).Should(gomega.HaveOccurred())
 			gomega.Ω(objs.Info.Name).Should(gomega.Equal("test-foundation"))
 			gomega.Ω(objs.ProcessActualLRPs).Should(gomega.BeEmpty())
 			gomega.Ω(fetcher.filters.Enabled(filters.ActualLRPs)).Should(gomega.BeFalse())
