@@ -53,6 +53,18 @@ type Filter struct {
 	activated map[string]bool
 }
 
+func (f *Filter) Clone() *Filter {
+	clone := &Filter{
+		activated: make(map[string]bool, len(f.activated)),
+	}
+
+	for name, active := range f.activated {
+		clone.activated[name] = active
+	}
+
+	return clone
+}
+
 func NewFilter(active ...string) (*Filter, error) {
 	filter := &Filter{
 		activated: map[string]bool{
