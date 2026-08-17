@@ -1,6 +1,6 @@
 module github.com/cloudfoundry/cf_exporter/v2
 
-go 1.26.5
+go 1.26.6
 
 require (
 	code.cloudfoundry.org/bbs v1.12.0
