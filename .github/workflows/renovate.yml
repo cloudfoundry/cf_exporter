@@ -1,0 +1,19 @@
+name: Renovate
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # weekly
+  workflow_dispatch:
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Self-hosted Renovate
+        uses: renovatebot/github-action@v41
+        env:
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_GIT_AUTHOR: "cf-prometheus-ci-bot <184612680+cf-prometheus-ci-bot@users.noreply.github.com>"
+          RENOVATE_TOKEN: ${{ secrets.CF_PROM_CI_BOT_TOKEN }}
