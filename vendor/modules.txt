@@ -12,14 +12,14 @@ code.cloudfoundry.org/bbs/format
 # code.cloudfoundry.org/bbs/models v1.8.0
 ## explicit; go 1.26.2
 code.cloudfoundry.org/bbs/models
-# code.cloudfoundry.org/bytefmt v0.78.0
+# code.cloudfoundry.org/bytefmt v0.86.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/bytefmt
 # code.cloudfoundry.org/cfhttp/v2 v2.83.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/cfhttp/v2
-# code.cloudfoundry.org/cli/v8 v8.18.4
-## explicit; go 1.26.4
+# code.cloudfoundry.org/cli/v8 v8.19.0
+## explicit; go 1.26.7
 code.cloudfoundry.org/cli/v8/actor/actionerror
 code.cloudfoundry.org/cli/v8/actor/sharedaction
 code.cloudfoundry.org/cli/v8/actor/v7action
@@ -69,7 +69,7 @@ code.cloudfoundry.org/cli/v8/util/trace
 code.cloudfoundry.org/cli/v8/util/ui
 code.cloudfoundry.org/cli/v8/util/unique
 code.cloudfoundry.org/cli/v8/version
-# code.cloudfoundry.org/clock v1.76.0
+# code.cloudfoundry.org/clock v1.84.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/clock
 # code.cloudfoundry.org/go-log-cache/v2 v2.0.7
@@ -90,7 +90,7 @@ code.cloudfoundry.org/jsonry/internal/tree
 ## explicit; go 1.25.0
 code.cloudfoundry.org/lager/v3
 code.cloudfoundry.org/lager/v3/internal/truncate
-# code.cloudfoundry.org/tlsconfig v0.60.0
+# code.cloudfoundry.org/tlsconfig v0.65.0
 ## explicit; go 1.25.8
 code.cloudfoundry.org/tlsconfig
 # code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d
@@ -204,8 +204,8 @@ github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.22
 ## explicit; go 1.21
 github.com/mattn/go-isatty
-# github.com/mattn/go-runewidth v0.0.24
-## explicit; go 1.20
+# github.com/mattn/go-runewidth v0.0.28
+## explicit; go 1.23
 github.com/mattn/go-runewidth
 # github.com/moby/term v0.5.2
 ## explicit; go 1.18
@@ -559,7 +559,7 @@ gopkg.in/tomb.v1
 # gopkg.in/yaml.v2 v2.4.0
 ## explicit; go 1.15
 gopkg.in/yaml.v2
-# k8s.io/apimachinery v0.36.2
+# k8s.io/apimachinery v0.36.4
 ## explicit; go 1.26.0
 k8s.io/apimachinery/pkg/api/errors
 k8s.io/apimachinery/pkg/api/meta
@@ -602,7 +602,7 @@ k8s.io/apimachinery/pkg/util/yaml
 k8s.io/apimachinery/pkg/version
 k8s.io/apimachinery/pkg/watch
 k8s.io/apimachinery/third_party/forked/golang/reflect
-# k8s.io/client-go v0.36.2
+# k8s.io/client-go v0.36.4
 ## explicit; go 1.26.0
 k8s.io/client-go/features
 k8s.io/client-go/pkg/apis/clientauthentication

@@ -1,11 +1,11 @@
 module github.com/cloudfoundry/cf_exporter/v2
 
-go 1.26.5
+go 1.26.7
 
 require (
 	code.cloudfoundry.org/bbs v1.12.0
 	code.cloudfoundry.org/bbs/models v1.8.0
-	code.cloudfoundry.org/cli/v8 v8.18.4
+	code.cloudfoundry.org/cli/v8 v8.19.0
 	code.cloudfoundry.org/lager/v3 v3.84.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.14.0
@@ -19,13 +19,13 @@ require (
 require (
 	code.cloudfoundry.org/bbs/encryption v1.9.0 // indirect
 	code.cloudfoundry.org/bbs/format v1.9.0 // indirect
-	code.cloudfoundry.org/bytefmt v0.78.0 // indirect
+	code.cloudfoundry.org/bytefmt v0.86.0 // indirect
 	code.cloudfoundry.org/cfhttp/v2 v2.83.0 // indirect
-	code.cloudfoundry.org/clock v1.76.0 // indirect
+	code.cloudfoundry.org/clock v1.84.0 // indirect
 	code.cloudfoundry.org/go-log-cache/v2 v2.0.7 // indirect
 	code.cloudfoundry.org/go-loggregator/v9 v9.2.1 // indirect
 	code.cloudfoundry.org/jsonry v1.1.4 // indirect
-	code.cloudfoundry.org/tlsconfig v0.60.0 // indirect
+	code.cloudfoundry.org/tlsconfig v0.65.0 // indirect
 	code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
@@ -56,7 +56,7 @@ require (
 	github.com/lunixbochs/vtclean v1.0.0 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect
-	github.com/mattn/go-runewidth v0.0.24 // indirect
+	github.com/mattn/go-runewidth v0.0.28 // indirect
 	github.com/moby/term v0.5.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee // indirect
@@ -93,8 +93,8 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	k8s.io/apimachinery v0.36.2 // indirect
-	k8s.io/client-go v0.36.2 // indirect
+	k8s.io/apimachinery v0.36.4 // indirect
+	k8s.io/client-go v0.36.4 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20260624041617-8f3fa4921821 // indirect
 	k8s.io/utils v0.0.0-20260626114624-be93311217bd // indirect
