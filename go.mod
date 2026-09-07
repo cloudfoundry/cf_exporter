@@ -4,7 +4,7 @@ go 1.26.7
 
 require (
 	code.cloudfoundry.org/bbs v1.12.0
-	code.cloudfoundry.org/bbs/models v1.8.0
+	code.cloudfoundry.org/bbs/models v1.9.0
 	code.cloudfoundry.org/cli/v8 v8.19.0
 	code.cloudfoundry.org/lager/v3 v3.85.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
@@ -48,7 +48,7 @@ require (
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20260830191439-4932ad3515ea // indirect
+	github.com/google/pprof v0.0.0-20260903180319-d6c3cb2f37ec // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
 	github.com/jessevdk/go-flags v1.6.1 // indirect
