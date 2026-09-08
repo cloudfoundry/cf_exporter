@@ -3,7 +3,7 @@ module github.com/cloudfoundry/cf_exporter/v2
 go 1.26.7
 
 require (
-	code.cloudfoundry.org/bbs v1.13.0
+	code.cloudfoundry.org/bbs v1.16.0
 	code.cloudfoundry.org/bbs/models v1.12.0
 	code.cloudfoundry.org/cli/v8 v8.19.0
 	code.cloudfoundry.org/lager/v3 v3.85.0
