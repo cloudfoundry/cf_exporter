@@ -4,7 +4,7 @@ go 1.26.7
 
 require (
 	code.cloudfoundry.org/bbs v1.13.0
-	code.cloudfoundry.org/bbs/models v1.9.0
+	code.cloudfoundry.org/bbs/models v1.12.0
 	code.cloudfoundry.org/cli/v8 v8.19.0
 	code.cloudfoundry.org/lager/v3 v3.85.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
@@ -17,8 +17,8 @@ require (
 )
 
 require (
-	code.cloudfoundry.org/bbs/encryption v1.9.0 // indirect
-	code.cloudfoundry.org/bbs/format v1.9.0 // indirect
+	code.cloudfoundry.org/bbs/encryption v1.11.0 // indirect
+	code.cloudfoundry.org/bbs/format v1.10.0 // indirect
 	code.cloudfoundry.org/bytefmt v0.86.0 // indirect
 	code.cloudfoundry.org/cfhttp/v2 v2.93.0 // indirect
 	code.cloudfoundry.org/clock v1.86.0 // indirect
