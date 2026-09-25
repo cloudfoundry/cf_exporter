@@ -1,4 +1,4 @@
-# code.cloudfoundry.org/bbs v1.17.0
+# code.cloudfoundry.org/bbs v1.18.0
 ## explicit; go 1.26.2
 code.cloudfoundry.org/bbs
 code.cloudfoundry.org/bbs/events
@@ -15,8 +15,8 @@ code.cloudfoundry.org/bbs/models
 # code.cloudfoundry.org/bytefmt v0.86.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/bytefmt
-# code.cloudfoundry.org/cfhttp/v2 v2.94.0
-## explicit; go 1.25.0
+# code.cloudfoundry.org/cfhttp/v2 v2.95.0
+## explicit; go 1.26.0
 code.cloudfoundry.org/cfhttp/v2
 # code.cloudfoundry.org/cli/v8 v8.19.0
 ## explicit; go 1.26.7
@@ -69,8 +69,8 @@ code.cloudfoundry.org/cli/v8/util/trace
 code.cloudfoundry.org/cli/v8/util/ui
 code.cloudfoundry.org/cli/v8/util/unique
 code.cloudfoundry.org/cli/v8/version
-# code.cloudfoundry.org/clock v1.87.0
-## explicit; go 1.25.0
+# code.cloudfoundry.org/clock v1.88.0
+## explicit; go 1.26.0
 code.cloudfoundry.org/clock
 # code.cloudfoundry.org/go-log-cache/v2 v2.0.7
 ## explicit; go 1.21
@@ -90,7 +90,7 @@ code.cloudfoundry.org/jsonry/internal/tree
 ## explicit; go 1.26.0
 code.cloudfoundry.org/lager/v3
 code.cloudfoundry.org/lager/v3/internal/truncate
-# code.cloudfoundry.org/tlsconfig v0.66.0
+# code.cloudfoundry.org/tlsconfig v0.67.0
 ## explicit; go 1.26.0
 code.cloudfoundry.org/tlsconfig
 # code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d
@@ -432,15 +432,15 @@ golang.org/x/tools/internal/pkgbits
 golang.org/x/tools/internal/stdlib
 golang.org/x/tools/internal/typesinternal
 golang.org/x/tools/internal/versions
-# google.golang.org/genproto/googleapis/api v0.0.0-20260622175928-b703f567277d
+# google.golang.org/genproto/googleapis/api v0.0.0-20260706201446-f0a921348800
 ## explicit; go 1.25.0
 google.golang.org/genproto/googleapis/api
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/api/httpbody
-# google.golang.org/genproto/googleapis/rpc v0.0.0-20260911204522-f61a6ca850bd
-## explicit; go 1.25.0
+# google.golang.org/genproto/googleapis/rpc v0.0.0-20260921155816-b14227669459
+## explicit; go 1.26.0
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.83.2
+# google.golang.org/grpc v1.84.0
 ## explicit; go 1.25.0
 google.golang.org/grpc
 google.golang.org/grpc/attributes
