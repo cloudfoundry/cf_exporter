@@ -4,7 +4,7 @@ go 1.26.7
 
 require (
 	code.cloudfoundry.org/bbs v1.18.0
-	code.cloudfoundry.org/bbs/models v1.13.0
+	code.cloudfoundry.org/bbs/models v1.14.0
 	code.cloudfoundry.org/cli/v8 v8.19.0
 	code.cloudfoundry.org/lager/v3 v3.88.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
