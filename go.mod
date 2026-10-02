@@ -6,7 +6,7 @@ require (
 	code.cloudfoundry.org/bbs v1.21.0
 	code.cloudfoundry.org/bbs/models v1.18.0
 	code.cloudfoundry.org/cli/v8 v8.19.0
-	code.cloudfoundry.org/lager/v3 v3.88.0
+	code.cloudfoundry.org/lager/v3 v3.89.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/cloudfoundry-community/go-cf-clients-helper/v2 v2.14.0
 	github.com/onsi/ginkgo v1.16.5
