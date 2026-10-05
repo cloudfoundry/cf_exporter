@@ -1,4 +1,4 @@
-# code.cloudfoundry.org/bbs v1.21.0
+# code.cloudfoundry.org/bbs v1.22.0
 ## explicit; go 1.26.2
 code.cloudfoundry.org/bbs
 code.cloudfoundry.org/bbs/events
@@ -15,7 +15,7 @@ code.cloudfoundry.org/bbs/models
 # code.cloudfoundry.org/bytefmt v0.86.0
 ## explicit; go 1.25.0
 code.cloudfoundry.org/bytefmt
-# code.cloudfoundry.org/cfhttp/v2 v2.95.0
+# code.cloudfoundry.org/cfhttp/v2 v2.97.0
 ## explicit; go 1.26.0
 code.cloudfoundry.org/cfhttp/v2
 # code.cloudfoundry.org/cli/v8 v8.19.0
@@ -69,7 +69,7 @@ code.cloudfoundry.org/cli/v8/util/trace
 code.cloudfoundry.org/cli/v8/util/ui
 code.cloudfoundry.org/cli/v8/util/unique
 code.cloudfoundry.org/cli/v8/version
-# code.cloudfoundry.org/clock v1.88.0
+# code.cloudfoundry.org/clock v1.90.0
 ## explicit; go 1.26.0
 code.cloudfoundry.org/clock
 # code.cloudfoundry.org/go-log-cache/v2 v2.0.7
@@ -90,7 +90,7 @@ code.cloudfoundry.org/jsonry/internal/tree
 ## explicit; go 1.26.0
 code.cloudfoundry.org/lager/v3
 code.cloudfoundry.org/lager/v3/internal/truncate
-# code.cloudfoundry.org/tlsconfig v0.67.0
+# code.cloudfoundry.org/tlsconfig v0.68.0
 ## explicit; go 1.26.0
 code.cloudfoundry.org/tlsconfig
 # code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d
@@ -437,7 +437,7 @@ golang.org/x/tools/internal/versions
 google.golang.org/genproto/googleapis/api
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/api/httpbody
-# google.golang.org/genproto/googleapis/rpc v0.0.0-20260921155816-b14227669459
+# google.golang.org/genproto/googleapis/rpc v0.0.0-20260928230214-8a89bd6388cc
 ## explicit; go 1.26.0
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.84.0
