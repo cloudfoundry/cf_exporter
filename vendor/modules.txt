@@ -86,7 +86,7 @@ code.cloudfoundry.org/jsonry
 code.cloudfoundry.org/jsonry/internal/errorcontext
 code.cloudfoundry.org/jsonry/internal/path
 code.cloudfoundry.org/jsonry/internal/tree
-# code.cloudfoundry.org/lager/v3 v3.89.0
+# code.cloudfoundry.org/lager/v3 v3.90.0
 ## explicit; go 1.26.0
 code.cloudfoundry.org/lager/v3
 code.cloudfoundry.org/lager/v3/internal/truncate
