@@ -1,4 +1,4 @@
-# code.cloudfoundry.org/bbs v1.22.0
+# code.cloudfoundry.org/bbs v1.23.0
 ## explicit; go 1.26.2
 code.cloudfoundry.org/bbs
 code.cloudfoundry.org/bbs/events
@@ -436,7 +436,7 @@ golang.org/x/tools/internal/versions
 google.golang.org/genproto/googleapis/api
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/api/httpbody
-# google.golang.org/genproto/googleapis/rpc v0.0.0-20260928230214-8a89bd6388cc
+# google.golang.org/genproto/googleapis/rpc v0.0.0-20261005182115-fad411399dd8
 ## explicit; go 1.26.0
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.84.0
