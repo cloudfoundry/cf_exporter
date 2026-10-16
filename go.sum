@@ -1,5 +1,5 @@
-code.cloudfoundry.org/bbs v1.23.0 h1:I4cN0YtTNGPERbR6hErpJ1s9iDNqclLLqzpu8XXfvqs=
-code.cloudfoundry.org/bbs v1.23.0/go.mod h1:CTT2MJbarvVvYP2x8PQoO/iI0U2Uv7rzrkWbOBY20a0=
+code.cloudfoundry.org/bbs v1.25.0 h1:ruVVkbr+7HEO1MTjZluTFwGNWdM9WBKshKoppdBw8t0=
+code.cloudfoundry.org/bbs v1.25.0/go.mod h1:slWBu93tShvEaxw61n+WACKOyMpQ99xnjRF5d1j8mfs=
 code.cloudfoundry.org/bbs/encryption v1.20.0 h1:tt/u/32io95bMlVww/b1l8bEC6bLGQAZwdbXtT7cj/E=
 code.cloudfoundry.org/bbs/encryption v1.20.0/go.mod h1:qFSYO3ghlbUQQ/77qc1ojan87/BMcor3rUc40FDPFBQ=
 code.cloudfoundry.org/bbs/format v1.16.0 h1:Cuthq+dkzZ4vS8j3WgJDktu6N9sGAEAZLY+W9dQF/OI=
