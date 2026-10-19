@@ -12,14 +12,14 @@ code.cloudfoundry.org/bbs/format
 # code.cloudfoundry.org/bbs/models v1.21.0
 ## explicit; go 1.26.2
 code.cloudfoundry.org/bbs/models
-# code.cloudfoundry.org/bytefmt v0.86.0
-## explicit; go 1.25.0
+# code.cloudfoundry.org/bytefmt v0.93.0
+## explicit; go 1.26.0
 code.cloudfoundry.org/bytefmt
 # code.cloudfoundry.org/cfhttp/v2 v2.97.0
 ## explicit; go 1.26.0
 code.cloudfoundry.org/cfhttp/v2
-# code.cloudfoundry.org/cli/v8 v8.19.0
-## explicit; go 1.26.7
+# code.cloudfoundry.org/cli/v8 v8.19.1
+## explicit; go 1.26.9
 code.cloudfoundry.org/cli/v8/actor/actionerror
 code.cloudfoundry.org/cli/v8/actor/sharedaction
 code.cloudfoundry.org/cli/v8/actor/v7action
@@ -61,6 +61,7 @@ code.cloudfoundry.org/cli/v8/util/configv3
 code.cloudfoundry.org/cli/v8/util/download
 code.cloudfoundry.org/cli/v8/util/extract
 code.cloudfoundry.org/cli/v8/util/generic
+code.cloudfoundry.org/cli/v8/util/jwt
 code.cloudfoundry.org/cli/v8/util/lookuptable
 code.cloudfoundry.org/cli/v8/util/manifest
 code.cloudfoundry.org/cli/v8/util/railway
@@ -69,7 +70,7 @@ code.cloudfoundry.org/cli/v8/util/trace
 code.cloudfoundry.org/cli/v8/util/ui
 code.cloudfoundry.org/cli/v8/util/unique
 code.cloudfoundry.org/cli/v8/version
-# code.cloudfoundry.org/clock v1.90.0
+# code.cloudfoundry.org/clock v1.91.0
 ## explicit; go 1.26.0
 code.cloudfoundry.org/clock
 # code.cloudfoundry.org/go-log-cache/v2 v2.0.7
@@ -103,12 +104,6 @@ github.com/Azure/go-ansiterm/winterm
 # github.com/Masterminds/semver/v3 v3.5.0
 ## explicit; go 1.21
 github.com/Masterminds/semver/v3
-# github.com/SermoDigital/jose v0.9.2-0.20161205224733-f6df55f235c2
-## explicit
-github.com/SermoDigital/jose
-github.com/SermoDigital/jose/crypto
-github.com/SermoDigital/jose/jws
-github.com/SermoDigital/jose/jwt
 # github.com/alecthomas/kingpin/v2 v2.4.0
 ## explicit; go 1.17
 github.com/alecthomas/kingpin/v2
@@ -171,6 +166,9 @@ github.com/gogo/protobuf/gogoproto
 github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/protoc-gen-gogo/descriptor
 github.com/gogo/protobuf/sortkeys
+# github.com/golang-jwt/jwt/v5 v5.3.1
+## explicit; go 1.21
+github.com/golang-jwt/jwt/v5
 # github.com/google/go-cmp v0.7.0
 ## explicit; go 1.21
 github.com/google/go-cmp/cmp
@@ -198,13 +196,13 @@ github.com/json-iterator/go
 # github.com/lunixbochs/vtclean v1.0.0
 ## explicit
 github.com/lunixbochs/vtclean
-# github.com/mattn/go-colorable v0.1.15
+# github.com/mattn/go-colorable v0.1.16
 ## explicit; go 1.18
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.22
 ## explicit; go 1.21
 github.com/mattn/go-isatty
-# github.com/mattn/go-runewidth v0.0.28
+# github.com/mattn/go-runewidth v0.0.31
 ## explicit; go 1.23
 github.com/mattn/go-runewidth
 # github.com/moby/term v0.5.2
@@ -558,7 +556,7 @@ gopkg.in/tomb.v1
 # gopkg.in/yaml.v2 v2.4.0
 ## explicit; go 1.15
 gopkg.in/yaml.v2
-# k8s.io/apimachinery v0.36.4
+# k8s.io/apimachinery v0.37.1
 ## explicit; go 1.26.0
 k8s.io/apimachinery/pkg/api/errors
 k8s.io/apimachinery/pkg/api/meta
@@ -601,7 +599,7 @@ k8s.io/apimachinery/pkg/util/yaml
 k8s.io/apimachinery/pkg/version
 k8s.io/apimachinery/pkg/watch
 k8s.io/apimachinery/third_party/forked/golang/reflect
-# k8s.io/client-go v0.36.4
+# k8s.io/client-go v0.37.1
 ## explicit; go 1.26.0
 k8s.io/client-go/features
 k8s.io/client-go/pkg/apis/clientauthentication
@@ -639,8 +637,8 @@ k8s.io/klog/v2/internal/severity
 k8s.io/klog/v2/internal/sloghandler
 k8s.io/klog/v2/internal/verbosity
 k8s.io/klog/v2/textlogger
-# k8s.io/kube-openapi v0.0.0-20260624041617-8f3fa4921821
-## explicit; go 1.24.0
+# k8s.io/kube-openapi v0.0.0-20260721132016-d427ff9ee9ad
+## explicit; go 1.25.0
 k8s.io/kube-openapi/pkg/util
 # k8s.io/utils v0.0.0-20260626114624-be93311217bd
 ## explicit; go 1.23
@@ -657,7 +655,7 @@ sigs.k8s.io/json/internal/golang/encoding/json
 ## explicit; go 1.18
 sigs.k8s.io/randfill
 sigs.k8s.io/randfill/bytesource
-# sigs.k8s.io/structured-merge-diff/v6 v6.4.0
+# sigs.k8s.io/structured-merge-diff/v6 v6.4.2
 ## explicit; go 1.23
 sigs.k8s.io/structured-merge-diff/v6/value
 # sigs.k8s.io/yaml v1.6.0
