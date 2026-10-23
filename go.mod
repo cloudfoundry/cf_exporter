@@ -3,7 +3,7 @@ module github.com/cloudfoundry/cf_exporter/v2
 go 1.26.9
 
 require (
-	code.cloudfoundry.org/bbs v1.25.0
+	code.cloudfoundry.org/bbs v1.26.0
 	code.cloudfoundry.org/bbs/models v1.21.0
 	code.cloudfoundry.org/cli/v8 v8.19.1
 	code.cloudfoundry.org/lager/v3 v3.91.0
@@ -17,15 +17,15 @@ require (
 )
 
 require (
-	code.cloudfoundry.org/bbs/encryption v1.20.0 // indirect
+	code.cloudfoundry.org/bbs/encryption v1.21.0 // indirect
 	code.cloudfoundry.org/bbs/format v1.16.0 // indirect
 	code.cloudfoundry.org/bytefmt v0.93.0 // indirect
-	code.cloudfoundry.org/cfhttp/v2 v2.97.0 // indirect
-	code.cloudfoundry.org/clock v1.91.0 // indirect
+	code.cloudfoundry.org/cfhttp/v2 v2.99.0 // indirect
+	code.cloudfoundry.org/clock v1.92.0 // indirect
 	code.cloudfoundry.org/go-log-cache/v2 v2.0.7 // indirect
 	code.cloudfoundry.org/go-loggregator/v9 v9.2.1 // indirect
 	code.cloudfoundry.org/jsonry v1.1.4 // indirect
-	code.cloudfoundry.org/tlsconfig v0.68.0 // indirect
+	code.cloudfoundry.org/tlsconfig v0.69.0 // indirect
 	code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
@@ -48,7 +48,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20261012231050-2af12c3f4d87 // indirect
+	github.com/google/pprof v0.0.0-20261016150608-1facf8f91b50 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
 	github.com/jessevdk/go-flags v1.6.1 // indirect
@@ -86,7 +86,7 @@ require (
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.52.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260706201446-f0a921348800 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20261005182115-fad411399dd8 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261019180522-ce908d29299b // indirect
 	google.golang.org/grpc v1.84.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28 // indirect
