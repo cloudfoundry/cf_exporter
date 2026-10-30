@@ -3,13 +3,13 @@
 code.cloudfoundry.org/bbs
 code.cloudfoundry.org/bbs/events
 code.cloudfoundry.org/bbs/trace
-# code.cloudfoundry.org/bbs/encryption v1.21.0
+# code.cloudfoundry.org/bbs/encryption v1.25.0
 ## explicit; go 1.26.2
 code.cloudfoundry.org/bbs/encryption
-# code.cloudfoundry.org/bbs/format v1.16.0
+# code.cloudfoundry.org/bbs/format v1.18.0
 ## explicit; go 1.26.2
 code.cloudfoundry.org/bbs/format
-# code.cloudfoundry.org/bbs/models v1.22.0
+# code.cloudfoundry.org/bbs/models v1.25.0
 ## explicit; go 1.26.2
 code.cloudfoundry.org/bbs/models
 # code.cloudfoundry.org/bytefmt v0.93.0
@@ -176,7 +176,7 @@ github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/google/pprof v0.0.0-20261016150608-1facf8f91b50
+# github.com/google/pprof v0.0.0-20261026192309-dbd0ed30aa88
 ## explicit; go 1.26.0
 github.com/google/pprof/profile
 # github.com/google/uuid v1.6.0

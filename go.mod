@@ -4,7 +4,7 @@ go 1.27.3
 
 require (
 	code.cloudfoundry.org/bbs v1.26.0
-	code.cloudfoundry.org/bbs/models v1.22.0
+	code.cloudfoundry.org/bbs/models v1.25.0
 	code.cloudfoundry.org/cli/v8 v8.19.1
 	code.cloudfoundry.org/lager/v3 v3.92.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
@@ -17,8 +17,8 @@ require (
 )
 
 require (
-	code.cloudfoundry.org/bbs/encryption v1.21.0 // indirect
-	code.cloudfoundry.org/bbs/format v1.16.0 // indirect
+	code.cloudfoundry.org/bbs/encryption v1.25.0 // indirect
+	code.cloudfoundry.org/bbs/format v1.18.0 // indirect
 	code.cloudfoundry.org/bytefmt v0.93.0 // indirect
 	code.cloudfoundry.org/cfhttp/v2 v2.99.0 // indirect
 	code.cloudfoundry.org/clock v1.92.0 // indirect
@@ -48,7 +48,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20261016150608-1facf8f91b50 // indirect
+	github.com/google/pprof v0.0.0-20261026192309-dbd0ed30aa88 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
 	github.com/jessevdk/go-flags v1.6.1 // indirect
