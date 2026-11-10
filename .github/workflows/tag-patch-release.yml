@@ -1,0 +1,51 @@
+name: Tag Patch Release
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 20 * *'  # Monthly on the 20th at 00:00 UTC
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tag-patch-release
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest default branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          token: ${{ secrets.CF_PROM_CI_BOT_TOKEN }}
+
+      - name: Create and push next patch tag
+        shell: bash
+        run: |
+          latest_tag=$(git tag --list --sort=version:refname |
+            awk '/^v[0-9]+\.[0-9]+\.[0-9]+$/ { tag=$0 } END { print tag }')
+
+          if [[ -z "$latest_tag" ]]; then
+            echo "::error::No stable vMAJOR.MINOR.PATCH tag found."
+            exit 1
+          fi
+
+          if [[ "$(git rev-parse "$latest_tag^{commit}")" == "$(git rev-parse HEAD)" ]]; then
+            echo "::error::The latest commit is already tagged as $latest_tag."
+            exit 1
+          fi
+
+          IFS=. read -r major minor patch <<< "${latest_tag#v}"
+          next_tag="v${major}.${minor}.$((10#$patch + 1))"
+
+          git config user.name "cf-prometheus-ci-bot"
+          git config user.email "184612680+cf-prometheus-ci-bot@users.noreply.github.com"
+          git tag -a "$next_tag" -m "Release $next_tag"
+          git push origin "refs/tags/$next_tag"
+
+          echo "Tagged $(git rev-parse HEAD) as $next_tag." >> "$GITHUB_STEP_SUMMARY"
