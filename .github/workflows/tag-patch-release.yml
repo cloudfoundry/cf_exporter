@@ -1,4 +1,4 @@
-name: Tag Patch Release
+name: Tag Release
 
 on:
   workflow_dispatch:
@@ -24,7 +24,8 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.CF_PROM_CI_BOT_TOKEN }}
 
-      - name: Create and push next patch tag
+      - name: Check release baseline
+        id: baseline
         shell: bash
         run: |
           latest_tag=$(git tag --list --sort=version:refname |
@@ -40,12 +41,25 @@ jobs:
             exit 1
           fi
 
-          IFS=. read -r major minor patch <<< "${latest_tag#v}"
-          next_tag="v${major}.${minor}.$((10#$patch + 1))"
+          echo "previous_tag=$latest_tag" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-          git config user.name "cf-prometheus-ci-bot"
-          git config user.email "184612680+cf-prometheus-ci-bot@users.noreply.github.com"
-          git tag -a "$next_tag" -m "Release $next_tag"
-          git push origin "refs/tags/$next_tag"
+      - name: Create and push next release tag
+        id: tag
+        uses: mathieudutour/github-tag-action@v7
+        with:
+          github_token: ${{ secrets.CF_PROM_CI_BOT_TOKEN }}
+          previous_tag: ${{ steps.baseline.outputs.previous_tag }}
+          commit_sha: ${{ steps.baseline.outputs.commit_sha }}
+          release_branches: ${{ github.event.repository.default_branch }}
+          tag_prefix: v
+          create_annotated_tag: true
+          fetch_all_tags: true
 
-          echo "Tagged $(git rev-parse HEAD) as $next_tag." >> "$GITHUB_STEP_SUMMARY"
+      - name: Summarize release
+        if: steps.tag.outputs.new_tag != ''
+        env:
+          COMMIT_SHA: ${{ steps.baseline.outputs.commit_sha }}
+          NEW_TAG: ${{ steps.tag.outputs.new_tag }}
+        run: |
+          echo "Tagged $COMMIT_SHA as $NEW_TAG." >> "$GITHUB_STEP_SUMMARY"
