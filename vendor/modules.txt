@@ -1,4 +1,4 @@
-# code.cloudfoundry.org/bbs v1.31.0
+# code.cloudfoundry.org/bbs v1.34.0
 ## explicit; go 1.27.3
 code.cloudfoundry.org/bbs
 code.cloudfoundry.org/bbs/events
