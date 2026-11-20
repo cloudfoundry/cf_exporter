@@ -4,7 +4,7 @@ go 1.27.4
 
 require (
 	code.cloudfoundry.org/bbs v1.34.0
-	code.cloudfoundry.org/bbs/models v1.29.0
+	code.cloudfoundry.org/bbs/models v1.30.0
 	code.cloudfoundry.org/cli/v8 v8.19.1
 	code.cloudfoundry.org/lager/v3 v3.95.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
@@ -48,7 +48,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20261105003125-4bf881d7fb0b // indirect
+	github.com/google/pprof v0.0.0-20261111200114-fac431ef4d26 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
 	github.com/jessevdk/go-flags v1.6.1 // indirect
