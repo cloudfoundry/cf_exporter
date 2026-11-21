@@ -32,7 +32,7 @@ func NewBuildpacksCollector(
 			Help:        "Labeled Cloud Foundry Buildpack information with a constant '1' value.",
 			ConstLabels: prometheus.Labels{"environment": environment, "deployment": deployment},
 		},
-		[]string{"buildpack_id", "buildpack_name", "buildpack_stack", "buildpack_filename"},
+		[]string{"buildpack_id", "buildpack_name", "buildpack_stack", "buildpack_filename", "buildpack_lifecycle"},
 	)
 
 	buildpacksScrapesTotalMetric := prometheus.NewCounter(
@@ -136,6 +136,7 @@ func (c BuildpacksCollector) reportBuildpacksMetrics(objs *models.CFObjects, ch 
 			buildpack.Name,
 			buildpack.Stack,
 			buildpack.Filename,
+			buildpack.Lifecycle,
 		).Set(float64(1))
 	}
 
