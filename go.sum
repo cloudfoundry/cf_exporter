@@ -26,8 +26,8 @@ code.cloudfoundry.org/gofileutils v0.0.0-20170111115228-4d0c80011a0f h1:UrKzEwTg
 code.cloudfoundry.org/gofileutils v0.0.0-20170111115228-4d0c80011a0f/go.mod h1:sk5LnIjB/nIEU7yP5sDQExVm62wu0pBh3yrElngUisI=
 code.cloudfoundry.org/jsonry v1.1.4 h1:P9N7IlH1/4aRCLcXLgLFj1hkcBmV7muijJzY+K6U4hE=
 code.cloudfoundry.org/jsonry v1.1.4/go.mod h1:6aKilShQP7w/Ez76h1El2/n9y2OkHuU56nKSBB9Gp0A=
-code.cloudfoundry.org/lager/v3 v3.96.0 h1:DdtF0GmQGtQFo3MsQ4TVKzXek3lxExLIx6RLJVEhvDQ=
-code.cloudfoundry.org/lager/v3 v3.96.0/go.mod h1:9EbkTFyH//ebfoq9naFQ3mAWoICgsQMjpgMwjxVV3ik=
+code.cloudfoundry.org/lager/v3 v3.97.0 h1:rbENHk56U4MpTkWJ7bmm0il9iu7ugLYItCP0aa+nKvg=
+code.cloudfoundry.org/lager/v3 v3.97.0/go.mod h1:jBRgS/HFbvVbw6LE/0ERvaTK2h2zss/M/nT0Qut0Q2o=
 code.cloudfoundry.org/tlsconfig v0.73.0 h1:6WB6kvdPG7A/xYLXsm1lwo/LXDrzNxFuCR+XwIjtao0=
 code.cloudfoundry.org/tlsconfig v0.73.0/go.mod h1:twFQQhC2Yat+LH8MYckpV5gfWMB127kfnqqlSN3FZ2k=
 code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d h1:M+zXqtXJqcsmpL76aU0tdl1ho23eYa4axYoM4gD62UA=
