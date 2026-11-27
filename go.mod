@@ -4,7 +4,7 @@ go 1.27.4
 
 require (
 	code.cloudfoundry.org/bbs v1.35.0
-	code.cloudfoundry.org/bbs/models v1.30.0
+	code.cloudfoundry.org/bbs/models v1.33.0
 	code.cloudfoundry.org/cli/v8 v8.19.1
 	code.cloudfoundry.org/lager/v3 v3.96.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
@@ -17,8 +17,8 @@ require (
 )
 
 require (
-	code.cloudfoundry.org/bbs/encryption v1.28.0 // indirect
-	code.cloudfoundry.org/bbs/format v1.20.0 // indirect
+	code.cloudfoundry.org/bbs/encryption v1.31.0 // indirect
+	code.cloudfoundry.org/bbs/format v1.22.0 // indirect
 	code.cloudfoundry.org/bytefmt v0.93.0 // indirect
 	code.cloudfoundry.org/cfhttp/v2 v2.103.0 // indirect
 	code.cloudfoundry.org/clock v1.96.0 // indirect
@@ -48,7 +48,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20261111200114-fac431ef4d26 // indirect
+	github.com/google/pprof v0.0.0-20261118010117-084b33a85f63 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
 	github.com/jessevdk/go-flags v1.6.1 // indirect
@@ -78,14 +78,14 @@ require (
 	go.yaml.in/yaml/v3 v3.0.6 // indirect
 	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/mod v0.43.0 // indirect
-	golang.org/x/net v0.62.0 // indirect
+	golang.org/x/net v0.63.0 // indirect
 	golang.org/x/oauth2 v0.38.0 // indirect
 	golang.org/x/sync v0.25.0 // indirect
 	golang.org/x/sys v0.50.0 // indirect
 	golang.org/x/term v0.48.0 // indirect
 	golang.org/x/text v0.44.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	golang.org/x/tools v0.52.0 // indirect
+	golang.org/x/tools v0.53.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260817212433-ac3dfec99bb1 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20261116203732-fd2c7689a808 // indirect
 	google.golang.org/grpc v1.85.0 // indirect
