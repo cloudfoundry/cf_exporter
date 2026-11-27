@@ -3,7 +3,7 @@ module github.com/cloudfoundry/cf_exporter/v2
 go 1.27.4
 
 require (
-	code.cloudfoundry.org/bbs v1.35.0
+	code.cloudfoundry.org/bbs v1.38.0
 	code.cloudfoundry.org/bbs/models v1.33.0
 	code.cloudfoundry.org/cli/v8 v8.19.1
 	code.cloudfoundry.org/lager/v3 v3.96.0
@@ -20,12 +20,12 @@ require (
 	code.cloudfoundry.org/bbs/encryption v1.31.0 // indirect
 	code.cloudfoundry.org/bbs/format v1.22.0 // indirect
 	code.cloudfoundry.org/bytefmt v0.93.0 // indirect
-	code.cloudfoundry.org/cfhttp/v2 v2.103.0 // indirect
-	code.cloudfoundry.org/clock v1.96.0 // indirect
+	code.cloudfoundry.org/cfhttp/v2 v2.104.0 // indirect
+	code.cloudfoundry.org/clock v1.97.0 // indirect
 	code.cloudfoundry.org/go-log-cache/v2 v2.0.7 // indirect
 	code.cloudfoundry.org/go-loggregator/v9 v9.2.1 // indirect
 	code.cloudfoundry.org/jsonry v1.1.4 // indirect
-	code.cloudfoundry.org/tlsconfig v0.72.0 // indirect
+	code.cloudfoundry.org/tlsconfig v0.73.0 // indirect
 	code.cloudfoundry.org/ykk v0.0.0-20170424192843-e4df4ce2fd4d // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
@@ -87,7 +87,7 @@ require (
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.53.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260817212433-ac3dfec99bb1 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20261116203732-fd2c7689a808 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261123191846-1e707ab9fbc2 // indirect
 	google.golang.org/grpc v1.85.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28 // indirect
